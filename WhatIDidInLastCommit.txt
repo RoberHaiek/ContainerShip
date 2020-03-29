@@ -1,0 +1,17 @@
+The flow is as following:
+in the main the ship is initialized with the route (array of ports) - one by one in order
+int  width, length, max height
+instructions (each cell in this array represents a port, each cell contains an array of size 2, first cell is for containers to be loaded, second is for unloading)
+
+then the main calls "ship.start", and the trip begins
+start goes over all the ports and activates stowage
+stowage calls optimize (which calls weightbalance)
+optimize calculates the optimal instructions and returns a 2D array, each cell represents a container, each cell contains an array of size 5:
+1- uniqueId of the container
+2- is it to be loaded or unloaded?
+where?
+3- width
+4- length
+5- is it to be loaded from the temporary array, is it to be loaded to the temporary array?
+
+Then after loading/unloading everything, go to the next port
