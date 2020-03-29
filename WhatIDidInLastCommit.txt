@@ -15,3 +15,8 @@ where?
 5- is it to be loaded from the temporary array, is it to be loaded to the temporary array?
 
 Then after loading/unloading everything, go to the next port
+
+--aubaida addition 
+*i start to implement the simulator but i had many quistion in zbbbbbeeee ...so i asked one on the forum..
+*i added a design of the info file .. u can take a look.
+*you a question in the question file ..don't miss the gift xD
