@@ -5,11 +5,16 @@
 //============================================================================
 
 #include <iostream>
+#include "ContainerShip.h"
 using namespace std;
 
 class Port {
 public:
-	string port;
+	string port="emptyString";
+
+	string toString(){
+	return port;
+}
 };
 
 class Container {
@@ -21,40 +26,51 @@ public:
 
 class Ship {
 public:
-	Container* plan = NULL;
-	Port* route;
+	Container ***plan;
+	Port *route;
 	int weight;
-
-	Ship(Port* givenRoute){
+    /*shipWidth and shipHeight added + fixed the way we init the plan*/
+	Ship(Port *givenRoute, int shipWidth, int shipHeight) {
 		weight = 0;
 		route = givenRoute;
-		plan = new Container[0][0][0];
+		plan = new Container**[shipWidth];
+		for (int i=0; i < shipWidth; i++) {
+			plan[i] = new Container*[shipHeight];
+			for (int j=0; j < shipHeight; j++) {
+				plan[i][j] = new Container;
+			}
+		}
+	}
+	Ship(){
+		std::cout << "Ship --> default constructer" << std::endl;
+		plan =NULL;
+		route=NULL;
+		weight=0;
 	}
 
-	Container* getShipPlan(){
-		return NULL;
+	Container*** getShipPlan() {
+		return plan;
 	}
 
 
-};
 
-void optimize(){
-
-}
-
-void weightBalance(Ship ship){
+void optimize() {
 
 }
 
-void load(Ship ship, Container container){
+void weightBalance(Ship ship) {
 
 }
 
-void unload(Ship ship, Container container){
+void load(Ship ship, Container container) {
 
 }
 
-void stowage(Ship ship, Port currentPort){
+void unload(Ship ship, Container container) {
+
+}
+
+void stowage(Ship ship, Port currentPort) {
 	Container container;
 	optimize();
 	weightBalance(ship);
@@ -63,17 +79,4 @@ void stowage(Ship ship, Port currentPort){
 
 }
 
-void
-
-int main() {
-	Port* route;
-	Ship ship;
-	int currentPort = 0;
-	cout << "Enter route" << endl; // prints !!!Hello World!!!
-	cin >> route;
-	ship = new Ship(route);
-	while(route[currentPort]!=NULL){
-		stowage(ship,route[currentPort]);
-	}
-	return 0;
-}
+};
