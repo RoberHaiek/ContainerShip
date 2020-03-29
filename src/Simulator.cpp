@@ -5,9 +5,9 @@
  *      Author: n_b_a
  */
 
-#include "ContainerShip.h"	// i'll check it later
-#include "ContainerShip.cpp" // i'll check it later
 #include <iostream>
+#include "Ship.cpp" // i'll check it later
+#include "Ship.h"	// i'll check it later
 
 int main() {
 	Port *route;
