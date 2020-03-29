@@ -5,14 +5,15 @@
  *      Author: rober.haiek
  */
 
-#include "Ship.cpp"
 #include "Port.cpp"
+#include <iostream>
+using namespace std;
 
 class Container {
 public:
 	int weight;
 	Port destPort;
-	string uniqueId;
+	string uniqueId;	// 11 digits
 
 	Container(int weight, Port destPort, string uniqueId){
 		this->weight=weight;
@@ -24,13 +25,5 @@ public:
 		this->weight=0;
 		this->destPort=NULL;
 		this->uniqueId=0;
-	}
-
-	void load(Ship ship) {
-
-	}
-
-	void unload(Ship ship) {
-
 	}
 };
