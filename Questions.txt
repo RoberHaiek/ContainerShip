@@ -1,0 +1,13 @@
+Aubaida asks mr.rober :
+	-what Do you mean?>> https://gph.is/2kp62fu <<
+		
+		*in stowage:
+		
+			currentInstructions = optimize();
+			for(int i=0;i<currentInstructions;i++){
+				width = currentInstructions[i][2];
+				length = currentInstructions[i][3];
+				isTemp = currentInstructions[i][4];
+				
+		-- do you mean width == column and length == row??
+
