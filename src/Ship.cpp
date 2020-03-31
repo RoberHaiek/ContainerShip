@@ -59,42 +59,63 @@ public:
 
 	// needs to be done
 	stack<Container>** getShipPlan() {
-		return plan;
+		return planStack;
 	}
 
 	// Calculates the optimal way to load/unload the containers for the current port - returns exact instructions (uniqueId,load/unload,width,length,isTemp?)!
-	string** optimize() {
-		weightBalance();
+	string** optimize(int i) {
+		string** currentInstructions;
+		Container* PortInstructions;
+		bool breakIt=false;
+		PortInstructions = this->instructions[i];
+		for(int currContainer=0;currContainer<PortInstructions->size();currContainer++){	// need to implement size of a dynamic array
+			for(int i=0;i<this->shipWidth;i++){
+				for(int j=0;j<this->shipLength;j++){
+					this->planStack[i][j].push(PortInstructions[currContainer]);
+					if(planStack[i][j].size()<=this->shipHeight && weightBalance()){		// used weight balance :D!
+						currentInstructions = NULL; // need to implement the output
+						breakIt = true;
+						break;
+					}
+				// else:
+					this->planStack[i][j].pop();
+				}
+				if(breakIt){
+					breakIt = false;
+					break;
+				}
+			}
+		}
 		return NULL;
 	}
 
 	bool weightBalance() {
-		return true;
+		return true;	// we have a magical ship
 	}
 
 	void load(Container container,int width, int length) {
-		this.planStack[width][length].push(container);
+		this->planStack[width][length].push(container);
 	}
 
 	void unload(Container container, int width, int length, bool isTemp) {
 		if(isTemp){
-			this->tempContainers.insert(this.planStack[width][length].pop(container));
+			this->tempContainers.insert(this->planStack[width][length].pop());	// need to check what to pass as an argument
 			return;
 		}
-		this.planStack[width][length].pop(container);
+		this->planStack[width][length].pop();
 	}
 
-	void stowage(Port currentPort) {
+	void stowage(Port currentPort,int i) {
 		string** currentInstructions;
 		int width, length;
 		bool isTemp;
 		Container currentContainer;
-		currentInstructions = optimize();
+		currentInstructions = optimize(i);
 		for(int i=0;i<currentInstructions;i++){
 			width = currentInstructions[i][2];
 			length = currentInstructions[i][3];
 			isTemp = currentInstructions[i][4];
-			if(currentInstructions[i][1].equals("load")){
+			if(currentInstructions[i][1].compare("load")==0){
 				if(isTemp){
 					currentContainer = this->tempContainers[currentInstructions[i][0]];	// should be modified!!!
 					load(currentContainer,width,length);
@@ -113,7 +134,7 @@ public:
 	// Captain: "Buckle up, we're starting the trip!"
 	void start(){
 		for(int i=0;i<this->route;i++){
-			stowage(this->route[i]);
+			stowage(this->route[i],i);
 		}
 	}
 
