@@ -1,12 +1,12 @@
 #Ship Info :
 #
 #width       #length        #max_height     
-5				6				3	
+5                6                   3	
 #
 #port(XXXXX) - [weight1 , uid1 , dstPort1][weight2 , uid2 , dstPort2] ....
-AAAAA -[1 , gh121, CCCCC][1 , gh122, CCCCC][1 , gh123, BBBBB]  
-BBBBB -[1 , fh121, CCCCC][1 , fh122, DDDDD]
-CCCCC -[1 , ah121, AAAAA][1 , ah122, DDDDD][1 , ah123, AAAAA]
-DDDDD -[1 , bh121, AAAAA]
-AAAAA -
+AAAAA-[1,gh121,CCCCC][1,gh122,CCCCC][1,gh123,BBBBB]  
+BBBBB-[1,fh121,CCCCC][1,fh122,DDDDD]
+CCCCC-[1,ah121,AAAAA][1,ah122,DDDDD][1,ah123,AAAAA]
+DDDDD-[1,bh121,AAAAA]
+AAAAA-
 #end
