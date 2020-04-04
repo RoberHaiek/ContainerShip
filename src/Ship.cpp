@@ -10,7 +10,7 @@
 #include <stack>
 #include <map>
 #include <iostream>
-#include <list>
+#include <queue>
 using namespace std;
 
 class Ship {
@@ -22,8 +22,8 @@ public:
 	Container **instructions;		// each cell (representing each port in the route) has 2 arrays of containers, 1st one is for loading, 2nd for unloading
 	Port *route;					// array of ports
 	stack<Container> **planStack;	// stack of containers for each cell
-	map<string,int[3]> planMap;		// key = container, value = [width,length,height] of the container
-	list<Container> tempContainers;
+	map<string,int[2]> planMap;		// key = container, value = [row,column] of the container
+	queue<Container> tempContainers;
 
 	Ship(Port *route, int shipWidth, int shipLength, int shipHeight, Container **instructions) {
 		this->weight = 0;
@@ -62,23 +62,86 @@ public:
 		return planStack;
 	}
 
-	// Calculates the optimal way to load/unload the containers for the current port - returns exact instructions (uniqueId,load/unload,width,length,isTemp?)!
-	string** optimize(int i) {
-		string** currentInstructions;
+	int sizeOfArray(Container* array){
+		int c=0;
+		while(true){
+			if(array[c]==NULL)
+				return c;
+			c++;
+		}
+		return 0;
+	}
+
+	bool weightBalance() {
+		return true;	// we have a magical ship
+	}
+
+	void load(Container container,int row, int column) {
+		this->planMap.insert(container.uniqueId,{row,column});
+		this->planStack[row][column].push(container);
+	}
+
+	void unload(Container container, int row, int column, bool isTemp) {
+		this->planMap.erase(container.uniqueId);
+		if(isTemp){
+			this->tempContainers.push(this->planStack[row][column].pop());	// need to check what to pass as an argument
+			return;
+		}
+		this->planStack[row][column].pop();
+	}
+
+	void stowage(int i) {
+		bool bottomContainer, // true if we're popping a container from a stack - need to pop all above it
+			breakIt=false;	  // move to the next container from the port instructions list
+		int instNum = 0,row,column;
+		Container currentContainer;
 		Container* PortInstructions;
-		bool breakIt=false;
+		string** currentInstructions;
 		PortInstructions = this->instructions[i];
-		for(int currContainer=0;currContainer<PortInstructions->size();currContainer++){	// need to implement size of a dynamic array
-			for(int i=0;i<this->shipWidth;i++){
-				for(int j=0;j<this->shipLength;j++){
-					this->planStack[i][j].push(PortInstructions[currContainer]);
-					if(planStack[i][j].size()<=this->shipHeight && weightBalance()){		// used weight balance :D!
-						currentInstructions = NULL; // need to implement the output
+		// unloading containers from SHIP to PORT
+		for(row=0;row<this->shipWidth;row++){
+			for(column=0;column<this->shipLength;column++){
+				bottomContainer=false;
+				while(this->planStack[row][column].hasNext()){		// start from the bottom !!!
+					currentContainer=this->planStack[row][column].top();
+					if(currentContainer.destPort == this->route[i].toString()){	// does this container belong to this port?
+						unload(currentContainer,row,column,false);
+						currentInstructions[instNum] = {currentContainer.uniqueId,"unload",row,column,"false"};
+						instNum++;
+						bottomContainer=true;
+					}
+					else{	// this container does NOT belong to this port
+						if(bottomContainer){	// but should I put it in temp?
+							unload(currentContainer,row,column,true);
+							currentInstructions[instNum] = {currentContainer.uniqueId,"unload",row,column,"true"};
+							instNum++;
+						}
+					}
+				}
+				// loading containers from temp back to ship
+				while(this->tempContainers.hasNext()){
+					currentContainer=this->tempContainers.pop();
+					load(currentContainer,row,column);
+					currentInstructions[instNum]={currentContainer.uniqueId,"load",row,column,"true"};
+					instNum++;
+				}
+			}
+		}
+
+		// loading containers from port to ship
+		for(int p=0;p<sizeOfArray(PortInstructions);p++){
+			currentContainer=PortInstructions[p];
+			for(row=0;row<this->shipWidth;row++){
+				for(column=0;column<this->shipLength;column++){
+					load(currentContainer,row,column);
+					if(planStack[row][column].size()<=this->shipHeight && weightBalance()){		// check if we exceeded stack limit, used weight balance :D!
+						currentInstructions[instNum] = {currentContainer.uniqueId,"load",row,column,"false"};
 						breakIt = true;
 						break;
 					}
 				// else:
-					this->planStack[i][j].pop();
+					this->planStack[row][column].pop();
+					this->planMap.erase(currentContainer.uniqueId);
 				}
 				if(breakIt){
 					breakIt = false;
@@ -86,55 +149,14 @@ public:
 				}
 			}
 		}
-		return NULL;
 	}
 
-	bool weightBalance() {
-		return true;	// we have a magical ship
-	}
-
-	void load(Container container,int width, int length) {
-		this->planStack[width][length].push(container);
-	}
-
-	void unload(Container container, int width, int length, bool isTemp) {
-		if(isTemp){
-			this->tempContainers.insert(this->planStack[width][length].pop());	// need to check what to pass as an argument
-			return;
-		}
-		this->planStack[width][length].pop();
-	}
-
-	void stowage(Port currentPort,int i) {
-		string** currentInstructions;
-		int width, length;
-		bool isTemp;
-		Container currentContainer;
-		currentInstructions = optimize(i);
-		for(int i=0;i<currentInstructions;i++){
-			width = currentInstructions[i][2];
-			length = currentInstructions[i][3];
-			isTemp = currentInstructions[i][4];
-			if(currentInstructions[i][1].compare("load")==0){
-				if(isTemp){
-					currentContainer = this->tempContainers[currentInstructions[i][0]];	// should be modified!!!
-					load(currentContainer,width,length);
-				}
-				else{
-					currentContainer = planMap[currentInstructions[i][0]];
-					load(currentContainer,width,length);
-				}
-			}
-			else{
-				unload(currentContainer,width,length,isTemp);
-			}
-		}
-	}
-
-	// Captain: "Buckle up, we're starting the trip!"
+	//
+	// Captain: "This is you captain speaking - Buckle up, we're starting the trip!"
+	//
 	void start(){
 		for(int i=0;i<this->route;i++){
-			stowage(this->route[i],i);
+			stowage(i);
 		}
 	}
 
