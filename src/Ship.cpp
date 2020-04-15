@@ -15,6 +15,11 @@ using namespace std;
 
 class Ship {
 public:
+	struct node
+	{
+	    Container container;
+	    struct node *next;
+	};
 	int weight;
 	int shipWidth;
 	int shipLength;
@@ -24,6 +29,8 @@ public:
 	stack<Container> **planStack;	// stack of containers for each cell
 	map<string,int[2]> planMap;		// key = container, value = [row,column] of the container
 	queue<Container> tempContainers;
+	node **planLinkedList;
+
 
 	Ship(Port *route, int shipWidth, int shipLength, int shipHeight, Container **instructions) {
 		this->weight = 0;
@@ -42,6 +49,7 @@ public:
 		}
 		this->planMap = NULL;
 		this->tempContainers = NULL;
+		this->planLinkedList = NULL;
 	}
 
 	Ship(){
@@ -55,6 +63,7 @@ public:
 		planStack = NULL;
 		planMap = NULL;
 		tempContainers = NULL;
+		planLinkedList = NULL;
 	}
 
 	// needs to be done
@@ -77,71 +86,89 @@ public:
 	}
 
 	void load(Container container,int row, int column) {
-		this->planMap.insert(container.uniqueId,{row,column});
-		this->planStack[row][column].push(container);
+		this->planMap.insert(container.uniqueId,{row,column});	// Adding container to the map
+		this->planStack[row][column].push(container);			// Adding container to stack
+		node *temp,newNode;										// Adding container to linked list
+		newNode = new node;
+		newNode.container=container;
+		newNode.next=NULL;
+		temp=this->planLinkedList[row][column];
+		while((*temp).next!=NULL){
+			temp=(*temp).next;
+		}
+		(*temp).next=newNode;
 	}
 
 	void unload(Container container, int row, int column, bool isTemp) {
+		node *temp,newNode;
+		newNode = new node;
+		newNode.container=container;
+		newNode.next=NULL;
+		temp=this->planLinkedList[row][column];
+		while((*temp).next->container.uniqueId!=container.uniqueId && (*temp).next!=NULL){
+			temp=(*temp).next;
+		}
+		(*temp).next=NULL;
 		this->planMap.erase(container.uniqueId);
 		if(isTemp){
-			this->tempContainers.push(this->planStack[row][column].pop());	// need to check what to pass as an argument
-			return;
+			this->tempContainers.push(container);
 		}
 		this->planStack[row][column].pop();
 	}
 
 	void stowage(int i) {
-		bool bottomContainer, // true if we're popping a container from a stack - need to pop all above it
+		bool popAllAbove, // true if we're popping a container from a stack and we need to pop all above it
 			breakIt=false;	  // move to the next container from the port instructions list
-		int instNum = 0,row,column;
-		Container currentContainer;
+		int instNum = 0,row,column;	// instNum is the instruction number of the returned instructions
+		node currentContainer;
 		Container* PortInstructions;
 		string** currentInstructions;
 		PortInstructions = this->instructions[i];
 		// unloading containers from SHIP to PORT
 		for(row=0;row<this->shipWidth;row++){
 			for(column=0;column<this->shipLength;column++){
-				bottomContainer=false;
-				while(this->planStack[row][column].hasNext()){		// start from the bottom !!!
-					currentContainer=this->planStack[row][column].top();
-					if(currentContainer.destPort == this->route[i].toString()){	// does this container belong to this port?
-						unload(currentContainer,row,column,false);
-						currentInstructions[instNum] = {currentContainer.uniqueId,"unload",row,column,"false"};
+				popAllAbove=false;
+				currentContainer=this->planLinkedList[row][column];
+				while(currentContainer!=NULL){		// starting from the bottom !!!
+					if(currentContainer.container.destPort == this->route[i].toString()){	// does this container belong to this port?
+						unload(currentContainer.container,row,column,false);
+						currentInstructions[instNum] = {currentContainer.container.uniqueId,"unload",row,column,"false"};
 						instNum++;
-						bottomContainer=true;
+						popAllAbove=true;
 					}
 					else{	// this container does NOT belong to this port
-						if(bottomContainer){	// but should I put it in temp?
-							unload(currentContainer,row,column,true);
-							currentInstructions[instNum] = {currentContainer.uniqueId,"unload",row,column,"true"};
+						if(popAllAbove){	// but should I put it in temp?
+							unload(currentContainer.container,row,column,true);
+							currentInstructions[instNum] = {currentContainer.container.uniqueId,"unload",row,column,"true"};
 							instNum++;
 						}
 					}
+					currentContainer=currentContainer.next;
 				}
 				// loading containers from temp back to ship
-				while(this->tempContainers.hasNext()){
+				while(!this->tempContainers.empty()){
 					currentContainer=this->tempContainers.pop();
-					load(currentContainer,row,column);
-					currentInstructions[instNum]={currentContainer.uniqueId,"load",row,column,"true"};
+					load(currentContainer.container,row,column);
+					currentInstructions[instNum]={currentContainer.container.uniqueId,"load",row,column,"true"};
 					instNum++;
 				}
 			}
 		}
-
-		// loading containers from port to ship
+		currentContainer.container=NULL;
+		currentContainer.next=NULL;
+		// loading containers from PORT to SHIP
 		for(int p=0;p<sizeOfArray(PortInstructions);p++){
-			currentContainer=PortInstructions[p];
+			currentContainer.container=PortInstructions[p];
 			for(row=0;row<this->shipWidth;row++){
 				for(column=0;column<this->shipLength;column++){
-					load(currentContainer,row,column);
-					if(planStack[row][column].size()<=this->shipHeight && weightBalance()){		// check if we exceeded stack limit, used weight balance :D!
-						currentInstructions[instNum] = {currentContainer.uniqueId,"load",row,column,"false"};
+					load(currentContainer.container,row,column);
+					if(planStack[row][column].size()<=this->shipHeight && weightBalance()){		// check if we are below stack height limit, used weight balance :D!
+						currentInstructions[instNum] = {currentContainer.container.uniqueId,"load",row,column,"false"};
 						breakIt = true;
 						break;
 					}
 				// else:
-					this->planStack[row][column].pop();
-					this->planMap.erase(currentContainer.uniqueId);
+					unload(currentContainer.container,row,column,false);
 				}
 				if(breakIt){
 					breakIt = false;
