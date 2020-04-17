@@ -6,10 +6,15 @@
  */
 
 #include "Ship.cpp"
+#include "Port.cpp"
+#include "Tester.cpp"
+#include <cctype>
+
 
 class Stowage{
 public:
 	Ship ship;
+	Port *route;					// array of ports
 	string** currentInstructions;
 	struct node
 	{
@@ -24,6 +29,10 @@ public:
 		return true;	// we have a magical ship
 	}
 
+	void setHeight(int row, int column, int maxHeight){
+		this->ship.planLinkedList[row][column].maxHeight=maxHeight;
+	}
+
 	int sizeOfArray(Container* array){
 		int c=0;
 		while(true){
@@ -32,21 +41,6 @@ public:
 			c++;
 		}
 		return 0;
-	}
-
-	// load a single container to a specific location
-	void load(Container container,int row, int column) {
-		this->ship.planMap.insert(container.uniqueId,{row,column});	// Adding container to the map
-		node *temp,newNode;										// Adding container to linked list
-		newNode = new node;
-		newNode.container=container;
-		newNode.next=NULL;
-		temp=this->ship.planLinkedList[row][column].linkedList;
-		while((*temp).next!=NULL){
-			temp=(*temp).next;
-		}
-		(*temp).next=newNode;
-		this->ship.planLinkedList[row][column].size++;
 	}
 
 	// unload a single container from a specific location
@@ -67,6 +61,21 @@ public:
 		this->ship.planLinkedList[row][column].size--;
 	}
 
+	// load a single container to a specific location
+	void load(Container container,int row, int column) {
+		this->ship.planMap.insert(container.uniqueId,{row,column});	// Adding container to the map
+		node *temp,newNode;										// Adding container to linked list
+		newNode = new node;
+		newNode.container=container;
+		newNode.next=NULL;
+		temp=this->ship.planLinkedList[row][column].linkedList;
+		while((*temp).next!=NULL){
+			temp=(*temp).next;
+		}
+		(*temp).next=newNode;
+		this->ship.planLinkedList[row][column].size++;
+	}
+
 	// the logic for unloading the containers to a port
 	void unloadingAlgo(int instNum, int i){
 		bool popAllAbove; // true if we're popping a container from a stack and we need to pop all above it
@@ -76,7 +85,7 @@ public:
 				popAllAbove=false;
 				currentContainer=ship.planLinkedList[row][column].linkedList;
 				while(currentContainer!=NULL){		// starting from the bottom !!!
-					if(currentContainer.container.destPort == ship.route[i].toString()){	// does ship container belong to ship port?
+					if(currentContainer.container.destPort == route[i].toString()){	// does ship container belong to ship port?
 						unload(currentContainer.container,row,column,false);
 						currentInstructions[instNum] = {currentContainer.container.uniqueId,"unload",row,column,"false"};
 						instNum++;
@@ -102,47 +111,8 @@ public:
 		}
 	}
 
-	// checks if a container's destination port is in route
-	bool isInRoute(node currentContainer){
-		// TO DO: CHANGE TO THE NUMBER OF PORTS
-		for(int i=0;i<10;i++){
-			if(currentContainer.container.destPort==this->ship.route[i]){
-				return true;
-			}
-		}
-		return false;
-	}
-
-	// checks if the ship is full
-	bool isFull(){
-		for(int i=0;i<ship.shipLength;i++){
-			for(int j=0;j<ship.shipWidth;j++){
-				if(this->ship.planLinkedList[i][j].maxHeight>this->ship.planLinkedList[i][j].size){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	// rejection test
-	bool isRejected(int instNum, node currentContainer){
-		if(!isInRoute){
-			currentInstructions[instNum] = {currentContainer.container.uniqueId,"reject",-1,-1,"false"};
-			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: destination not in route";
-			return true;
-		}
-		if(isFull){
-			currentInstructions[instNum] = {currentContainer.container.uniqueId,"reject",-1,-1,"false"};
-			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: ship is full";
-			return true;
-		}
-		// TO DO: WHAT IS WRONG CONTAINER UNIQUE ID
-		return false;
-	}
-
 	// the logic for loading the containers from a port
-	void loadingAlgo(int instNum, Container* PortInstructions){
+	void loadingAlgo(int instNum, Container* PortInstructions, bool weightBalance()){
 		bool breakIt=false;	  // move to the next container from the port instructions list
 		node currentContainer;
 		for(int p=0;p<sizeOfArray(PortInstructions);p++){
@@ -166,6 +136,26 @@ public:
 		}
 	}
 
+	// rejection test
+	bool isRejected(int instNum, node currentContainer){
+		if(!Tester.isInRoute(currentContainer,this->route)){
+			currentInstructions[instNum] = {currentContainer.container.uniqueId,"reject",-1,-1,"false"};
+			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: destination not in route";
+			return true;
+		}
+		if(Tester.isFull(this->ship)){
+			currentInstructions[instNum] = {currentContainer.container.uniqueId,"reject",-1,-1,"false"};
+			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: ship is full";
+			return true;
+		}
+		if(Tester.isValidId(currentContainer.container.uniqueId)){
+			currentInstructions[instNum] = {currentContainer.container.uniqueId,"reject",-1,-1,"false"};
+			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: ship is full";
+			return true;
+		}
+		return false;
+	}
+
 	//
 	//	LETS SAIL!!
 	//
@@ -174,17 +164,14 @@ public:
 	//	returns a list of instructions as following:
 	//	{a container's unique id, "load/unload/reject", row, column, and a boolean representing whether it's loaded\unloaded to\from a temporary storage}
 	//
-	string** Stowage(int i, Ship ship) {
-		if(ship.route[i].toString()=="TO DO: ILLEGAL"){
-			std::cout << "Port sea code "+ship.route[i].toString()+" is an illegal port sea code";
-			return NULL;
-		}
+	string** Stowage(int i, Ship ship, Port *route, bool weightBalance()) {
+		int instNum = 0;	// The instruction number of the returned instruction
 		this->ship=ship;
-		int instNum = 0;	// The instruction number of the returned instructions
+		this->route=route;
 		Container* PortInstructions;
 		PortInstructions = ship.instructions[i];
 		unloadingAlgo(instNum,i);
-		loadingAlgo(instNum,PortInstructions);
+		loadingAlgo(instNum,PortInstructions, weightBalance);
 		return this->currentInstructions;
 	}
 };
