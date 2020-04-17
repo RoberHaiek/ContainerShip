@@ -3,35 +3,37 @@
 // Author      : Aubaida
 // Version     :
 // Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
+// Description : Simulator in C++, Ansi-style
 //============================================================================
+#include <stdio.h>
 
 #include <iostream>
 #include <string.h>
 #include <dirent.h>
 #include <fstream>
-
+#define SUCCESS 1
+#define ERROR 0
+#define MAX_LINE 1024
 using namespace std;
-class container {
-	public :
-		string uid;
-		int weight;
-		string dst;
-		container(string uid,int weight,string dst){
-			this->uid=uid;
-			this->dst=dst;
-			this->weight=weight;
-		}
-		container(){
-			this->uid="empty";
-			this->dst="empty";
-			this->weight=0;
-		}
-};
 int width,length,maxHeight;
-//-----------------------------------------------------------------------------
+char *workPath;
+char *travelPath;
+char **route;
+int routeSize;
+const char* SHIP_PLANE="ship_plan";
+const char* ROUTE="route";
+char* parse_out=new char[MAX_LINE];
+/*------------------DEBUGGING METHODS-------------------*/
+void printFiles(DIR* fd){
+	struct dirent *entry;
+    while ((entry = readdir(fd)))
+		if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+			std::cout <<entry->d_name<<std::endl;
+	}
+}
+
+/*--------------------------PARSING METHODS--------------------------*/
 char* getElem(string s , int& seek,char delmiter=' '){
-	char* out=new char[1024];
 	int index=0;
 	if(delmiter==' '){//find the first index which not whitspace
 		while(seek < s.length() && s.at(seek)==delmiter){
@@ -45,14 +47,13 @@ char* getElem(string s , int& seek,char delmiter=' '){
 		if(s.at(seek)==delmiter){
 			break;
 		}
-		out[index++]=s.at(seek++);
+		parse_out[index++]=s.at(seek++);
 	}
-	out[index]='\0';
+	parse_out[index]='\0';
 	seek++;
-	return out;
 }
 
-int parse(ifstream& fd){//known format
+/*int parse(ifstream& fd){//known format
 	string line;
 		bool isParams=true;
 		int portIndex=0;
@@ -100,8 +101,140 @@ int parse(ifstream& fd){//known format
 		}
 
 	return 0;
+}*/
+
+//[5] called in [3]
+void initRoute(){
+	route=new char*[routeSize];
+	for(int i=0;i<routeSize;i++){
+		route[i]=new char[5];
+	}
 }
+//[6] called in[4]
+void getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem){
+	getElem(line,seek,',');
+	firstElem=std::stoi(parse_out); // get max height
+	getElem(line,seek,',');
+	secElem=std::stoi(parse_out); // get length
+	getElem(line,seek,',');
+	thirdElem=std::stoi(parse_out);// get width
+	cout << firstElem <<","<<secElem<<","<<thirdElem<<endl;
+}
+//[4] called in [3]
+void initShipPlan(){
+	ifstream fd_info;
+	char* filePath=new char[strlen(travelPath)+strlen(SHIP_PLANE)+2];
+	strcpy(filePath,travelPath);
+	strcat(filePath,"/");
+	strcat(filePath,SHIP_PLANE);
+	fd_info.open(filePath,ios_base::in);//open the file
+	//checking the access to the file
+	if(!fd_info){
+		std::cout << "ERROR[4][1]- can't open "<< filePath<< std::endl;
+	}
+	//start parsing
+	string line;
+	bool firstLine=true;
+	while(getline(fd_info,line)){
+		if(line.at(0)=='#'){
+			continue;
+			}
+	int seek =0;
+	cout << "the parsing line" <<line<<endl;
+	if(firstLine){
+		getTripleElem(line,seek,maxHeight,length,width);//each seprated with coma
+		/*
+		 intiate the ship
+		*/
+		firstLine=!firstLine;	
+		}else{
+		int x,y,floors;
+		getTripleElem(line,seek,x,y,floors);//each seprated with coma
+		if(floors<maxHeight){
+			/*
+			update ship plan
+			*/
+			}
+		}
+	}
+}
+//[3] called in [2]
+void simulateTravel(DIR* fd){
+	  //intiate the ship and get the route
+	  initShipPlan();
+	  initRoute();
+	  /*
+	  *
+	  init algorithm ? and start to play
+	  *
+	  */
+	  
+}
+//[2] called in [1]
+void simulate(DIR* fd){
+    struct dirent *entry;
+    while ((entry = readdir(fd)))
+      if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+		  //open the travel dir
+		  travelPath=new char[strlen(workPath)+strlen(entry->d_name)+2];
+		  strcpy(travelPath,workPath);
+		  strcat(travelPath,"/");
+		  strcat(travelPath,entry->d_name);
+		  DIR* fd_travel=opendir(travelPath);
+		  std::cout <<entry->d_name<<std::endl;
+		  if(fd_travel==NULL){
+			  std::cout << "ERROR[2][1]- can't open "<<entry->d_name<<std::endl; 
+			  }else{
+				  simulateTravel(fd_travel);//simulate the travel
+				  //free resources
+				  closedir(fd_travel);
+				  delete[] travelPath;
+			  }
+	  }
+	  exit(0);
+}
+	
+
 /* argv[1] will be the path of the workspace(IO-Files)*/
+//[1]
+int main(int argc, char *argv[]) {
+
+	if(argc!=2){
+		std::cout << "ERROR[1][1]- Wrong Number of Parameters!" << std::endl;
+		return ERROR;
+	}
+	/*initiate wieght balance????*/
+	//getting the path
+	workPath=argv[1];
+	//checking the access to the DIR
+	DIR *fd_path=opendir(workPath);
+	if(fd_path==NULL){
+		std::cout << "ERROR[1][2]- can't open "<<workPath<<std::endl;
+		return ERROR;
+	}
+	//get the travels
+	simulate(fd_path);
+	
+	
+	char *infoFile=new char[strlen(argv[2])+1];
+	strcpy(infoFile,argv[2]);
+	ifstream fd_info;
+	fd_info.open(infoFile,ios_base::in);
+	//checking the access to the file
+	if(!fd_info){
+		std::cout << "ERROR[3]- can't open ";
+		std::cout << infoFile<< std::endl;
+		return 0;
+	}
+	
+	fd_info.close();
+	closedir(fd_path);
+	delete[] workPath;
+	delete[] infoFile;
+	delete[] parse_out;
+	return 0;
+}
+/* argv[1] will be the path of the workspace(IO-Files)
 int main(int argc, char *argv[]) {
 
 	if(argc!=3){
@@ -138,5 +271,5 @@ int main(int argc, char *argv[]) {
 	delete[] workPath;
 	delete[] infoFile;
 	return 0;
-}
+}*/
 
