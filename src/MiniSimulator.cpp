@@ -11,6 +11,8 @@
 #include <string.h>
 #include <dirent.h>
 #include <fstream>
+#include "Container.cpp"
+#include "Port.cpp"
 #define SUCCESS 1
 #define ERROR 0
 #define MAX_LINE 1024
@@ -103,6 +105,54 @@ char* getElem(string s , int& seek,char delmiter=' '){
 
 	return 0;
 }*/
+
+//[8] 
+    Container** parseCargoFile(char* fileName){
+	ifstream fd_info;
+	int is_err=SUCCESS;//must change this.........................................
+	Container::Container** containers;
+	int containerNum;
+	char* filePath=new char[strlen(travelPath)+strlen(fileName)+2];
+	strcpy(filePath,travelPath);
+	strcat(filePath,"/");
+	strcat(filePath,fileName);
+	fd_info.open(filePath,ios_base::in);//open the file
+	//checking the access to the file
+	if(!fd_info){
+		std::cout << "ERROR[8][1]- can't open "<< filePath<< std::endl;
+	}
+	containerNum=getNumOfLines(fd_info);//get container size
+	containers=new Container::Container*[containerNum];
+	string line;
+	int containerIndex=0;
+	int seek;
+	char* containerUID;
+	char* containerDstPort;
+	int containerWeight;
+	while(getline(fd_info,line)){
+		if(line.at(0)=='#'){
+			continue;
+			}
+			seek=0;
+			getElem(line,seek,',');
+			strcpy(containerUID,parse_out);
+			getElem(line,seek,',');
+			containerWeight=std::stoi(parse_out); // get length
+			getElem(line,seek,',');
+			strcpy(containerDstPort,parse_out);
+			/*is_err=checkUid(containerUID);*/
+			if(is_err==ERROR){
+				std::cout << "ERROR[8][1]- wrong container uid format  "<< containerUID<< std::endl;
+			}
+			else{
+				Port::Port dstPort=new Port::Port(containerDstPort);
+				containers[containerIndex]=new Container::Container(containerWeight,dstPort,containerUID);
+			}
+			containerIndex++;
+	}
+}
+
+//[7] called in [5]
 int checkPortName(char* name){
 	if(strlen(name)!=5){
 		return ERROR;

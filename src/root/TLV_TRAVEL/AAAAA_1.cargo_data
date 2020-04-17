@@ -1,0 +1,5 @@
+#<uid>,<weight>,<dstPort>
+conteiner1,1,AAAAA
+conteiner2,1,BBBBB
+conteiner3,1,CCCCC
+conteiner4,1,DDDDD
