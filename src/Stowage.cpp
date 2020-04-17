@@ -138,17 +138,18 @@ public:
 
 	// rejection test
 	bool isRejected(int instNum, node currentContainer){
-		if(!Tester.isInRoute(currentContainer,this->route)){
+		Tester test;
+		if(!test.isInRoute(currentContainer.container.destPort.toString(),this->route)){
 			currentInstructions[instNum] = {currentContainer.container.uniqueId,"reject",-1,-1,"false"};
 			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: destination not in route";
 			return true;
 		}
-		if(Tester.isFull(this->ship)){
+		if(test.isFull(this->ship)){
 			currentInstructions[instNum] = {currentContainer.container.uniqueId,"reject",-1,-1,"false"};
 			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: ship is full";
 			return true;
 		}
-		if(Tester.isValidId(currentContainer.container.uniqueId)){
+		if(test.isValidId(currentContainer.container.uniqueId)){
 			currentInstructions[instNum] = {currentContainer.container.uniqueId,"reject",-1,-1,"false"};
 			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: ship is full";
 			return true;

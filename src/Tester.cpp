@@ -24,9 +24,9 @@ public:
 	}
 
 	// checks if a container's destination port is in route
-	bool isInRoute(node currentContainer, Port* route){
+	bool isInRoute(string destPort, Port* route){
 		for(int i=0;i<sizeOfArray(route);i++){
-			if(currentContainer.container.destPort==route[i]){
+			if(destPort==route[i]){
 				return true;
 			}
 		}
