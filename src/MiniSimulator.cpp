@@ -53,6 +53,7 @@ char* getElem(string s , int& seek,char delmiter=' '){
 	seek++;
 }
 
+
 /*int parse(ifstream& fd){//known format
 	string line;
 		bool isParams=true;
@@ -102,12 +103,77 @@ char* getElem(string s , int& seek,char delmiter=' '){
 
 	return 0;
 }*/
-
+int checkPortName(char* name){
+	if(strlen(name)!=5){
+		return ERROR;
+	}
+	char c;
+	for(int i=0;i<5;i++){
+		c=name[i];
+		if(c>='A' && c<='Z'){
+			continue;
+		}else{
+			if(c>='a'&& c<='z'){
+				name[i]=c+'A'-'a';
+			}else{
+				return ERROR;
+			}
+		}
+	}
+	return SUCCESS;
+}
+//[6] called in [5]
+int getNumOfLines(ifstream& fd){
+	string line;
+	int numOfLines=0;
+	bool firstLine=true;
+	while(getline(fd,line)){
+		if(line.at(0)=='#'){
+			continue;
+			}
+		numOfLines++;
+	}
+	fd.clear();
+	fd.seekg(0,ios::beg);//back to the start
+	return numOfLines;
+}
 //[5] called in [3]
 void initRoute(){
+	ifstream fd_info;
+	int is_err;
+	char* filePath=new char[strlen(travelPath)+strlen(ROUTE)+2];
+	strcpy(filePath,travelPath);
+	strcat(filePath,"/");
+	strcat(filePath,ROUTE);
+	fd_info.open(filePath,ios_base::in);//open the file
+	//checking the access to the file
+	if(!fd_info){
+		std::cout << "ERROR[5][1]- can't open "<< filePath<< std::endl;
+	}
+	routeSize=getNumOfLines(fd_info);//get route size
 	route=new char*[routeSize];
 	for(int i=0;i<routeSize;i++){
 		route[i]=new char[5];
+	}
+	//get the route
+	string line;
+	int portIndex=0;
+	int seek;
+	while(getline(fd_info,line)){
+		if(line.at(0)=='#'){
+			continue;
+			}
+			seek=0;
+			getElem(line,seek);			
+			is_err=checkPortName(parse_out);
+			if(is_err==ERROR){
+				std::cout << "ERROR[5][2]- wrong port name "<< parse_out<< std::endl;
+			}
+			if(is_err!=ERROR){
+				strcpy(route[portIndex],parse_out);
+				cout<<route[portIndex]<<endl;
+			}
+			portIndex++;
 	}
 }
 //[6] called in[4]
