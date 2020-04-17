@@ -6,7 +6,6 @@
 
 #include "Ship.h"
 #include "Container.cpp"
-#include "Port.cpp"
 #include <stack>
 #include <map>
 #include <iostream>
@@ -32,17 +31,15 @@ public:
 	int shipWidth;
 	int shipLength;
 	Container **instructions;		// each cell (representing each port in the route) has 2 arrays of containers, 1st one is for loading, 2nd for unloading
-	Port *route;					// array of ports
 	map<string,int[2]> planMap;		// key = container, value = [row,column] of the container
 	queue<Container> tempContainers;
 	cellLinkedList **planLinkedList;
 
-	Ship(Port *route, int shipWidth, int shipLength, int shipHeight, Container **instructions) {
+	Ship(int shipWidth, int shipLength, int shipHeight, Container **instructions) {
 		this->weight = 0;
 		this->shipWidth = shipWidth;
 		this->shipLength = shipLength;
 		this->instructions=instructions;
-		this->route = route;
 		this->planMap = new map<string,int[2]>;
 		this->tempContainers = new queue<Container>;
 		this->planLinkedList = new cellLinkedList*[shipWidth];
