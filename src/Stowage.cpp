@@ -149,9 +149,14 @@ public:
 			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: ship is full";
 			return true;
 		}
-		if(test.isValidId(currentContainer.container.uniqueId)){
+		if(!test.isValidId(currentContainer.container.uniqueId)){
 			currentInstructions[instNum] = {currentContainer.container.uniqueId,"reject",-1,-1,"false"};
-			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: ship is full";
+			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: container unique id is invalid";
+			return true;
+		}
+		if(!test.isLegalWeight(currentContainer.container.weight)){
+			currentInstructions[instNum] = {currentContainer.container.uniqueId,"reject",-1,-1,"false"};
+			std::cout << "Container "+currentContainer.container.uniqueId+" was rejected - reason: container weight is invalid";
 			return true;
 		}
 		return false;

@@ -15,9 +15,8 @@ public:
 	Port destPort;
 	string uniqueId;	// 11 digits
 
-	Container(int weight, Port destPort, string uniqueId){
+	Container(int weight, Port destPort, string uniqueId):destPort(destPort){
 		this->weight=weight;
-		this->destPort=destPort;
 		this->uniqueId=uniqueId;
 	}
 

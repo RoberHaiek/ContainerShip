@@ -45,6 +45,13 @@ public:
 		return false;
 	}
 
+	// checks if the container weight is legal
+	bool isLegalWeight(int containerWeight){
+		if(containerWeight>0)
+			return true;
+		return false;
+	}
+
 	// checks if the unique id of a container is valid
 	bool isValidId(string UniqueId){
 		if(UniqueId.length()!=11)
@@ -55,7 +62,7 @@ public:
 						return false;
 				}
 			}
-			if(i==4){
+			if(i==3){
 				if(!(UniqueId[4]==74 || UniqueId[4]==85 || UniqueId[4]==90 || UniqueId[4]==106 || UniqueId[4]==117 || UniqueId[4]==122)){
 					return false;
 				}
