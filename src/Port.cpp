@@ -11,7 +11,7 @@ using namespace std;
 
 class Port {
 public:
-	string port="emptyString";	// 5 capital English letters
+	string port;	// 5 capital English letters
 
 	Port(string port){
 		this->port=port;
