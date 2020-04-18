@@ -21,9 +21,4 @@ public:
 		this->uniqueId=uniqueId;
 	}
 
-	Container(){
-		this->weight=0;
-		this->destPort=NULL;
-		this->uniqueId=0;
-	}
 };
