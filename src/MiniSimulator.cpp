@@ -150,6 +150,7 @@ char* getElem(string s , int& seek,char delmiter=' '){
 			}
 			containerIndex++;
 	}
+	return containers;
 }
 
 //[7] called in [5]
