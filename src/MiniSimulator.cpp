@@ -12,6 +12,7 @@
 #include <dirent.h>
 #include <fstream>
 #include "Container.cpp"
+#include "Ship.cpp"
 #define SUCCESS 1
 #define ERROR 0
 #define MAX_LINE 1024
@@ -23,7 +24,10 @@ char **route;
 int routeSize;
 const char* SHIP_PLANE="ship_plan";
 const char* ROUTE="route";
+const char* OUTPUT="/output";
+const char* EXPECTED="/expected_output";
 char* parse_out=new char[MAX_LINE];
+Ship* ship;
 
 /*---------------FUNC DEC-------------*/
 int getNumOfLines(ifstream& fd);
@@ -66,8 +70,42 @@ char* getElem(string s , int& seek,char delmiter=' '){
 	parse_out[index]='\0';
 	seek++;
 }
-
-
+//[10]
+int instructionsOut(string** instructions,char* outName){
+	//open output file to write the instruction to output dir ??????????????????????? we must open a output dir to every algo????
+	ifstream fd_info;
+	char* filePath=new char[strlen(travelPath)+strlen(OUTPUT)+strlen(outName)+5];
+	strcpy(filePath,travelPath);
+	strcat(filePath,OUTPUT);
+	strcat(filePath,"/");
+	strcat(filePath,outName);
+	strcat(filePath,".out");
+	fd_info.open(filePath,ios_base::out);//open the file to out
+	int instIndex=0;
+	while(instructions[instIndex]!=NULL){
+		return 0;
+	}
+	delete[] filePath;
+	fd_info.close();
+	return 0;
+}
+//[9]
+char* getCargoFileName(int portIndex){
+	int cnt=0;
+	for(int i=0;i<portIndex;i++){
+		if(strcmp(route[portIndex],route[i]==0)){
+			cnt++;
+		}
+	}
+	char* fileName=new char[20];
+	strcpy(fileName,route[portIndex]);
+	strcat(fileName,"_");
+	fileName[strlen(fileName)-1]='0'+cnt;
+	fileName[strlen(fileName)]='\0';
+	strcat(fileName,".cargo_data");
+	return fileName;
+	
+}
 //[8] 
     Container** parseCargoFile(char* fileName){
 	ifstream fd_info;
@@ -78,7 +116,6 @@ char* getElem(string s , int& seek,char delmiter=' '){
 	strcpy(filePath,travelPath);
 	strcat(filePath,"/");
 	strcat(filePath,fileName);
-	cout << "222222222222222"<<endl;
 	fd_info.open(filePath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
@@ -88,7 +125,6 @@ char* getElem(string s , int& seek,char delmiter=' '){
 	containerNum=getNumOfLines(fd_info);//get container size
 	containers=new Container*[containerNum+1];
 	containers[containerNum]=NULL;//to know we reached the last container
-	cout << "33333333333333333333"<<endl;
 	string line;
 	int containerIndex=0;
 	int seek;
@@ -229,14 +265,17 @@ void initShipPlan(){
 		/*
 		 intiate the ship
 		*/
+		ship=new Ship(width,length,maxHeight);
 		firstLine=!firstLine;	
 		}else{
 		int x,y,floors;
+		Ship ourShip=*(ship);
 		getTripleElem(line,seek,x,y,floors);//each seprated with coma
-		if(floors<maxHeight){
+		if(floors<maxHeight){// you can check for an error format
 			/*
 			update ship plan
 			*/
+			ourShip.setHeight(x,y,floors);
 			}
 		}
 	}
@@ -247,17 +286,16 @@ void simulateTravel(DIR* fd){
 	  initShipPlan();
 	  initRoute();
 	  //example
-	  char* filePath=new char[strlen(travelPath)+20];
+	/*  char* filePath=new char[strlen(travelPath)+20];
 		strcpy(filePath,"AAAAA_1.cargo_data");
 		cout << "11111111111111"<<endl;
 		Container** arr=parseCargoFile(filePath);
-		printContainerArray(arr,filePath);
+		printContainerArray(arr,filePath);*/
 	  /*
 	  *
 	  init algorithm ? and start to play
 	  *
 	  */
-	  
 }
 //[2] called in [1]
 void simulate(DIR* fd){
@@ -292,7 +330,7 @@ int main(int argc, char *argv[]) {
 		std::cout << "ERROR[1][1]- Wrong Number of Parameters!" << std::endl;
 		return ERROR;
 	}
-	/*initiate wieght balance????*/
+	/*initiate wieght balance???????????????????????????????????????????????????????????*/
 	//getting the path
 	workPath=argv[1];
 	//checking the access to the DIR
@@ -303,7 +341,6 @@ int main(int argc, char *argv[]) {
 	}
 	//get the travels
 	simulate(fd_path);
-	
 	
 	char *infoFile=new char[strlen(argv[2])+1];
 	strcpy(infoFile,argv[2]);
