@@ -12,7 +12,6 @@
 #include <dirent.h>
 #include <fstream>
 #include "Container.cpp"
-#include "Port.cpp"
 #define SUCCESS 1
 #define ERROR 0
 #define MAX_LINE 1024
@@ -25,6 +24,9 @@ int routeSize;
 const char* SHIP_PLANE="ship_plan";
 const char* ROUTE="route";
 char* parse_out=new char[MAX_LINE];
+
+/*---------------FUNC DEC-------------*/
+int getNumOfLines(ifstream& fd);
 /*------------------DEBUGGING METHODS-------------------*/
 void printFiles(DIR* fd){
 	struct dirent *entry;
@@ -32,6 +34,16 @@ void printFiles(DIR* fd){
 		if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 			std::cout <<entry->d_name<<std::endl;
 	}
+}
+void printContainerArray(Container** arr,char* fileName){
+	int index=0;
+	Container* pt=arr[index];
+	std::cout << "-list of containers in " <<fileName<<" :"<<std::endl;
+	while(pt!=NULL){
+		std::cout <<"	"<< pt->uniqueId <<" ,"<<pt->weight<<" ,"<<pt->destPort.toString()<<std::endl;
+		pt=arr[++index];
+	}
+	
 }
 
 /*--------------------------PARSING METHODS--------------------------*/
@@ -56,78 +68,32 @@ char* getElem(string s , int& seek,char delmiter=' '){
 }
 
 
-/*int parse(ifstream& fd){//known format
-	string line;
-		bool isParams=true;
-		int portIndex=0;
-		while(getline(fd,line)){
-			if(line.at(0)=='#'){
-				continue;
-			}
-			int seek =0;
-			char* ptr;
-			if(isParams){//parse and get width,length,height
-				ptr=getElem(line,seek);
-				width=std::stoi(ptr);// get width
-				delete[] ptr;
-				ptr=getElem(line,seek);
-				length=std::stoi(ptr); // get length
-				delete[] ptr;
-				ptr=getElem(line,seek);
-				maxHeight=std::stoi(ptr); // get max height
-				delete[] ptr;
-				cout << width <<"\n"<<length<<"\n"<<maxHeight<<endl;
-				isParams=false;
-			}else{
-				ptr=getElem(line,seek,'-');
-				string portName=std::string(ptr);
-				delete[] ptr;
-				cout << portName<<":"<<endl;
-				while(true){
-					ptr=getElem(line,seek,'[');
-					delete[] ptr;
-					ptr=getElem(line,seek,',');
-					if(ptr[0]=='\0'){
-						delete[] ptr;
-						break;
-					}
-					int weight=std::stoi(ptr);
-					delete[] ptr;
-					ptr=getElem(line,seek,',');
-					string uid=std::string(ptr);
-					delete[] ptr;ptr=getElem(line,seek,']');
-					string dst=std::string(ptr);
-					delete[] ptr;
-					cout <<weight<<" "+uid+" "+dst<<endl;
-				}
-			}
-		}
-
-	return 0;
-}*/
-
 //[8] 
     Container** parseCargoFile(char* fileName){
 	ifstream fd_info;
 	int is_err=SUCCESS;//must change this.........................................
-	Container::Container** containers;
+	Container** containers;
 	int containerNum;
 	char* filePath=new char[strlen(travelPath)+strlen(fileName)+2];
 	strcpy(filePath,travelPath);
 	strcat(filePath,"/");
 	strcat(filePath,fileName);
+	cout << "222222222222222"<<endl;
 	fd_info.open(filePath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
 		std::cout << "ERROR[8][1]- can't open "<< filePath<< std::endl;
 	}
+	
 	containerNum=getNumOfLines(fd_info);//get container size
-	containers=new Container::Container*[containerNum];
+	containers=new Container*[containerNum+1];
+	containers[containerNum]=NULL;//to know we reached the last container
+	cout << "33333333333333333333"<<endl;
 	string line;
 	int containerIndex=0;
 	int seek;
-	char* containerUID;
-	char* containerDstPort;
+	char* containerUID=new char[MAX_LINE];
+	char* containerDstPort=new char[MAX_LINE];
 	int containerWeight;
 	while(getline(fd_info,line)){
 		if(line.at(0)=='#'){
@@ -145,8 +111,8 @@ char* getElem(string s , int& seek,char delmiter=' '){
 				std::cout << "ERROR[8][1]- wrong container uid format  "<< containerUID<< std::endl;
 			}
 			else{
-				Port::Port dstPort=new Port::Port(containerDstPort);
-				containers[containerIndex]=new Container::Container(containerWeight,dstPort,containerUID);
+				Port dstPort(containerDstPort);
+				containers[containerIndex]=new Container(containerWeight,dstPort,containerUID);
 			}
 			containerIndex++;
 	}
@@ -280,6 +246,12 @@ void simulateTravel(DIR* fd){
 	  //intiate the ship and get the route
 	  initShipPlan();
 	  initRoute();
+	  //example
+	  char* filePath=new char[strlen(travelPath)+20];
+		strcpy(filePath,"AAAAA_1.cargo_data");
+		cout << "11111111111111"<<endl;
+		Container** arr=parseCargoFile(filePath);
+		printContainerArray(arr,filePath);
 	  /*
 	  *
 	  init algorithm ? and start to play
@@ -351,42 +323,3 @@ int main(int argc, char *argv[]) {
 	delete[] parse_out;
 	return 0;
 }
-/* argv[1] will be the path of the workspace(IO-Files)
-int main(int argc, char *argv[]) {
-
-	if(argc!=3){
-		std::cout << "ERROR[1]- Wrong Number of Parameters!" << std::endl;
-		return 0;
-	}
-	//getting the path
-	char *workPath=new char[strlen(argv[1])+1];
-	strcpy(workPath,argv[1]);
-	//checking the access to the DIR
-	DIR *fd_path=opendir(workPath);
-	if(fd_path==NULL){
-		std::cout << "ERROR[2]- can't open ";
-		return 0;
-	}
-	//getting the infoFile
-	char *infoFile=new char[strlen(argv[2])+1];
-	strcpy(infoFile,argv[2]);
-	ifstream fd_info;
-	fd_info.open(infoFile,ios_base::in);
-	//checking the access to the file
-	if(!fd_info){
-		std::cout << "ERROR[3]- can't open ";
-		std::cout << infoFile<< std::endl;
-		return 0;
-	}
-
-
-	parse(fd_info); // parse the file and get the needed info.
-
-
-	fd_info.close();
-	closedir(fd_path);
-	delete[] workPath;
-	delete[] infoFile;
-	return 0;
-}*/
-
