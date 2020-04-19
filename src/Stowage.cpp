@@ -5,15 +5,16 @@
  *      Author: rober.haiek
  */
 
-#include "Tester.cpp"
+#include "StowageTester.cpp"
 #include <cctype>
-
+#include <queue>
 
 class Stowage{
 public:
 	Ship ship;
 	Port *route;					// array of ports
-	string** currentInstructions;
+	string* currentInstructions;
+	queue<Container> tempContainers;
 
 	// TO DO:
 	//	void getInstructionsForCargo(const std::string& input_full_path_and_file_name, const std::string& output_full_path_and_file_name)
@@ -53,8 +54,8 @@ public:
 				for(int c=0;c<ship.planLinkedList[row][column].size;c++){		// starting from the bottom !!!
 					if(currentContainer.container.destPort.toString() == route[i].toString()){	// does ship container belong to ship port?
 						int width = ship.planMap.find(currentContainer.container.uniqueId)[0],length = ship.planMap.find(currentContainer.container.uniqueId)[1],height = ship.planMap.find(currentContainer.container.uniqueId)[2];
-						if(Tester::isValidUnload(row,column,ship.planLinkedList[row][column].size,width,length,height,currentContainer.container.uniqueId)){
-							crane.unload(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size,false);
+						if(CraneTester::isValidUnload(row,column,ship.planLinkedList[row][column].size,width,length,height,currentContainer.container.uniqueId)){
+							crane.unload(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
 							fillInstructions(instNum,currentContainer.container.uniqueId,"unload",to_string(row),to_string(column),to_string(this->ship.planLinkedList[row][column].size+1),"false");
 							instNum++;
 							popAllAbove=true;
@@ -63,8 +64,9 @@ public:
 					else{	// ship container does NOT belong to ship port
 						if(popAllAbove){	// but should I put it in temp?
 							int width = ship.planMap.find(currentContainer.container.uniqueId)[0],length = ship.planMap.find(currentContainer.container.uniqueId)[1],height = ship.planMap.find(currentContainer.container.uniqueId)[2];
-							if(Tester::isValidUnload(row,column,ship.planLinkedList[row][column].size,width,length,	height,currentContainer.container.uniqueId)){
-								crane.unload(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size,true);
+							if(CraneTester::isValidUnload(row,column,ship.planLinkedList[row][column].size,width,length,height,currentContainer.container.uniqueId)){
+								crane.unload(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
+								tempContainers.push(currentContainer.container);
 								fillInstructions(instNum,currentContainer.container.uniqueId,"unload",to_string(row),to_string(column),to_string(this->ship.planLinkedList[row][column].size+1),"true");
 								instNum++;
 							}
@@ -73,10 +75,10 @@ public:
 					currentContainer=*currentContainer.next;
 				}
 				// loading containers from temp back to ship
-				while(!ship.tempContainers.empty()){
-					currentContainer.container=ship.tempContainers.front();
-					ship.tempContainers.pop();
-					if(Tester::isValidUnload(row,column,this->ship.planLinkedList[row][column].size,ship.shipWidth,ship.shipLength,this->ship.planLinkedList[row][column].maxHeight,currentContainer.container.uniqueId)){
+				while(!tempContainers.empty()){
+					currentContainer.container=tempContainers.front();
+					tempContainers.pop();
+					if(CraneTester::isValidUnload(row,column,this->ship.planLinkedList[row][column].size,ship.shipWidth,ship.shipLength,this->ship.planLinkedList[row][column].maxHeight,currentContainer.container.uniqueId)){
 						crane.load(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
 						fillInstructions(instNum,currentContainer.container.uniqueId,"load",to_string(row),to_string(column),to_string(this->ship.planLinkedList[row][column].size-1),"true");
 						instNum++;
@@ -97,7 +99,7 @@ public:
 				for(int row=0;row<ship.shipWidth;row++){
 					for(int column=0;column<ship.shipLength;column++){
 						if(ship.planLinkedList[row][column].size<=ship.planLinkedList[row][column].maxHeight && weightBalance()){		// check if we are below height limit and balanced
-							if(Tester::isValidLoad(row,column,this->ship.planLinkedList[row][column].size,ship.shipWidth,ship.shipLength,this->ship.planLinkedList[row][column].maxHeight,currentContainer.container.uniqueId)){
+							if(CraneTester::isValidLoad(row,column,this->ship.planLinkedList[row][column].size,ship.shipWidth,ship.shipLength,this->ship.planLinkedList[row][column].maxHeight,currentContainer.container.uniqueId)){
 								crane.load(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
 								fillInstructions(instNum,currentContainer.container.uniqueId,"load",to_string(row),to_string(column),to_string(this->ship.planLinkedList[row][column].size-1),"false");
 								breakIt = true;
@@ -116,10 +118,10 @@ public:
 
 	// rejection test
 	bool isRejected(int instNum, node currentContainer){
-		if(!Tester::isInRoute(currentContainer.container.destPort.toString(),this->route,currentContainer.container.uniqueId)
-			|| Tester::isFull(this->ship,currentContainer.container.uniqueId)
-				|| !Tester::isValidId(currentContainer.container.uniqueId)
-					|| !Tester::isLegalWeight(currentContainer.container.weight,currentContainer.container.uniqueId)){
+		if(!StowageTester::isInRoute(currentContainer.container.destPort.toString(),this->route,currentContainer.container.uniqueId)
+			|| CraneTester::isFull(this->ship,currentContainer.container.uniqueId)
+				|| !CraneTester::isValidId(currentContainer.container.uniqueId)
+					|| !CraneTester::isLegalWeight(currentContainer.container.weight,currentContainer.container.uniqueId)){
 			fillInstructions(instNum,currentContainer.container.uniqueId,"reject","-1","-1","-1","false");
 			return true;
 		}
@@ -132,17 +134,16 @@ public:
 	//	This function takes the index of the current port in the list of routes as the parameter i (first port: i=0)
 	//	and the ship
 	//	returns a list of instructions as following:
-	//	{a container's unique id, "load/unload/reject", row, column, and a boolean representing whether it's loaded\unloaded to\from a temporary storage}
+	//	{a container's unique id, "load/unload/reject", row, column, height, and a boolean representing whether it's loaded\unloaded to\from a temporary storage}
 	/*/
-	Stowage(int i, Ship ship, Port *route, bool (*weightBalance)(), Container** instructions) {
+	Stowage(int i, Ship ship, Port *route, bool (*weightBalance)(), Container* instructions) {
 			this->currentInstructions = new string*[5];
 			int instNum = 0;	// The instruction number of the returned instruction
 			this->ship=ship;
 			this->route=route;
-			Container* PortInstructions;
-			PortInstructions = instructions[i];
+			this->tempContainers = queue<Container>();
 			unloadingAlgo(instNum,i);
-			loadingAlgo(instNum,PortInstructions, weightBalance);
+			loadingAlgo(instNum,instructions, weightBalance);
 	//	}
 	}
 
@@ -174,7 +175,7 @@ public:
 		ship = Ship(10,10,10);
 
 		// running stowage
-		Stowage result = Stowage(0,ship,route,weightBalance,instructions);
+		// Stowage result = Stowage(0,ship,route,weightBalance,instructions);
 		return 0;
 	}
 };

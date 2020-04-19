@@ -5,7 +5,7 @@
  *      Author: rober.haiek
  */
 
-#include "Ship.cpp"
+#include "CraneTester.cpp"
 
 class Crane{
 public:
@@ -14,7 +14,7 @@ public:
 		this->ship=ship;
 	}
 	// unload a single container from a specific location
-	void unload(Container container, int row, int column, int floor, bool isTemp) {
+	void unload(Container container, int row, int column, int floor) {
 		struct node temp,newNode;
 		newNode.container=container;
 		newNode.next=NULL;
@@ -24,9 +24,6 @@ public:
 		}
 		temp.next=NULL;
 		ship.planMap.erase(container.uniqueId);
-		if(isTemp){
-			ship.tempContainers.push(container);
-		}
 		ship.planLinkedList[row][column].size--;
 	}
 

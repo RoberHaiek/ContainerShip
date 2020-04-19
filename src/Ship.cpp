@@ -9,7 +9,6 @@
 #include <stack>
 #include <map>
 #include <iostream>
-#include <queue>
 
 class Ship {
 public:
@@ -17,7 +16,6 @@ public:
 	int shipWidth;
 	int shipLength;
 	map<string,int*> planMap;		// key = container, value = [row,column] of the container
-	queue<Container> tempContainers;
 	cellLinkedList **planLinkedList;
 
 	Ship(int shipWidth, int shipLength, int shipHeight) {
@@ -25,7 +23,6 @@ public:
 		this->shipWidth = shipWidth;
 		this->shipLength = shipLength;
 		this->planMap = map<string,int*>();
-		this->tempContainers = queue<Container>();
 		this->planLinkedList = new cellLinkedList*[shipWidth];
 		for(int i=0;i<shipLength;i++){
 			this->planLinkedList[i] = new cellLinkedList[shipLength];
@@ -47,12 +44,14 @@ public:
 		this->shipLength = 0;
 		this->shipWidth = 0;
 		this->planMap = map<string,int*>();
-		this->tempContainers = queue<Container>();
 		this->planLinkedList = new cellLinkedList*[1];
 	}
 
 	void setHeight(int row, int column, int maxHeight){
 		this->planLinkedList[row][column].maxHeight=maxHeight;
+	}
+	~Ship(){
+		delete[] this->planLinkedList[0];
 	}
 
 };

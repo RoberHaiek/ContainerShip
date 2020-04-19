@@ -1,32 +1,14 @@
 /*
- * Tester.cpp
+ * CraneTester.cpp
  *
- *  Created on: 17 Apr 2020
+ *  Created on: 19 Apr 2020
  *      Author: rober.haiek
  */
-#include "Crane.cpp"
 
-class Tester{
+#include "Ship.cpp"
+class CraneTester{
 public:
-	static int sizeOfArray(Port* array){
-			int c=0;
-			while(array[c].toString()!="last")
-				c++;
-			return 0;
-	}
-
-	// checks if a container's destination port is in route
-	static bool isInRoute(string destPort, Port* route, string uniqueId){
-		for(int i=0;i<sizeOfArray(route);i++){
-			if(destPort==route[i].toString()){
-				return true;
-			}
-		}
-		std::cout << "Container "+uniqueId+" was rejected - reason: destination port is not in route";
-		return false;
-	}
-
-	// checks if the ship is full
+// checks if the ship is full
 	static bool isFull(Ship ship, string uniqueId){
 		for(int i=0;i<ship.shipLength;i++){
 			for(int j=0;j<ship.shipWidth;j++){
@@ -84,11 +66,10 @@ public:
 	}
 
 	static bool isValidUnload(int row, int column, int floor, int shipWidth, int shipLength, int cellHeight, string uniqueId){
-		if(true){
+		if(row != shipWidth || column!=shipLength || floor!=cellHeight){
 			std::cout << "Container "+uniqueId+" was rejected - reason: unloading container from an invalid ship indexes";
 			return false;
 		}
 		return true;
 	}
-
 };
