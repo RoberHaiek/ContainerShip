@@ -11,8 +11,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <fstream>
-#include "Container.cpp"
-#include "Ship.cpp"
+#include "Stowage.cpp"
 #define SUCCESS 1
 #define ERROR 0
 #define MAX_LINE 1024
@@ -54,11 +53,11 @@ void printContainerArray(Container** arr,char* fileName){
 char* getElem(string s , int& seek,char delmiter=' '){
 	int index=0;
 	if(delmiter==' '){//find the first index which not whitspace
-		while(seek < s.length() && s.at(seek)==delmiter){
+		while(seek < (int)s.length() && s.at(seek)==delmiter){
 			seek++;
 		}
 	}
-	while(seek < s.length()){
+	while(seek < (int)s.length()){
 		/*if(delmiter==','){
 				cout << s.at(seek)<<endl;
 			}*/
@@ -69,6 +68,7 @@ char* getElem(string s , int& seek,char delmiter=' '){
 	}
 	parse_out[index]='\0';
 	seek++;
+	return NULL;//must return
 }
 //[10]
 int instructionsOut(string** instructions,char* outName){
@@ -93,7 +93,7 @@ int instructionsOut(string** instructions,char* outName){
 char* getCargoFileName(int portIndex){
 	int cnt=0;
 	for(int i=0;i<portIndex;i++){
-		if(strcmp(route[portIndex],route[i]==0)){
+		if(strcmp(route[portIndex],route[i])==0){
 			cnt++;
 		}
 	}
@@ -179,7 +179,6 @@ int checkPortName(char* name){
 int getNumOfLines(ifstream& fd){
 	string line;
 	int numOfLines=0;
-	bool firstLine=true;
 	while(getline(fd,line)){
 		if(line.at(0)=='#'){
 			continue;
@@ -281,7 +280,7 @@ void initShipPlan(){
 	}
 }
 //[3] called in [2]
-void simulateTravel(DIR* fd){
+void simulateTravel(){
 	  //intiate the ship and get the route
 	  initShipPlan();
 	  initRoute();
@@ -312,7 +311,7 @@ void simulate(DIR* fd){
 		  if(fd_travel==NULL){
 			  std::cout << "ERROR[2][1]- can't open "<<entry->d_name<<std::endl; 
 			  }else{
-				  simulateTravel(fd_travel);//simulate the travel
+				  simulateTravel();//simulate the travel
 				  //free resources
 				  closedir(fd_travel);
 				  delete[] travelPath;
