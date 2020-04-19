@@ -15,14 +15,14 @@ public:
 	}
 	// unload a single container from a specific location
 	void unload(Container container, int row, int column, bool isTemp) {
-		struct node *temp,newNode;
+		struct node temp,newNode;
 		newNode.container=container;
 		newNode.next=NULL;
-		temp=*ship.planLinkedList[row][column].linkedList;
-		while((*temp).next->container.uniqueId!=container.uniqueId && (*temp).next!=NULL){
-			temp=(*temp).next;
+		temp=ship.planLinkedList[row][column].linkedList;
+		while(temp.next->container.uniqueId!=container.uniqueId && temp.next!=NULL){
+			temp=*temp.next;
 		}
-		(*temp).next=NULL;
+		temp.next=NULL;
 		ship.planMap.erase(container.uniqueId);
 		if(isTemp){
 			ship.tempContainers.push(container);
@@ -32,15 +32,18 @@ public:
 
 	// load a single container to a specific location
 	void load(Container container,int row, int column) {
-		ship.planMap.insert({container.uniqueId,{row,column}});	// Adding container to the map
-		struct node *temp,newNode;										// Adding container to linked list
+		int* rowColumn;
+		rowColumn[0] = row;
+		rowColumn[1] = column;
+		ship.planMap.insert(pair<string, int*>(container.uniqueId,rowColumn));	// Adding container to the map
+		struct node temp,newNode;										// Adding container to linked list
 		newNode.container=container;
 		newNode.next=NULL;
 		temp=ship.planLinkedList[row][column].linkedList;
-		while((*temp).next!=NULL){
-			temp=(*temp).next;
+		while(temp.next!=NULL){
+			temp=*temp.next;
 		}
-		(*temp).next=&newNode;
+		temp.next=&newNode;
 		ship.planLinkedList[row][column].size++;
 	}
 
