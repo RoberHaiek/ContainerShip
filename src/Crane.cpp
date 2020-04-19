@@ -14,7 +14,7 @@ public:
 		this->ship=ship;
 	}
 	// unload a single container from a specific location
-	void unload(Container container, int row, int column, bool isTemp) {
+	void unload(Container container, int row, int column, int floor, bool isTemp) {
 		struct node temp,newNode;
 		newNode.container=container;
 		newNode.next=NULL;
@@ -31,10 +31,11 @@ public:
 	}
 
 	// load a single container to a specific location
-	void load(Container container,int row, int column) {
+	void load(Container container,int row, int floor, int column) {
 		int* rowColumn;
 		rowColumn[0] = row;
 		rowColumn[1] = column;
+		rowColumn[2] = floor;
 		ship.planMap.insert(pair<string, int*>(container.uniqueId,rowColumn));	// Adding container to the map
 		struct node temp,newNode;										// Adding container to linked list
 		newNode.container=container;
