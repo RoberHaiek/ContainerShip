@@ -18,7 +18,7 @@ public:
 	// TO DO:
 	//	void getInstructionsForCargo(const std::string& input_full_path_and_file_name, const std::string& output_full_path_and_file_name)
 
-	bool weightBalance() {
+	static bool weightBalance() {
 		return true;	// we have a magical ship
 	}
 
@@ -182,5 +182,6 @@ public:
 
 		// running stowage
 		Stowage result = Stowage(0,ship,route,weightBalance,instructions);
+		return 0;
 	}
 };
