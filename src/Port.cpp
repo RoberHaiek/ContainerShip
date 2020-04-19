@@ -17,6 +17,10 @@ public:
 		this->port=port;
 	}
 
+	Port(){
+		this->port="";
+	}
+
 	string toString(){
 		return port;
 	}

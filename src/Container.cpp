@@ -7,7 +7,6 @@
 
 #include "Port.cpp"
 #include <iostream>
-using namespace std;
 
 class Container {
 public:
@@ -18,6 +17,12 @@ public:
 	Container(int weight, Port destPort, string uniqueId):destPort(destPort){
 		this->weight=weight;
 		this->uniqueId=uniqueId;
+	}
+
+	Container(){
+		this->weight = 0;
+		this->uniqueId = "";
+		this->destPort=Port();
 	}
 
 };

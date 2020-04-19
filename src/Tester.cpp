@@ -4,29 +4,21 @@
  *  Created on: 17 Apr 2020
  *      Author: rober.haiek
  */
-#include "Ship.cpp"
+#include "Crane.cpp"
 
 class Tester{
 public:
-	struct node
-	{
-	    Container container;
-	    struct node *next;
-	};
-	int sizeOfArray(Port* array){
+	static int sizeOfArray(Port* array){
 			int c=0;
-			while(true){
-				if(array[c]==NULL)
-					return c;
+			while(array[c].toString()!="last")
 				c++;
-			}
 			return 0;
 	}
 
 	// checks if a container's destination port is in route
-	bool isInRoute(string destPort, Port* route){
+	static bool isInRoute(string destPort, Port* route){
 		for(int i=0;i<sizeOfArray(route);i++){
-			if(destPort==route[i]){
+			if(destPort==route[i].toString()){
 				return true;
 			}
 		}
@@ -34,7 +26,7 @@ public:
 	}
 
 	// checks if the ship is full
-	bool isFull(Ship ship){
+	static bool isFull(Ship ship){
 		for(int i=0;i<ship.shipLength;i++){
 			for(int j=0;j<ship.shipWidth;j++){
 				if(ship.planLinkedList[i][j].maxHeight>ship.planLinkedList[i][j].size){
@@ -46,14 +38,14 @@ public:
 	}
 
 	// checks if the container weight is legal
-	bool isLegalWeight(int containerWeight){
+	static bool isLegalWeight(int containerWeight){
 		if(containerWeight>0)
 			return true;
 		return false;
 	}
 
 	// checks if the unique id of a container is valid
-	bool isValidId(string UniqueId){
+	static bool isValidId(string UniqueId){
 		if(UniqueId.length()!=11)
 			return false;
 		for(int i=0;i<11;i++){
