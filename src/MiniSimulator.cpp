@@ -94,13 +94,18 @@ int instructionsOut(string** instructions,char* outName){
 	strcat(filePath,outName);
 	strcat(filePath,".out");
 	fd_info.open(filePath,ios_base::out);//open the file to out
+	if(!fd_info){
+		std::cout << "ERROR[10][1]- can't open "<< filePath<< std::endl;
+	}
 	int instIndex=0;
 	while(instructions[instIndex]!=NULL){
-		return 0;
+		string* s=instructions[instIndex];
+		//uid,L/R/U,row,column,height
+		fd_info<<s[0]<<","<<s[1]<<","<<s[2]<<","<<s[3]<<","<<s[4]<<'\n';
 	}
 	delete[] filePath;
 	fd_info.close();
-	return 0;
+	return SUCCESS;
 }
 //[9]
 char* getCargoFileName(int portIndex){
@@ -312,7 +317,12 @@ void simulateTravel(){
 	Container* instructions;
 	Port* ports=getPortsFromRoute();
 	for(int routeIndex=0;routeIndex<routeSize;routeIndex++){
-	curAlgo =new Stowage(routeIndex,*ship,ports,tryOperation,instructions);
+	/*clone the ship
+	 *
+	 * curAlgo =new Stowage(routeIndex,*ship,ports,tryOperation,instructions);
+	 * get the instruction
+	 * update the ship
+	 */
 	}
 }
 //[2] called in [1]
