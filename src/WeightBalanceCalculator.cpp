@@ -6,7 +6,7 @@
  */
 
 #include "WeightBalanceCalculator.h"
-
-enum BalanceStatus tryOperation(char loadUnload, int kg, int X, int Y){
-	return APPROVED;
+	//char loadUnload, int kg, int X, int Y
+static bool tryOperation(){
+	return true;
 }

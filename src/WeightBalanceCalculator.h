@@ -8,12 +8,14 @@
 #ifndef WEIGHTBALANCECALCULATOR_H_
 #define WEIGHTBALANCECALCULATOR_H_
 #include<iostream>
-using namespace std;
 
-enum BalanceStatus  {APPROVED , X_IMBALANCED , Y_IMBALANCED , X_Y_IMBALANCED }BalanceStatus ;
+//enum BalanceStatus  {APPROVED , X_IMBALANCED , Y_IMBALANCED , X_Y_IMBALANCED }BalanceStatus ;
 
 
-enum BalanceStatus tryOperation(char loadUnload, int kg, int X, int Y);
+static bool tryOperation(){
+	return true;
+
+}
 
 
 #endif /* WEIGHTBALANCECALCULATOR_H_ */

@@ -12,6 +12,7 @@
 #include <dirent.h>
 #include <fstream>
 #include "Stowage.cpp"
+#include "WeightBalanceCalculator.h"
 #define SUCCESS 1
 #define ERROR 0
 #define MAX_LINE 1024
@@ -27,6 +28,7 @@ const char* OUTPUT="/output";
 const char* EXPECTED="/expected_output";
 char* parse_out=new char[MAX_LINE];
 Ship* ship;
+Stowage* curAlgo;
 
 /*---------------FUNC DEC-------------*/
 int getNumOfLines(ifstream& fd);
@@ -38,12 +40,12 @@ void printFiles(DIR* fd){
 			std::cout <<entry->d_name<<std::endl;
 	}
 }
-void printContainerArray(Container** arr,char* fileName){
+void printContainerArray(Container* arr,char* fileName){
 	int index=0;
-	Container* pt=arr[index];
+	Container pt=arr[index];
 	std::cout << "-list of containers in " <<fileName<<" :"<<std::endl;
-	while(pt!=NULL){
-		std::cout <<"	"<< pt->uniqueId <<" ,"<<pt->weight<<" ,"<<pt->destPort.toString()<<std::endl;
+	while(pt.uniqueId.compare("last")!=0){
+		std::cout <<"	"<< pt.uniqueId <<" ,"<<pt.weight<<" ,"<<pt.destPort.toString()<<std::endl;
 		pt=arr[++index];
 	}
 	
@@ -70,7 +72,18 @@ char* getElem(string s , int& seek,char delmiter=' '){
 	seek++;
 	return NULL;//must return
 }
-//[10]
+//[11]
+Port* getPortsFromRoute(){
+	int index;
+	Port* ports=new Port[routeSize+1];
+	for(index=0;index<routeSize;index++){
+		ports[index]=Port(string(route[index]));
+	}
+	ports[index]=Port("last");
+	return ports;
+
+}
+//[10]//not finished yet
 int instructionsOut(string** instructions,char* outName){
 	//open output file to write the instruction to output dir ??????????????????????? we must open a output dir to every algo????
 	ifstream fd_info;
@@ -100,17 +113,17 @@ char* getCargoFileName(int portIndex){
 	char* fileName=new char[20];
 	strcpy(fileName,route[portIndex]);
 	strcat(fileName,"_");
-	fileName[strlen(fileName)-1]='0'+cnt;
+	fileName[strlen(fileName)]='0'+cnt;
 	fileName[strlen(fileName)]='\0';
 	strcat(fileName,".cargo_data");
 	return fileName;
 	
 }
 //[8] 
-    Container** parseCargoFile(char* fileName){
+    Container* parseCargoFile(char* fileName){
 	ifstream fd_info;
 	int is_err=SUCCESS;//must change this.........................................
-	Container** containers;
+	Container* containers;
 	int containerNum;
 	char* filePath=new char[strlen(travelPath)+strlen(fileName)+2];
 	strcpy(filePath,travelPath);
@@ -123,8 +136,8 @@ char* getCargoFileName(int portIndex){
 	}
 	
 	containerNum=getNumOfLines(fd_info);//get container size
-	containers=new Container*[containerNum+1];
-	containers[containerNum]=NULL;//to know we reached the last container
+	containers=new Container[containerNum+1];
+	containers[containerNum]=Container(0,Port(""),"last");//to know we reached the last container
 	string line;
 	int containerIndex=0;
 	int seek;
@@ -148,7 +161,7 @@ char* getCargoFileName(int portIndex){
 			}
 			else{
 				Port dstPort(containerDstPort);
-				containers[containerIndex]=new Container(containerWeight,dstPort,containerUID);
+				containers[containerIndex]=Container(containerWeight,dstPort,containerUID);
 			}
 			containerIndex++;
 	}
@@ -257,6 +270,7 @@ void initShipPlan(){
 		if(line.at(0)=='#'){
 			continue;
 			}
+	
 	int seek =0;
 	cout << "the parsing line" <<line<<endl;
 	if(firstLine){
@@ -264,6 +278,7 @@ void initShipPlan(){
 		/*
 		 intiate the ship
 		*/
+		cout<<"initiate the ship :"<<width<<", "<<length<<", "<<maxHeight<<endl;
 		ship=new Ship(width,length,maxHeight);
 		firstLine=!firstLine;	
 		}else{
@@ -285,16 +300,20 @@ void simulateTravel(){
 	  initShipPlan();
 	  initRoute();
 	  //example
-	/*  char* filePath=new char[strlen(travelPath)+20];
-		strcpy(filePath,"AAAAA_1.cargo_data");
-		cout << "11111111111111"<<endl;
-		Container** arr=parseCargoFile(filePath);
-		printContainerArray(arr,filePath);*/
-	  /*
+	cout<<"printing the cargo file ame"<<endl;
+	for(int i=0;i<routeSize;i++){
+		cout<<"	"<<getCargoFileName(i)<<endl;
+	}
+	 /*
 	  *
 	  init algorithm ? and start to play
 	  *
 	  */
+	Container* instructions;
+	Port* ports=getPortsFromRoute();
+	for(int routeIndex=0;routeIndex<routeSize;routeIndex++){
+	curAlgo =new Stowage(routeIndex,*ship,ports,tryOperation,instructions);
+	}
 }
 //[2] called in [1]
 void simulate(DIR* fd){
@@ -341,21 +360,8 @@ int main(int argc, char *argv[]) {
 	//get the travels
 	simulate(fd_path);
 	
-	char *infoFile=new char[strlen(argv[2])+1];
-	strcpy(infoFile,argv[2]);
-	ifstream fd_info;
-	fd_info.open(infoFile,ios_base::in);
-	//checking the access to the file
-	if(!fd_info){
-		std::cout << "ERROR[3]- can't open ";
-		std::cout << infoFile<< std::endl;
-		return 0;
-	}
-	
-	fd_info.close();
 	closedir(fd_path);
 	delete[] workPath;
-	delete[] infoFile;
 	delete[] parse_out;
 	return 0;
 }
