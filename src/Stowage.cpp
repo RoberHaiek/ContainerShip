@@ -33,7 +33,7 @@ public:
 	}
 
 	void fillInstructions(int instNum, string uniqueId, string LUR, string row, string column, string isTemp){
-		string currentInstructions[instNum][5];
+		currentInstructions[instNum] = new string[5];
 		currentInstructions[instNum][0]=uniqueId;
 		currentInstructions[instNum][1]=LUR;
 		currentInstructions[instNum][2]=row;
@@ -128,9 +128,11 @@ public:
 		return false;
 	}
 
-	bool isValidInput(int i, Ship ship, Port *route){
-		return true;
-	}
+	//bool isValidInput(int i, Port *route){
+	//	if(i!=Tester.sizeOfArray(route))
+	//		return false;
+	//	return true;
+	//}
 
 	/*/
 	//	LETS SAIL!!
@@ -141,7 +143,7 @@ public:
 	//	{a container's unique id, "load/unload/reject", row, column, and a boolean representing whether it's loaded\unloaded to\from a temporary storage}
 	/*/
 	Stowage(int i, Ship ship, Port *route, bool (*weightBalance)(), Container** instructions) {
-		if(isValidInput(i,ship,route)){
+	//	if(isValidInput(i,route)){
 			this->currentInstructions = new string*[5];
 			int instNum = 0;	// The instruction number of the returned instruction
 			this->ship=ship;
@@ -150,10 +152,10 @@ public:
 			PortInstructions = instructions[i];
 			unloadingAlgo(instNum,i);
 			loadingAlgo(instNum,PortInstructions, weightBalance);
-		}
+	//	}
 	}
 
-	int main(int argc, char *argv[]) {
+	int main() {
 
 		// init route
 		Port* route = new Port[3];
