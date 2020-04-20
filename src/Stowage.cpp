@@ -100,7 +100,7 @@ public:
 				for(int row=0;row<ship.shipWidth;row++){
 					for(int column=0;column<ship.shipLength;column++){
 						if(ship.planLinkedList[row][column].size<=ship.planLinkedList[row][column].maxHeight && weightBalance()){		// check if we are below height limit and balanced
-							if(CraneTester::isValidLoad(row,column,this->ship.planLinkedList[row][column].size,ship.shipWidth,ship.shipLength,this->ship.planLinkedList[row][column].maxHeight,currentContainer.container.uniqueId)){
+							if(CraneTester::isValidLoad(row,column,this->ship.planLinkedList[row][column].size,ship.shipWidth,ship.shipLength,this->ship.planLinkedList[row][column].maxHeight,currentContainer.container.uniqueId,ship.planMap)){
 								crane.load(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
 								fillInstructions(currentContainer.container.uniqueId,"load",to_string(row),to_string(column),to_string(this->ship.planLinkedList[row][column].size-1),"false");
 								breakIt = true;
