@@ -12,10 +12,4 @@
 //enum BalanceStatus  {APPROVED , X_IMBALANCED , Y_IMBALANCED , X_Y_IMBALANCED }BalanceStatus ;
 
 
-static bool tryOperation(){
-	return true;
-
-}
-
-
 #endif /* WEIGHTBALANCECALCULATOR_H_ */

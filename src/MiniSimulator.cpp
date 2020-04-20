@@ -12,7 +12,7 @@
 #include <dirent.h>
 #include <fstream>
 #include "Stowage.cpp"
-#include "WeightBalanceCalculator.h"
+#include "WeightBalanceCalculator.cpp"
 #define SUCCESS 1
 #define ERROR 0
 #define MAX_LINE 1024
@@ -86,7 +86,7 @@ Port* getPortsFromRoute(){
 //[10]//not finished yet
 int instructionsOut(string** instructions,char* outName){
 	//open output file to write the instruction to output dir ??????????????????????? we must open a output dir to every algo????
-	ifstream fd_info;
+	ofstream fd_info;
 	char* filePath=new char[strlen(travelPath)+strlen(OUTPUT)+strlen(outName)+5];
 	strcpy(filePath,travelPath);
 	strcat(filePath,OUTPUT);
@@ -101,7 +101,7 @@ int instructionsOut(string** instructions,char* outName){
 	while(instructions[instIndex]!=NULL){
 		string* s=instructions[instIndex];
 		//uid,L/R/U,row,column,height
-		fd_info<<s[0]<<","<<s[1]<<","<<s[2]<<","<<s[3]<<","<<s[4]<<'\n';
+		fd_info<< s[0]<<","<<s[1]<<","<<s[2]<<","<<s[3]<<","<<s[4]<<"\n";
 	}
 	delete[] filePath;
 	fd_info.close();
@@ -109,7 +109,7 @@ int instructionsOut(string** instructions,char* outName){
 }
 //[9]
 char* getCargoFileName(int portIndex){
-	int cnt=0;
+	int cnt=1;
 	for(int i=0;i<portIndex;i++){
 		if(strcmp(route[portIndex],route[i])==0){
 			cnt++;
@@ -314,13 +314,13 @@ void simulateTravel(){
 	  init algorithm ? and start to play
 	  *
 	  */
-	Container* instructions;
+	Container* instructions=NULL;
 	Port* ports=getPortsFromRoute();
 	for(int routeIndex=0;routeIndex<routeSize;routeIndex++){
 	/*clone the ship
-	 *
-	 * curAlgo =new Stowage(routeIndex,*ship,ports,tryOperation,instructions);
-	 * get the instruction
+	 */
+	  curAlgo =new Stowage(routeIndex,*ship,ports,tryOperation,instructions);
+	 /* get the instruction
 	 * update the ship
 	 */
 	}
