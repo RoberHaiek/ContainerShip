@@ -15,14 +15,14 @@ public:
 	int weight;
 	int shipWidth;
 	int shipLength;
-	map<string,int*[3]> planMap;		// key = container, value = [row,column] of the container
+	map<string,int*> planMap;		// key = container, value = [row,column] of the container
 	cellLinkedList **planLinkedList;
 
 	Ship(int shipWidth, int shipLength, int shipHeight) {
 		this->weight = 0;
 		this->shipWidth = shipWidth;
 		this->shipLength = shipLength;
-		this->planMap = map<string,int*[3]>();
+		this->planMap = map<string,int*>();
 		this->planLinkedList = new cellLinkedList*[shipWidth];
 		for(int i=0;i<shipLength;i++){
 			this->planLinkedList[i] = new cellLinkedList[shipLength];
@@ -43,7 +43,7 @@ public:
 		this->weight = 0;
 		this->shipLength = 0;
 		this->shipWidth = 0;
-		this->planMap = map<string,int*[3]>();
+		this->planMap = map<string,int*>();
 		this->planLinkedList = new cellLinkedList*[1];
 	}
 

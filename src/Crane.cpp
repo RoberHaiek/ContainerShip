@@ -31,7 +31,7 @@ public:
 
 	// load a single container to a specific location
 	void load(Container container,int row, int floor, int column) {
-		int* rowColumn;
+		int* rowColumn = new int[3];
 		rowColumn[0] = row;
 		rowColumn[1] = column;
 		rowColumn[2] = floor;

@@ -1,4 +1,4 @@
-/*
+	/*
  * Sowage.cpp
  *
  *  Created on: 15 Apr 2020
@@ -54,10 +54,7 @@ public:
 				currentContainer=ship.planLinkedList[row][column].linkedList;
 				for(int c=0;c<ship.planLinkedList[row][column].size;c++){		// starting from the bottom !!!
 					if(currentContainer.container.destPort.toString() == route[i].toString()){	// does ship container belong to ship port?
-						int *dimensions;
-						dimensions[0] = (ship.planMap.find(currentContainer.container.uniqueId))[0];
-						dimensions[1] = (ship.planMap.find(currentContainer.container.uniqueId))[1];
-						dimensions[1] = (ship.planMap.find(currentContainer.container.uniqueId))[2];
+						int* dimensions = ship.planMap.find(currentContainer.container.uniqueId)->second;
 						if(CraneTester::isValidUnload(row,column,ship.planLinkedList[row][column].size,dimensions[0],dimensions[1],dimensions[2],currentContainer.container.uniqueId)){
 							crane.unload(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
 							fillInstructions(currentContainer.container.uniqueId,"unload",to_string(row),to_string(column),to_string(this->ship.planLinkedList[row][column].size+1),"false");
@@ -67,10 +64,7 @@ public:
 					}
 					else{	// ship container does NOT belong to ship port
 						if(popAllAbove){	// but should I put it in temp?
-							int *dimensions;
-							dimensions[0] = (ship.planMap.find(currentContainer.container.uniqueId))[0];
-							dimensions[1] = (ship.planMap.find(currentContainer.container.uniqueId))[1];
-							dimensions[1] = (ship.planMap.find(currentContainer.container.uniqueId))[2];
+							int* dimensions = ship.planMap.find(currentContainer.container.uniqueId)->second;
 							if(CraneTester::isValidUnload(row,column,ship.planLinkedList[row][column].size,dimensions[0],dimensions[1],dimensions[2],currentContainer.container.uniqueId)){
 								crane.unload(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
 								tempContainers.push(currentContainer.container);
