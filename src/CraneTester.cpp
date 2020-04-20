@@ -59,7 +59,7 @@ public:
 
 	static bool isValidLoad(int row, int column, int floor, int shipWidth, int shipLength, int cellHeight, string uniqueId){
 		if(row>=shipWidth || row<0 || column>=shipLength || column<0 || floor>=cellHeight || floor<0){
-			std::cout << "Container "+uniqueId+" was rejected - reason: loading container into an invalid ship indexes";
+			std::cout << "Container "+uniqueId+" was rejected - reason: loading container into invalid ship indexes";
 			return false;
 		}
 		return true;
@@ -67,9 +67,17 @@ public:
 
 	static bool isValidUnload(int row, int column, int floor, int shipWidth, int shipLength, int cellHeight, string uniqueId){
 		if(row != shipWidth || column!=shipLength || floor!=cellHeight){
-			std::cout << "Container "+uniqueId+" was rejected - reason: unloading container from an invalid ship indexes";
+			std::cout << "Container "+uniqueId+" was rejected - reason: unloading container from invalid ship indexes";
 			return false;
 		}
 		return true;
+	}
+
+	static bool isCorrectContainer(string containerUniqueId, string expectedUniqueId){
+		if(containerUniqueId.compare(expectedUniqueId)==0){
+			std::cout << "Container "+containerUniqueId+" was not unloaded, container requested was not found (Wrong indexes)";
+			return true;
+		}
+		return false;
 	}
 };

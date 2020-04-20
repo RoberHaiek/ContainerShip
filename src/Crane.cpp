@@ -19,12 +19,14 @@ public:
 		newNode.container=container;
 		newNode.next=NULL;
 		temp=ship.planLinkedList[row][column].linkedList;
-		while(temp.next->container.uniqueId!=container.uniqueId && temp.next!=NULL){
+		for(int i=0;i<floor;i++){
 			temp=*temp.next;
 		}
-		temp.next=NULL;
-		ship.planMap.erase(container.uniqueId);
-		ship.planLinkedList[row][column].size--;
+		if(CraneTester::isCorrectContainer(container.uniqueId,temp.next->container.uniqueId)){
+			temp.next=NULL;
+			ship.planMap.erase(container.uniqueId);
+			ship.planLinkedList[row][column].size--;
+		}
 	}
 
 	// load a single container to a specific location
