@@ -87,21 +87,24 @@ Port* getPortsFromRoute(){
 int instructionsOut(string** instructions,char* outName){
 	//open output file to write the instruction to output dir ??????????????????????? we must open a output dir to every algo????
 	ofstream fd_info;
-	char* filePath=new char[strlen(travelPath)+strlen(OUTPUT)+strlen(outName)+5];
+	cout << "in out" <<endl;
+	char* filePath=new char[strlen(travelPath)+strlen(OUTPUT)+strlen(outName)+6];
+	
 	strcpy(filePath,travelPath);
 	strcat(filePath,OUTPUT);
 	strcat(filePath,"/");
 	strcat(filePath,outName);
 	strcat(filePath,".out");
+	cout << filePath <<endl;
 	fd_info.open(filePath,ios_base::out);//open the file to out
 	if(!fd_info){
 		std::cout << "ERROR[10][1]- can't open "<< filePath<< std::endl;
 	}
 	int instIndex=0;
-	while(instructions[instIndex]!=NULL){
-		string* s=instructions[instIndex];
+	while(instructions[instIndex][0].compare("last")!=0){
 		//uid,L/R/U,row,column,height
-		fd_info<< s[0]<<","<<s[1]<<","<<s[2]<<","<<s[3]<<","<<s[4]<<"\n";
+		fd_info<< instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4]<<"\n";
+		instIndex++;
 	}
 	delete[] filePath;
 	fd_info.close();
@@ -350,10 +353,9 @@ void simulate(DIR* fd){
 				  simulateTravel();//simulate the travel
 				  //free resources
 				  closedir(fd_travel);
-				  delete[] travelPath;
+			          delete[] travelPath;
 			  }
 	  }
-	  exit(0);
 }
 	
 
@@ -376,6 +378,35 @@ int main(int argc, char *argv[]) {
 	}
 	//get the travels
 	simulate(fd_path);
+
+	//container* containers=new container[5];
+	cout <<"got a new life"<<endl;
+	string ** ptr=new string*[3];
+	ptr[0]=new string[5];
+	ptr[1]=new string[5];
+	ptr[2]=new string[5];
+	cout <<"22got a new life"<<endl;
+	ptr[0][0]="ABV";
+	cout <<"33got a new life"<<endl;
+	ptr[0][1]="load";
+	ptr[0][2]="1";
+	ptr[0][3]="2";
+	ptr[0][4]="1";
+	ptr[1][0]="BAV";
+	ptr[1][1]="unload";
+	ptr[1][2]="1";
+	ptr[1][3]="3";
+	ptr[1][4]="1";
+	ptr[2][0]="last";
+	ptr[2][1]="load";
+	ptr[2][2]="1";
+	ptr[2][3]="2";
+	ptr[2][4]="1";
+	
+	char* s=new char[20];
+	strcpy(s,"first_ptr");
+	
+	instructionsOut(ptr,s);
 	
 	closedir(fd_path);
 	delete[] workPath;
