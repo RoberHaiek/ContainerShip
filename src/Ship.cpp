@@ -24,7 +24,7 @@ public:
 		this->shipLength = shipLength;
 		this->planMap = map<string,int*>();
 		this->planLinkedList = new cellLinkedList*[shipWidth];
-		for(int i=0;i<shipLength;i++){
+		for(int i=0;i<shipWidth;i++){
 			this->planLinkedList[i] = new cellLinkedList[shipLength];
 		}
 		for(int row=0;row<this->shipWidth;row++){

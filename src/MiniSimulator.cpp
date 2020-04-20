@@ -277,7 +277,8 @@ void initShipPlan(){
 			}
 	
 	int seek =0;
-	cout << "the parsing line" <<line<<endl;
+	cout << "the parsing line : " <<line<<endl;
+	
 	if(firstLine){
 		getTripleElem(line,seek,maxHeight,length,width);//each seprated with coma
 		/*
@@ -285,15 +286,19 @@ void initShipPlan(){
 		*/
 		cout<<"initiate the ship :"<<width<<", "<<length<<", "<<maxHeight<<endl;
 		ship=new Ship(width,length,maxHeight);
+		cout << "2222222222222222222"<<endl;
+
 		firstLine=!firstLine;	
 		}else{
 		int x,y,floors;
 		Ship ourShip=*(ship);
+		cout << "1111111111111111111111"<<endl;
 		getTripleElem(line,seek,x,y,floors);//each seprated with coma
 		if(floors<maxHeight){// you can check for an error format
 			/*
 			update ship plan
 			*/
+			cout << "22222222222222222222222"<<endl;
 			ourShip.setHeight(x,y,floors);
 			}
 		}
