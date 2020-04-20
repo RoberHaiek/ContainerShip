@@ -44,7 +44,7 @@ public:
 		currentInstructions[instNum][4]=isTemp;
 	}
 	// the logic for unloading the containers to a port
-	void unloadingAlgo(int instNum, int i){
+	void unloadingAlgo(int i){
 		bool popAllAbove; // true if we're popping a container from a stack and we need to pop all above it
 		struct node currentContainer;
 		Crane crane = Crane(this->ship);
@@ -54,8 +54,11 @@ public:
 				currentContainer=ship.planLinkedList[row][column].linkedList;
 				for(int c=0;c<ship.planLinkedList[row][column].size;c++){		// starting from the bottom !!!
 					if(currentContainer.container.destPort.toString() == route[i].toString()){	// does ship container belong to ship port?
-						int width = ship.planMap.find(currentContainer.container.uniqueId)[0],length = ship.planMap.find(currentContainer.container.uniqueId)[1],height = ship.planMap.find(currentContainer.container.uniqueId)[2];
-						if(CraneTester::isValidUnload(row,column,ship.planLinkedList[row][column].size,width,length,height,currentContainer.container.uniqueId)){
+						int *dimensions;
+						dimensions[0] = (ship.planMap.find(currentContainer.container.uniqueId))[0];
+						dimensions[1] = (ship.planMap.find(currentContainer.container.uniqueId))[1];
+						dimensions[1] = (ship.planMap.find(currentContainer.container.uniqueId))[2];
+						if(CraneTester::isValidUnload(row,column,ship.planLinkedList[row][column].size,dimensions[0],dimensions[1],dimensions[2],currentContainer.container.uniqueId)){
 							crane.unload(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
 							fillInstructions(currentContainer.container.uniqueId,"unload",to_string(row),to_string(column),to_string(this->ship.planLinkedList[row][column].size+1),"false");
 							instNum++;
@@ -64,8 +67,11 @@ public:
 					}
 					else{	// ship container does NOT belong to ship port
 						if(popAllAbove){	// but should I put it in temp?
-							int width = ship.planMap.find(currentContainer.container.uniqueId)[0],length = ship.planMap.find(currentContainer.container.uniqueId)[1],height = ship.planMap.find(currentContainer.container.uniqueId)[2];
-							if(CraneTester::isValidUnload(row,column,ship.planLinkedList[row][column].size,width,length,height,currentContainer.container.uniqueId)){
+							int *dimensions;
+							dimensions[0] = (ship.planMap.find(currentContainer.container.uniqueId))[0];
+							dimensions[1] = (ship.planMap.find(currentContainer.container.uniqueId))[1];
+							dimensions[1] = (ship.planMap.find(currentContainer.container.uniqueId))[2];
+							if(CraneTester::isValidUnload(row,column,ship.planLinkedList[row][column].size,dimensions[0],dimensions[1],dimensions[2],currentContainer.container.uniqueId)){
 								crane.unload(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
 								tempContainers.push(currentContainer.container);
 								fillInstructions(currentContainer.container.uniqueId,"unload",to_string(row),to_string(column),to_string(this->ship.planLinkedList[row][column].size+1),"true");
@@ -90,13 +96,13 @@ public:
 	}
 
 	// the logic for loading the containers from a port
-	void loadingAlgo(int instNum, Container* PortInstructions, bool (*weightBalance)()){
+	void loadingAlgo(Container* PortInstructions, bool (*weightBalance)()){
 		bool breakIt=false;	  // move to the next container from the port instructions list
 		struct node currentContainer;
 		Crane crane = Crane(this->ship);
 		for(int p=0;p<sizeOfArray(PortInstructions);p++){
 			currentContainer.container=PortInstructions[p];
-			if(!isRejected(instNum, currentContainer)){
+			if(!isRejected(currentContainer)){
 				for(int row=0;row<ship.shipWidth;row++){
 					for(int column=0;column<ship.shipLength;column++){
 						if(ship.planLinkedList[row][column].size<=ship.planLinkedList[row][column].maxHeight && weightBalance()){		// check if we are below height limit and balanced
@@ -118,7 +124,7 @@ public:
 	}
 
 	// rejection test
-	bool isRejected(int instNum, node currentContainer){
+	bool isRejected(node currentContainer){
 		if(!StowageTester::isInRoute(currentContainer.container.destPort.toString(),this->route,currentContainer.container.uniqueId)
 			|| CraneTester::isFull(this->ship,currentContainer.container.uniqueId)
 				|| !CraneTester::isValidId(currentContainer.container.uniqueId)
@@ -143,8 +149,8 @@ public:
 			this->ship=ship;
 			this->route=route;
 			this->tempContainers = queue<Container>();
-			unloadingAlgo(instNum,i);
-			loadingAlgo(instNum,instructions, weightBalance);
+			unloadingAlgo(i);
+			loadingAlgo(instructions, weightBalance);
 	//	}
 	}
 
