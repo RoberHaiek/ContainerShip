@@ -62,7 +62,7 @@ public:
 			std::cout << "Container "+uniqueId+" was rejected - reason: loading container into invalid ship indexes";
 			return false;
 		}
-		if(planMap.find(uniqueId) != m.end()){
+		if(planMap.find(uniqueId) != planMap.end()){
 			std::cout << "Container "+uniqueId+" was rejected - reason: cannot load container, container already exists on the ship";
 		}
 		return true;
