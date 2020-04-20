@@ -271,6 +271,7 @@ void initShipPlan(){
 	//start parsing
 	string line;
 	bool firstLine=true;
+
 	while(getline(fd_info,line)){
 		if(line.at(0)=='#'){
 			continue;
@@ -278,28 +279,25 @@ void initShipPlan(){
 	
 	int seek =0;
 	cout << "the parsing line : " <<line<<endl;
-	
 	if(firstLine){
-		getTripleElem(line,seek,maxHeight,length,width);//each seprated with coma
+		getTripleElem(line,seek,maxHeight,width,length);//each seprated with coma
 		/*
 		 intiate the ship
 		*/
 		cout<<"initiate the ship :"<<width<<", "<<length<<", "<<maxHeight<<endl;
 		ship=new Ship(width,length,maxHeight);
-		cout << "2222222222222222222"<<endl;
+		cout << "ship done init"<<endl;
 
 		firstLine=!firstLine;	
 		}else{
 		int x,y,floors;
-		Ship ourShip=*(ship);
-		cout << "1111111111111111111111"<<endl;
+		
 		getTripleElem(line,seek,x,y,floors);//each seprated with coma
 		if(floors<maxHeight){// you can check for an error format
 			/*
 			update ship plan
 			*/
-			cout << "22222222222222222222222"<<endl;
-			ourShip.setHeight(x,y,floors);
+			(*ship).setHeight(x,y,floors);
 			}
 		}
 	}
@@ -307,7 +305,9 @@ void initShipPlan(){
 //[3] called in [2]
 void simulateTravel(){
 	  //intiate the ship and get the route
+	cout << "*initShipPlan"<<endl;
 	  initShipPlan();
+	cout << "*initRoute"<<endl;
 	  initRoute();
 	  //example
 	cout<<"printing the cargo file ame"<<endl;
@@ -319,7 +319,9 @@ void simulateTravel(){
 	  init algorithm ? and start to play
 	  *
 	  */
+	
 	Container* instructions=NULL;
+	if(instructions!=NULL){
 	Port* ports=getPortsFromRoute();
 	for(int routeIndex=0;routeIndex<routeSize;routeIndex++){
 	/*clone the ship
@@ -327,7 +329,7 @@ void simulateTravel(){
 	  curAlgo =new Stowage(routeIndex,*ship,ports,tryOperation,instructions);
 	 /* get the instruction
 	 * update the ship
-	 */
+	 */}
 	}
 }
 //[2] called in [1]
