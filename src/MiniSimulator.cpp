@@ -74,7 +74,37 @@ char* getElem(string s , int& seek,char delmiter=' '){
 	seek++;
 	return NULL;//must return
 }
+/*-------------------------------------------------------------------------------------------------------------*/
 
+/*//rwan
+int routeSize=6;
+ofstream fd_results;
+
+void parseResults (string algoName,string travelName,int numInst, int port){
+	static int sum;
+
+	if(!fd_results.is_open()){
+		fd_results.open("results.txt");
+		fd_results<< "*Travel name= "<<travelName<<"\n\t"<<"Algorithem name="<< algoName<<"\n\t";
+
+	}
+	else if(fd_results!=0 && port==0){
+		fd_results<<"---------------------------------------------------------------\n";
+		fd_results<< "*Travel name= "<<travelName<<"\n\t"<<"Algorithem name="<< algoName<<"\n\t";	
+	}
+	else{
+		sum+=numInst;
+		fd_results<< "In port "<< port <<": "<< numInst<<"\n\t";
+		
+		
+	}
+	if(port==routeSize){
+		fd_results<<"Sum: "<< sum<<"\n";
+		sum=0;
+	}
+}
+*/
+/*-------------------------------------------------------------------------------------------------------------*/
 //[14]
 void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR){
 	switch(INDICATOR){
