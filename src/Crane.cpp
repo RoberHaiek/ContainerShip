@@ -9,41 +9,45 @@
 
 class Crane{
 public:
-	Ship ship;
-	Crane(Ship& ship):ship(ship){
+	Ship* ship;
+	Crane(Ship& ship):ship(&ship){
 	}
 	// unload a single container from a specific location
 	void unload(Container container, int row, int column, int floor) {
-		struct node temp,newNode;
-		newNode.container=container;
-		newNode.next=NULL;
-		temp=ship.planLinkedList[row][column].linkedList;
+		struct node *temp,*newNode;
+		newNode->container=&(container);
+		newNode->next=NULL;
+		temp=ship->planLinkedList[row][column].linkedList;
 		for(int i=0;i<floor;i++){
-			temp=*temp.next;
+			temp=temp->next;
 		}
-		if(CraneTester::isCorrectContainer(container.uniqueId,temp.next->container.uniqueId)){
-			temp.next=NULL;
-			ship.planMap.erase(container.uniqueId);
-			ship.planLinkedList[row][column].size--;
+		if(CraneTester::isCorrectContainer(container.uniqueId,temp->next->container->uniqueId)){
+			temp->next=NULL;
+			ship->planMap->erase(container.uniqueId);
+			ship->planLinkedList[row][column].size--;
 		}
+		cout << "unload done";
 	}
 
 	// load a single container to a specific location
-	void load(Container container,int row, int floor, int column) {
+	void load(Container& container,int row, int floor, int column) {
 		int* rowColumn = new int[3];
 		rowColumn[0] = row;
 		rowColumn[1] = column;
 		rowColumn[2] = floor;
-		ship.planMap.insert(pair<string, int*>(container.uniqueId,rowColumn));	// Adding container to the map
-		struct node temp,newNode;										// Adding container to linked list
-		newNode.container=container;
-		newNode.next=NULL;
-		temp=ship.planLinkedList[row][column].linkedList;
-		while(temp.next!=NULL){
-			temp=*temp.next;
+		ship->planMap->insert(pair<string, int*>(container.uniqueId,rowColumn));	// Adding container to the map
+		struct node* temp,*newNode;										// Adding container to linked list
+		temp =new node();
+		newNode =new node();
+		newNode->container=&container;
+		newNode->next=NULL;
+		temp=ship->planLinkedList[row][column].linkedList;
+		cout<<(temp->next==NULL)<<endl;
+		while(temp->next!=NULL){
+			temp=temp->next;
 		}
-		temp.next=&newNode;
-		ship.planLinkedList[row][column].size++;
+		temp->next=newNode;
+		ship->planLinkedList[row][column].size++;
 	}
 
 };

@@ -59,13 +59,13 @@ public:
 		return true;
 	}
 
-	static bool isValidLoad(int row, int column, int floor, int shipWidth, int shipLength, int cellHeight, string uniqueId, map<string,int*> planMap){
+	static bool isValidLoad(int row, int column, int floor, int shipWidth, int shipLength, int cellHeight, string uniqueId, map<string,int*>* planMap){
 		cout << "isValidLoad" << endl;
 		if(row>=shipWidth || row<0 || column>=shipLength || column<0 || floor>=cellHeight || floor<0){
 			std::cout << "Container "+uniqueId+" was rejected - reason: loading container into invalid ship indexes";
 			return false;
 		}
-		if(planMap.find(uniqueId) != planMap.end()){
+		if(planMap->find(uniqueId) != planMap->end()){
 			std::cout << "Container "+uniqueId+" was rejected - reason: cannot load container, container already exists on the ship";
 		}
 		return true;
