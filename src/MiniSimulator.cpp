@@ -105,6 +105,68 @@ void parseResults (string algoName,string travelName,int numInst, int port){
 }
 */
 /*-------------------------------------------------------------------------------------------------------------*/
+//[16]
+int checkMapIfAsExpected(expectedInstructions,InstructionsMap){
+	int index=0;
+	int count;
+	string algoUid,algoOperation;
+	while((expectedInstructions[index][0]).compare("last")!=0){
+
+		count=InstructionsMap.count(expectedInstructions[index][0]);
+		if(count==0){
+			std::cout<<"ERROR[16][1] : the algorithim missing instruction Container : "<<expectedInstructions[index][0]<<", operation :"<<<expectedInstructions[index][1]<std::endl;
+			return ERROR;
+		}else{
+			auto it = InstructionsMap.find(expectedInstructions[index][0]);
+			auto v=it->second;
+			algoUid =v.[0];
+			algoOperation =v.[1];
+			if(algoUid.compare()!=0 ||algoOperation.compare()!=0 ){
+				std::cout<<"ERROR[16][2] : the algorithim wrong operation instruction Container : "<<expectedInstructions[index][0]<<", operation :"<<<expectedInstructions[index][1]<std::endl;
+				return ERROR;
+			}else{
+				InstructionsMap.erase(it);
+			}
+		}
+	}
+	//checking if the map EMPTY 
+	if(auto it2=InstructionsMap.begin(); it2!=InstructionsMap.end()){
+		std::cout<<"ERROR[16][3] : the algorithim adds more operations than expected"<<std::endl;
+		return ERROR;
+	}
+	return SUCCESS;
+	
+}
+//[15]
+int insertInstructionToMap(string** algoInstructions,map<string,vector<string>>& InstructionsMap){
+	int index=0;
+	int count;
+	while((algoInstructions[index][0]).compare("last")!=0){
+
+		count=InstructionsMap.count(algoInstructions[index][0]);
+		if(count==0){
+			vector<string> v1=vector<string>();
+			v1.push_back(algoInstructions[index][1]);
+			InstructionsMap.insert ( std::pair<string,vector<string>>(algoInstructions[index][0],v1) );
+		}else{
+			auto it = InstructionsMap.find(algoInstructions[index][0]);
+			auto v=it->second;
+			string old =v.[0];
+			if((algoInstructions[index][1]).compare("reject")==0 ||old.compare("reject")==0){
+				std::cout<<"ERROR[15][1] : two instruction to the same container while one or two of them is reject"<<std::endl;
+				 return ERROR;
+		}else if(old.compare("unload")==0 && (algoInstructions[index][1]).compare("load")==0){
+				InstructionsMap.erase(it);
+			}else if(old.compare("load")==0 && (algoInstructions[index][1]).compare("unload")==0){
+				InstructionsMap.erase(it);
+			}else{ //load-->load /unload -->unload
+				 std::cout<<"ERROR[15][2] : impossible to dow two instructions for the same container as (load -->load /unload--> unload)"<<std::endl;
+				 return ERROR;
+			}
+		}
+	}
+	return SUCCESS;
+}
 //[14]
 void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR){
 	switch(INDICATOR){
@@ -118,7 +180,7 @@ void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDIC
 				getElem(line,seek,',');strcpy(fivedArray[0],parse_out);
 				break;
 				}	
-		case default : std::cout<<ERROR[14][1] : Unknown indicator in getFiveElementsIntoArray<<std::endl;
+		case default : std::cout<<"ERROR[14][1] : Unknown indicator in getFiveElementsIntoArray"<<std::endl;
 			}
 }
 
@@ -163,7 +225,15 @@ string** ReadExpectedInstructions(char* cargoFileName){
 //[12]
 int checkInstructionPerPort(int portIndex,string** algoInstructions){
 	char* cargoFileName = getCargoFileName(portIndex);
-	string** expectedInstructions = ReadExpectedInstructions(char* cargoFileName);
+	map<string,vector<string>> InstructionsMap;
+	int fillMap=insertInstructionToMap(algoInstructions,InstructionsMap);
+	if(fillMap!=SUCCESS){
+		return ERROR;
+	}
+	string** expectedInstructions = ReadExpectedInstructions(cargoFileName);
+	int isSuccess=checkMapIfAsExpected(expectedInstructions,InstructionsMap);
+	
+	return isSuccess;
 	
 	
 }
