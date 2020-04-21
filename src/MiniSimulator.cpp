@@ -34,6 +34,7 @@ Stowage* curAlgo;
 
 /*---------------FUNC DEC-------------*/
 int getNumOfLines(ifstream& fd);
+char* getCargoFileName(int portIndex);
 /*------------------DEBUGGING METHODS-------------------*/
 void printFiles(DIR* fd){
 	struct dirent *entry;
@@ -106,7 +107,7 @@ void parseResults (string algoName,string travelName,int numInst, int port){
 */
 /*-------------------------------------------------------------------------------------------------------------*/
 //[16]
-int checkMapIfAsExpected(expectedInstructions,InstructionsMap){
+int checkMapIfAsExpected(string** expectedInstructions,map<string,vector<string>>& InstructionsMap){
 	int index=0;
 	int count;
 	string algoUid,algoOperation;
@@ -114,15 +115,15 @@ int checkMapIfAsExpected(expectedInstructions,InstructionsMap){
 
 		count=InstructionsMap.count(expectedInstructions[index][0]);
 		if(count==0){
-			std::cout<<"ERROR[16][1] : the algorithim missing instruction Container : "<<expectedInstructions[index][0]<<", operation :"<<<expectedInstructions[index][1]<std::endl;
+			std::cout<<"ERROR[16][1] : the algorithim missing instruction Container : "<<expectedInstructions[index][0]<<", operation :"<<expectedInstructions[index][1]<<std::endl;
 			return ERROR;
 		}else{
 			auto it = InstructionsMap.find(expectedInstructions[index][0]);
 			auto v=it->second;
-			algoUid =v.[0];
-			algoOperation =v.[1];
-			if(algoUid.compare()!=0 ||algoOperation.compare()!=0 ){
-				std::cout<<"ERROR[16][2] : the algorithim wrong operation instruction Container : "<<expectedInstructions[index][0]<<", operation :"<<<expectedInstructions[index][1]<std::endl;
+			algoUid =v[0];
+			algoOperation =v[1];
+			if(algoUid.compare(expectedInstructions[index][0])!=0 ||algoOperation.compare(expectedInstructions[index][1])!=0 ){
+				std::cout<<"ERROR[16][2] : the algorithim wrong operation instruction Container : "<<expectedInstructions[index][0]<<", operation :"<<expectedInstructions[index][1]<<std::endl;
 				return ERROR;
 			}else{
 				InstructionsMap.erase(it);
@@ -151,7 +152,7 @@ int insertInstructionToMap(string** algoInstructions,map<string,vector<string>>&
 		}else{
 			auto it = InstructionsMap.find(algoInstructions[index][0]);
 			auto v=it->second;
-			string old =v.[0];
+			string old =v[0];
 			if((algoInstructions[index][1]).compare("reject")==0 ||old.compare("reject")==0){
 				std::cout<<"ERROR[15][1] : two instruction to the same container while one or two of them is reject"<<std::endl;
 				 return ERROR;
@@ -173,14 +174,14 @@ void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDIC
 		case LAST :{fivedArray[0]="";fivedArray[1]="";fivedArray[2]="";fivedArray[3]="";fivedArray[4]="";
 				break;
 				}
-		case REGULAR:{	getElem(line,seek,',');strcpy(fivedArray[0],parse_out);
-				getElem(line,seek,',');strcpy(fivedArray[1],parse_out);
-				getElem(line,seek,',');strcpy(fivedArray[2],parse_out);
-				getElem(line,seek,',');strcpy(fivedArray[3],parse_out);
-				getElem(line,seek,',');strcpy(fivedArray[0],parse_out);
+		case REGULAR:{	getElem(line,seek,',');fivedArray[0]=string(parse_out);
+				getElem(line,seek,',');fivedArray[1]=string(parse_out);
+				getElem(line,seek,',');fivedArray[2]=string(parse_out);
+				getElem(line,seek,',');fivedArray[3]=string(parse_out);
+				getElem(line,seek,',');fivedArray[4]=string(parse_out);
 				break;
 				}	
-		case default : std::cout<<"ERROR[14][1] : Unknown indicator in getFiveElementsIntoArray"<<std::endl;
+		default : std::cout<<"ERROR[14][1] : Unknown indicator in getFiveElementsIntoArray"<<std::endl;
 			}
 }
 
@@ -188,7 +189,7 @@ void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDIC
 string** ReadExpectedInstructions(char* cargoFileName){
 	ifstream fd_info;
 	string** expectedInstructions;
-	char* expectedPath=new char[strlen(travelPath)+strlen(EXPECTED_OUTPUT)+strlen(outName)+15];
+	char* expectedPath=new char[strlen(travelPath)+strlen(EXPECTED_OUTPUT)+strlen(cargoFileName)+15];
  	strcpy(expectedPath,travelPath);
 	strcat(expectedPath,EXPECTED_OUTPUT);
 	strcat(expectedPath,"/");
@@ -199,9 +200,10 @@ string** ReadExpectedInstructions(char* cargoFileName){
 	//checking the access to the file
 	if(!fd_info){
 		std::cout << "ERROR[13][1]- can't open "<< expectedPath<< std::endl;
+		return NULL;
 	}
 	int lineNum = getNumOfLines(fd_info);
-	expectedInstructions = new string[lineNum+1];//the +1 used as indicator of the last container
+	expectedInstructions = new string*[lineNum+1];//the +1 used as indicator of the last container
 	for(int i = 0;i < lineNum+1;i++){
 		expectedInstructions[i]=new string[5];
 	
@@ -219,7 +221,9 @@ string** ReadExpectedInstructions(char* cargoFileName){
 			instructionIndex++;
 		}
 	}
-	getFiveElementsIntoArray("",0,expectedInstructions[instructionIndex],LAST);
+	getFiveElementsIntoArray("",seek,expectedInstructions[instructionIndex],LAST);
+	
+	return expectedInstructions;
 }
 
 //[12]
@@ -495,6 +499,9 @@ void simulateTravel(){
 	/*clone the ship
 	 */
 	  curAlgo =new Stowage(routeIndex,*ship,ports,tryOperation,instructions);
+	  string** algoInstructions=curAlgo->currentInstructions;
+	   int check=checkInstructionPerPort(routeIndex,algoInstructions);
+	cout<<check<<endl;
 	 /* get the instruction
 	 * update the ship
 	 */}
