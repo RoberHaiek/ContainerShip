@@ -15,6 +15,8 @@
 #include "WeightBalanceCalculator.cpp"
 #define SUCCESS 1
 #define ERROR 0
+#define LAST 1
+#define REGULAR 0
 #define MAX_LINE 1024
 using namespace std;
 int width,length,maxHeight;
@@ -25,7 +27,7 @@ int routeSize;
 const char* SHIP_PLANE="ship_plan";
 const char* ROUTE="route";
 const char* OUTPUT="/output";
-const char* EXPECTED="/expected_output";
+const char* EXPECTED_OUTPUT="/expected_output";
 char* parse_out=new char[MAX_LINE];
 Ship* ship;
 Stowage* curAlgo;
@@ -71,6 +73,69 @@ char* getElem(string s , int& seek,char delmiter=' '){
 	parse_out[index]='\0';
 	seek++;
 	return NULL;//must return
+}
+
+//[14]
+void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR){
+	switch(INDICATOR){
+		case LAST :{fivedArray[0]="";fivedArray[1]="";fivedArray[2]="";fivedArray[3]="";fivedArray[4]="";
+				break;
+				}
+		case REGULAR:{	getElem(line,seek,',');strcpy(fivedArray[0],parse_out);
+				getElem(line,seek,',');strcpy(fivedArray[1],parse_out);
+				getElem(line,seek,',');strcpy(fivedArray[2],parse_out);
+				getElem(line,seek,',');strcpy(fivedArray[3],parse_out);
+				getElem(line,seek,',');strcpy(fivedArray[0],parse_out);
+				break;
+				}	
+		case default : std::cout<<ERROR[14][1] : Unknown indicator in getFiveElementsIntoArray<<std::endl;
+			}
+}
+
+//[13]
+string** ReadExpectedInstructions(char* cargoFileName){
+	ifstream fd_info;
+	string** expectedInstructions;
+	char* expectedPath=new char[strlen(travelPath)+strlen(EXPECTED_OUTPUT)+strlen(outName)+15];
+ 	strcpy(expectedPath,travelPath);
+	strcat(expectedPath,EXPECTED_OUTPUT);
+	strcat(expectedPath,"/");
+	strcat(expectedPath,cargoFileName);
+	strcat(expectedPath,".expected");
+
+	fd_info.open(expectedPath,ios_base::in);//open the file
+	//checking the access to the file
+	if(!fd_info){
+		std::cout << "ERROR[13][1]- can't open "<< expectedPath<< std::endl;
+	}
+	int lineNum = getNumOfLines(fd_info);
+	expectedInstructions = new string[lineNum+1];//the +1 used as indicator of the last container
+	for(int i = 0;i < lineNum+1;i++){
+		expectedInstructions[i]=new string[5];
+	
+	}
+	//start reading from file
+	int instructionIndex=0;
+	string line;
+	int seek; 
+	while(getline(fd_info,line)){
+		if(line.at(0)=='#'){
+			continue;
+		}else{
+			seek=0;
+			getFiveElementsIntoArray(line,seek,expectedInstructions[instructionIndex],REGULAR);
+			instructionIndex++;
+		}
+	}
+	getFiveElementsIntoArray("",0,expectedInstructions[instructionIndex],LAST);
+}
+
+//[12]
+int checkInstructionPerPort(int portIndex,string** algoInstructions){
+	char* cargoFileName = getCargoFileName(portIndex);
+	string** expectedInstructions = ReadExpectedInstructions(char* cargoFileName);
+	
+	
 }
 //[11]
 Port* getPortsFromRoute(){
