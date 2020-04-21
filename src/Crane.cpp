@@ -10,8 +10,7 @@
 class Crane{
 public:
 	Ship ship;
-	Crane(Ship ship){
-		this->ship=ship;
+	Crane(Ship& ship):ship(ship){
 	}
 	// unload a single container from a specific location
 	void unload(Container container, int row, int column, int floor) {
