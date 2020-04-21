@@ -15,6 +15,7 @@ public:
 	int weight;
 	int shipWidth;
 	int shipLength;
+	int shipHeight;
 	map<string,int*> planMap;		// key = container, value = [row,column] of the container
 	cellLinkedList **planLinkedList;
 
@@ -22,6 +23,7 @@ public:
 		this->weight = 0;
 		this->shipWidth = shipWidth;
 		this->shipLength = shipLength;
+		this->shipHeight = shipHeight;
 		this->planMap = map<string,int*>();
 		this->planLinkedList = new cellLinkedList*[shipWidth];
 		for(int i=0;i<shipWidth;i++){
@@ -29,12 +31,13 @@ public:
 		}
 		for(int row=0;row<this->shipWidth;row++){
 			for(int column=0;column<this->shipLength;column++){
-				struct cellLinkedList temp;
-				this->planLinkedList[row][column] = temp;
-				struct node newNode;
-				newNode = this->planLinkedList[row][column].linkedList;
-				this->planLinkedList[row][column].maxHeight = shipHeight;
-				this->planLinkedList[row][column].size = 0;
+				this->planLinkedList[row][column] = cellLinkedList();
+				
+				//this->planLinkedList[row][column].linkedList = node();
+				//this->planLinkedList[row][column].linkedList.next = NULL;
+				//this->planLinkedList[row][column].linkedList.container = Container();
+				//this->planLinkedList[row][column].maxHeight = shipHeight;
+				//this->planLinkedList[row][column].size = 0;
 			}
 		}
 	}
@@ -45,6 +48,7 @@ public:
 		this->shipWidth = 0;
 		this->planMap = map<string,int*>();
 		this->planLinkedList = new cellLinkedList*[1];
+
 	}
 
 	void setHeight(int row, int column, int maxHeight){
