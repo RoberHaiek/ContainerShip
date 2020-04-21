@@ -10,9 +10,10 @@ class CraneTester{
 public:
 // checks if the ship is full
 	static bool isFull(Ship ship, string uniqueId){
+		cout << "isFull" << endl;
 		for(int i=0;i<ship.shipLength;i++){
 			for(int j=0;j<ship.shipWidth;j++){
-				if(ship.planLinkedList[i][j].maxHeight>ship.planLinkedList[i][j].size){
+				if(ship.planLinkedList[i][j].maxHeight==ship.planLinkedList[i][j].size){
 					std::cout << "Container "+uniqueId+" was rejected - reason: ship is full";
 					return true;
 				}
@@ -23,7 +24,8 @@ public:
 
 	// checks if the container weight is legal
 	static bool isLegalWeight(int containerWeight, string uniqueId){
-		if(containerWeight>0)
+		cout << "isLegalWeight" << endl;
+		if(containerWeight>=0)
 			return true;
 		std::cout << "Container "+uniqueId+" was rejected - reason: container unique id is invalid";
 		return false;
@@ -31,25 +33,25 @@ public:
 
 	// checks if the unique id of a container is valid
 	static bool isValidId(string uniqueId){
+		cout << "isValidId" << endl;
 		if(uniqueId.length()!=11)
 			return false;
 		for(int i=0;i<11;i++){
 			if(i<3){
-				if(!(uniqueId[3]>=65 && uniqueId[3]<=90)||(uniqueId[3]>=97 && uniqueId[3]<=122)){
-						std::cout << "Container "+uniqueId+" was rejected - reason: container weight is invalid";
+				if(!((int)uniqueId[i]>=65 && (int)uniqueId[i]<=90)||((int)uniqueId[i]>=97 && (int)uniqueId[i]<=122)){
+						std::cout << "Container "+uniqueId+" was rejected - reason: container unique ID is invalid in 1:" << i;
 						return false;
 				}
 			}
 			if(i==3){
-				if(!(uniqueId[4]==74 || uniqueId[4]==85 || uniqueId[4]==90 || uniqueId[4]==106 || uniqueId[4]==117 || uniqueId[4]==122)){
-					std::cout << "Container "+uniqueId+" was rejected - reason: container weight is invalid";
+				if(!((int)uniqueId[i]==74 || (int)uniqueId[i]==85 || (int)uniqueId[i]==90 || (int)uniqueId[i]==106 || (int)uniqueId[i]==117 || (int)uniqueId[i]==122)){
+					std::cout << "Container "+uniqueId+" was rejected - reason: container unique ID is invalid in 2:" << i;
 					return false;
 				}
 			}
-			else{
-				int currChar = uniqueId[i] - '0';
-				if(!(currChar>=0 && currChar<=9)){
-					std::cout << "Container "+uniqueId+" was rejected - reason: container weight is invalid";
+			if(i>3){
+				if(!((int)uniqueId[i]>=48 && (int)uniqueId[i]<=57)){
+					std::cout << "Container "+uniqueId+" was rejected - reason: container unique ID is invalid in 3:" << i;
 					return false;
 				}
 			}
@@ -58,6 +60,7 @@ public:
 	}
 
 	static bool isValidLoad(int row, int column, int floor, int shipWidth, int shipLength, int cellHeight, string uniqueId, map<string,int*> planMap){
+		cout << "isValidLoad" << endl;
 		if(row>=shipWidth || row<0 || column>=shipLength || column<0 || floor>=cellHeight || floor<0){
 			std::cout << "Container "+uniqueId+" was rejected - reason: loading container into invalid ship indexes";
 			return false;
@@ -69,6 +72,7 @@ public:
 	}
 
 	static bool isValidUnload(int row, int column, int floor, int shipWidth, int shipLength, int cellHeight, string uniqueId){
+		cout << "isValidUnLoad" << endl;
 		if(row != shipWidth || column!=shipLength || floor!=cellHeight){
 			std::cout << "Container "+uniqueId+" was rejected - reason: unloading container from invalid ship indexes";
 			return false;
@@ -77,6 +81,7 @@ public:
 	}
 
 	static bool isCorrectContainer(string containerUniqueId, string expectedUniqueId){
+		cout << "isCorrectContainer" << endl;
 		if(containerUniqueId.compare(expectedUniqueId)==0){
 			std::cout << "Container "+containerUniqueId+" was not unloaded, container requested was not found (Wrong indexes)";
 			return true;
