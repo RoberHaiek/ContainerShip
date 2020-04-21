@@ -31,6 +31,7 @@ const char* EXPECTED_OUTPUT="/expected_output";
 char* parse_out=new char[MAX_LINE];
 Ship* ship;
 Stowage* curAlgo;
+ofstream fd_results;
 
 /*---------------FUNC DEC-------------*/
 int getNumOfLines(ifstream& fd);
@@ -77,16 +78,14 @@ char* getElem(string s , int& seek,char delmiter=' '){
 }
 /*-------------------------------------------------------------------------------------------------------------*/
 
-/*//rwan
-int routeSize=6;
-ofstream fd_results;
-
+//[17]
+/*
 void parseResults (string algoName,string travelName,int numInst, int port){
 	static int sum;
 
 	if(!fd_results.is_open()){
 		fd_results.open("results.txt");
-		fd_results<< "*Travel name= "<<travelName<<"\n\t"<<"Algorithem name="<< algoName<<"\n\t";
+		fd_results<< "********Travel name= "<<travelName<<"\n\t"<<"Algorithem name="<< algoName<<"\n\t";
 
 	}
 	else if(fd_results!=0 && port==0){
@@ -105,6 +104,7 @@ void parseResults (string algoName,string travelName,int numInst, int port){
 	}
 }
 */
+
 /*-------------------------------------------------------------------------------------------------------------*/
 //[16]
 int checkMapIfAsExpected(string** expectedInstructions,map<string,vector<string>>& InstructionsMap){
@@ -112,24 +112,27 @@ int checkMapIfAsExpected(string** expectedInstructions,map<string,vector<string>
 	int count;
 	string algoUid,algoOperation;
 	while((expectedInstructions[index][0]).compare("last")!=0){
-
+		cout<<endl<<index<<index <<index <<index <<index <<index  <<endl;
 		count=InstructionsMap.count(expectedInstructions[index][0]);
+		cout<<"count = " <<count<<endl;
 		if(count==0){
 			std::cout<<"ERROR[16][1] : the algorithim missing instruction Container : "<<expectedInstructions[index][0]<<", operation :"<<expectedInstructions[index][1]<<std::endl;
 			return ERROR;
 		}else{
 			auto it = InstructionsMap.find(expectedInstructions[index][0]);
 			auto v=it->second;
-			algoUid =v[0];
-			algoOperation =v[1];
-			if(algoUid.compare(expectedInstructions[index][0])!=0 ||algoOperation.compare(expectedInstructions[index][1])!=0 ){
+			algoOperation =v[0];
+			cout<<"ID :" << expectedInstructions[index][0]<< ", algo op: "<< algoOperation <<endl;
+			if(algoOperation.compare(expectedInstructions[index][1])!=0 ){
 				std::cout<<"ERROR[16][2] : the algorithim wrong operation instruction Container : "<<expectedInstructions[index][0]<<", operation :"<<expectedInstructions[index][1]<<std::endl;
 				return ERROR;
 			}else{
 				InstructionsMap.erase(it);
 			}
 		}
+		index++;
 	}
+
 	//checking if the map EMPTY 
 	if(auto it2=InstructionsMap.begin(); it2!=InstructionsMap.end()){
 		std::cout<<"ERROR[16][3] : the algorithim adds more operations than expected"<<std::endl;
@@ -143,6 +146,7 @@ int insertInstructionToMap(string** algoInstructions,map<string,vector<string>>&
 	int index=0;
 	int count;
 	while((algoInstructions[index][0]).compare("last")!=0){
+		cout<<"**inserting to map :"<<algoInstructions[index][0] << " , "<<algoInstructions[index][1]<<endl;
 
 		count=InstructionsMap.count(algoInstructions[index][0]);
 		if(count==0){
@@ -161,17 +165,20 @@ int insertInstructionToMap(string** algoInstructions,map<string,vector<string>>&
 			}else if(old.compare("load")==0 && (algoInstructions[index][1]).compare("unload")==0){
 				InstructionsMap.erase(it);
 			}else{ //load-->load /unload -->unload
-				 std::cout<<"ERROR[15][2] : impossible to dow two instructions for the same container as (load -->load /unload--> unload)"<<std::endl;
+					cout<<"old op= "<<old<<" , "<<"curr op ="<<algoInstructions[index][1]<<endl;
+				 std::cout<<"ERROR[15][2] : impossible to do two instructions for the same container as (load -->load /unload--> unload)"<<std::endl;
 				 return ERROR;
 			}
 		}
+		index++;
 	}
+	cout<<endl<<"done inserting algo instructions" <<endl;
 	return SUCCESS;
 }
 //[14]
 void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR){
 	switch(INDICATOR){
-		case LAST :{fivedArray[0]="";fivedArray[1]="";fivedArray[2]="";fivedArray[3]="";fivedArray[4]="";
+		case LAST :{fivedArray[0]="last";fivedArray[1]="";fivedArray[2]="";fivedArray[3]="";fivedArray[4]="";
 				break;
 				}
 		case REGULAR:{	getElem(line,seek,',');fivedArray[0]=string(parse_out);
@@ -223,6 +230,11 @@ string** ReadExpectedInstructions(char* cargoFileName){
 	}
 	getFiveElementsIntoArray("",seek,expectedInstructions[instructionIndex],LAST);
 	
+	int index=0;
+	while((expectedInstructions[index][0]).compare("last")!=0){
+		cout<<"**reading expected :"<< expectedInstructions[index][0] << " , "<< expectedInstructions[index][1]<<"  " <<index <<endl;
+		index++;
+	}
 	return expectedInstructions;
 }
 
@@ -235,8 +247,12 @@ int checkInstructionPerPort(int portIndex,string** algoInstructions){
 		return ERROR;
 	}
 	string** expectedInstructions = ReadExpectedInstructions(cargoFileName);
+	cout<<endl<<"done reading expected instructions" <<endl;
+	cout<<endl<<"start checking the map content" <<endl;
+
 	int isSuccess=checkMapIfAsExpected(expectedInstructions,InstructionsMap);
-	
+	cout<<endl<<"finished checking the map content" <<endl;
+
 	return isSuccess;
 	
 	
@@ -272,8 +288,11 @@ int instructionsOut(string** instructions,char* outName){
 	int instIndex=0;
 	while(instructions[instIndex][0].compare("last")!=0){
 		//uid,L/R/U,row,column,height
-		fd_info<< instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4]<<"\n";
+		fd_info<< instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4];
 		instIndex++;
+		if(instructions[instIndex][0].compare("last")!=0){
+			fd_info<<endl;
+		}
 	}
 	delete[] filePath;
 	fd_info.close();
@@ -486,7 +505,7 @@ void simulateTravel(){
 	for(int i=0;i<routeSize;i++){
 		cout<<"	"<<getCargoFileName(i)<<endl;
 	}
-	 /*
+	 /*	
 	  *
 	  init algorithm ? and start to play
 	  *
@@ -498,10 +517,11 @@ void simulateTravel(){
 	for(int routeIndex=0;routeIndex<routeSize;routeIndex++){
 	/*clone the ship
 	 */
-	  curAlgo =new Stowage(routeIndex,*ship,ports,tryOperation,instructions);
+	  curAlgo =new Stowage(routeIndex,*ship,ports,instructions);
 	  string** algoInstructions=curAlgo->currentInstructions;
 	   int check=checkInstructionPerPort(routeIndex,algoInstructions);
-	cout<<check<<endl;
+	bool o=tryOperation();
+	cout<<check<<o<<endl;
 	 /* get the instruction
 	 * update the ship
 	 */}
@@ -525,7 +545,7 @@ void simulate(DIR* fd){
 				  simulateTravel();//simulate the travel
 				  //free resources
 				  closedir(fd_travel);
-			          delete[] travelPath;
+			        //  delete[] travelPath;
 			  }
 	  }
 }
@@ -553,30 +573,44 @@ int main(int argc, char *argv[]) {
 
 	//container* containers=new container[5];
 	cout <<"got a new life"<<endl;
-	string ** ptr=new string*[3];
+	string ** ptr=new string*[5];
 	ptr[0]=new string[5];
 	ptr[1]=new string[5];
 	ptr[2]=new string[5];
-	cout <<"22got a new life"<<endl;
-	ptr[0][0]="ABV";
-	cout <<"33got a new life"<<endl;
+	ptr[3]=new string[5];
+	ptr[4]=new string[5];
+	cout <<"got a new life"<<endl;
+	ptr[0][0]="container1";
+	cout <<"got a new life"<<endl;
 	ptr[0][1]="load";
 	ptr[0][2]="1";
 	ptr[0][3]="2";
 	ptr[0][4]="1";
-	ptr[1][0]="BAV";
+	ptr[1][0]="container2";
 	ptr[1][1]="unload";
 	ptr[1][2]="1";
 	ptr[1][3]="3";
 	ptr[1][4]="1";
-	ptr[2][0]="last";
+	ptr[2][0]="container3";
 	ptr[2][1]="load";
 	ptr[2][2]="1";
-	ptr[2][3]="2";
+	ptr[2][3]="3";
 	ptr[2][4]="1";
+	ptr[3][0]="container3";
+	ptr[3][1]="unload";
+	ptr[3][2]="1";
+	ptr[3][3]="3";
+	ptr[3][4]="1";
+	ptr[4][0]="last";
+	ptr[4][1]="load";
+	ptr[4][2]="1";
+	ptr[4][3]="2";
+	ptr[4][4]="1";
+	int check=checkInstructionPerPort(0,ptr);
 	
-	char* s=new char[20];
-	strcpy(s,"first_ptr");
+cout << "is valid : "<<check<<endl;
+	char* s=new char[25];
+	strcpy(s,"AAAAA_1.cargo_data");
 	
 	instructionsOut(ptr,s);
 	
