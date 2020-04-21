@@ -43,6 +43,41 @@ public:
 		currentInstructions[instNum][3]=column;
 		currentInstructions[instNum][4]=height;
 	}
+	// unload a single container from a specific location
+	void unload(Container container, int row, int column, int floor) {
+		struct node temp,newNode;
+		newNode.container=container;
+		newNode.next=NULL;
+		temp=ship.planLinkedList[row][column].linkedList;
+		for(int i=0;i<floor;i++){
+			temp=*temp.next;
+		}
+		if(CraneTester::isCorrectContainer(container.uniqueId,temp.next->container.uniqueId)){
+			temp.next=NULL;
+			ship.planMap.erase(container.uniqueId);
+			ship.planLinkedList[row][column].size--;
+		}
+	}
+
+	// load a single container to a specific location
+	void load(Container container,int row, int floor, int column) {
+		cout << "AAAAAAAAAAA";
+		int* rowColumn = new int[3];
+		rowColumn[0] = row;
+		rowColumn[1] = column;
+		rowColumn[2] = floor;
+		ship.planMap.insert(pair<string, int*>(container.uniqueId,rowColumn));	// Adding container to the map
+		struct node temp,newNode;										// Adding container to linked list
+		newNode.container=container;
+		newNode.next=NULL;
+		temp=ship.planLinkedList[row][column].linkedList;
+		while(temp.next!=NULL){
+			temp=*temp.next;
+		}
+		temp.next=&newNode;
+		ship.planLinkedList[row][column].size++;
+	}
+
 	// the logic for unloading the containers to a port
 	void unloadingAlgo(int i){
 		bool popAllAbove; // true if we're popping a container from a stack and we need to pop all above it
@@ -116,13 +151,11 @@ public:
 		string rowStr,columnStr,sizeStr;
 		Crane crane = Crane(this->ship);
 		for(int p=0;p<sizeOfArray(PortInstructions);p++){
-			cout << p << endl;
+			cout << "this is p: " <<p << endl;
 			currentContainer.container=PortInstructions[p];
 			//if(!isRejected(currentContainer)){
-				cout << "is here";
 				for(int row=0;row<ship.shipWidth;row++){
 					for(int column=0;column<ship.shipLength;column++){
-						cout << column << endl;
 						rowStream<<row;
 						columnStream<<column;
 						sizeStream<<(this->ship.planLinkedList[row][column].size+1);
@@ -130,12 +163,16 @@ public:
 						sizeStream>>sizeStr;
 						columnStream>>columnStr;
 						if(ship.planLinkedList[row][column].size<=ship.planLinkedList[row][column].maxHeight && weightBalance()){		// check if we are below height limit and balanced
-							if(CraneTester::isValidLoad(row,column,this->ship.planLinkedList[row][column].size,ship.shipWidth,ship.shipLength,this->ship.planLinkedList[row][column].maxHeight,currentContainer.container.uniqueId,ship.planMap)){
-								crane.load(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
+							//if(CraneTester::isValidLoad(row,column,this->ship.planLinkedList[row][column].size,ship.shipWidth,ship.shipLength,this->ship.planLinkedList[row][column].maxHeight,currentContainer.container.uniqueId,ship.planMap)){
+								cout << "this is column number1 " << column << endl;
+								//crane.
+								load(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
+								cout << "this is column number2 " << column << endl;
 								fillInstructions(currentContainer.container.uniqueId,"load",rowStr,columnStr,sizeStr);
+								cout << "this is column number3 " << column << endl;
 								breakIt = true;
 								break;
-							}
+							//}
 						}
 					}
 					if(breakIt){
