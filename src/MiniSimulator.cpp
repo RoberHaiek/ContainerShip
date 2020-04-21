@@ -32,10 +32,14 @@ char* parse_out=new char[MAX_LINE];
 Ship* ship;
 Stowage* curAlgo;
 ofstream fd_results;
-
+const char* fake_out="/fake_out";
+string travelName;
+string AlgoName="fakeAlgorithim";
+int numInstructions=0;
 /*---------------FUNC DEC-------------*/
 int getNumOfLines(ifstream& fd);
 char* getCargoFileName(int portIndex);
+void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 /*------------------DEBUGGING METHODS-------------------*/
 void printFiles(DIR* fd){
 	struct dirent *entry;
@@ -53,6 +57,52 @@ void printContainerArray(Container* arr,char* fileName){
 		pt=arr[++index];
 	}
 	
+}
+//must remove this 
+string** ReadExpectedInstructionsFAKE(char* cargoFileName){
+	ifstream fd_info;
+	string** expectedInstructions;
+	char* expectedPath=new char[strlen(travelPath)+strlen(fake_out)+strlen(cargoFileName)+15];
+ 	strcpy(expectedPath,travelPath);
+	strcat(expectedPath,fake_out);
+	strcat(expectedPath,"/");
+	strcat(expectedPath,cargoFileName);
+	strcat(expectedPath,".expected");
+
+	fd_info.open(expectedPath,ios_base::in);//open the file
+	//checking the access to the file
+	if(!fd_info){
+		std::cout << "ERROR[13][1]- can't open "<< expectedPath<< std::endl;
+		return NULL;
+	}
+	int lineNum = getNumOfLines(fd_info);
+	numInstructions=lineNum;
+	expectedInstructions = new string*[lineNum+1];//the +1 used as indicator of the last container
+	for(int i = 0;i < lineNum+1;i++){
+		expectedInstructions[i]=new string[5];
+	
+	}
+	//start reading from file
+	int instructionIndex=0;
+	string line;
+	int seek; 
+	while(getline(fd_info,line)){
+		if(line.at(0)=='#'){
+			continue;
+		}else{
+			seek=0;
+			getFiveElementsIntoArray(line,seek,expectedInstructions[instructionIndex],REGULAR);
+			instructionIndex++;
+		}
+	}
+	getFiveElementsIntoArray("",seek,expectedInstructions[instructionIndex],LAST);
+	
+	int index=0;
+	while((expectedInstructions[index][0]).compare("last")!=0){
+		cout<<"**reading expected :"<< expectedInstructions[index][0] << " , "<< expectedInstructions[index][1]<<"  " <<index <<endl;
+		index++;
+	}
+	return expectedInstructions;
 }
 
 /*--------------------------PARSING METHODS--------------------------*/
@@ -79,7 +129,7 @@ char* getElem(string s , int& seek,char delmiter=' '){
 /*-------------------------------------------------------------------------------------------------------------*/
 
 //[17]
-/*
+
 void parseResults (string algoName,string travelName,int numInst, int port){
 	static int sum;
 
@@ -88,9 +138,9 @@ void parseResults (string algoName,string travelName,int numInst, int port){
 		fd_results<< "********Travel name= "<<travelName<<"\n\t"<<"Algorithem name="<< algoName<<"\n\t";
 
 	}
-	else if(fd_results!=0 && port==0){
+	else if(fd_results.is_open() && port==0){
 		fd_results<<"---------------------------------------------------------------\n";
-		fd_results<< "*Travel name= "<<travelName<<"\n\t"<<"Algorithem name="<< algoName<<"\n\t";	
+		fd_results<< "********Travel name= "<<travelName<<"\n\t"<<"Algorithem name="<< algoName<<"\n\t";	
 	}
 	else{
 		sum+=numInst;
@@ -103,7 +153,7 @@ void parseResults (string algoName,string travelName,int numInst, int port){
 		sum=0;
 	}
 }
-*/
+
 
 /*-------------------------------------------------------------------------------------------------------------*/
 //[16]
@@ -112,9 +162,7 @@ int checkMapIfAsExpected(string** expectedInstructions,map<string,vector<string>
 	int count;
 	string algoUid,algoOperation;
 	while((expectedInstructions[index][0]).compare("last")!=0){
-		cout<<endl<<index<<index <<index <<index <<index <<index  <<endl;
 		count=InstructionsMap.count(expectedInstructions[index][0]);
-		cout<<"count = " <<count<<endl;
 		if(count==0){
 			std::cout<<"ERROR[16][1] : the algorithim missing instruction Container : "<<expectedInstructions[index][0]<<", operation :"<<expectedInstructions[index][1]<<std::endl;
 			return ERROR;
@@ -502,8 +550,22 @@ void simulateTravel(){
 	  initRoute();
 	  //example
 	cout<<"printing the cargo file ame"<<endl;
+	
+	parseResults (AlgoName,travelName,0,0);
+	int check;
 	for(int i=0;i<routeSize;i++){
-		cout<<"	"<<getCargoFileName(i)<<endl;
+		char* FileName=getCargoFileName(i);
+		cout<<"	parsing :"<<FileName<<endl;
+		string** fakeInstructions=ReadExpectedInstructionsFAKE(FileName);
+		instructionsOut(fakeInstructions,FileName);
+		check=checkInstructionPerPort(i,fakeInstructions);
+		if(check==SUCCESS){
+			parseResults (AlgoName,travelName,numInstructions,i+1);
+
+		}else{
+			parseResults (AlgoName,travelName,numInstructions,0-(i+1));
+		}
+
 	}
 	 /*	
 	  *
@@ -519,12 +581,17 @@ void simulateTravel(){
 	 */
 	  curAlgo =new Stowage(routeIndex,*ship,ports,instructions);
 	  string** algoInstructions=curAlgo->currentInstructions;
-	   int check=checkInstructionPerPort(routeIndex,algoInstructions);
+	   int check=checkInstructionPerPort(0,algoInstructions);
 	bool o=tryOperation();
-	cout<<check<<o<<endl;
+		cout<<check<<o<<endl;
 	 /* get the instruction
 	 * update the ship
-	 */}
+	 */
+	}
+
+	//
+
+	
 	}
 }
 //[2] called in [1]
@@ -542,12 +609,16 @@ void simulate(DIR* fd){
 		  if(fd_travel==NULL){
 			  std::cout << "ERROR[2][1]- can't open "<<entry->d_name<<std::endl; 
 			  }else{
+				travelName=string(entry->d_name);
 				  simulateTravel();//simulate the travel
 				  //free resources
 				  closedir(fd_travel);
-			        //  delete[] travelPath;
+			          delete[] travelPath;
 			  }
 	  }
+	if(fd_results.is_open()){
+		fd_results.close();	
+	}
 }
 	
 
@@ -570,7 +641,7 @@ int main(int argc, char *argv[]) {
 	}
 	//get the travels
 	simulate(fd_path);
-
+/*
 	//container* containers=new container[5];
 	cout <<"got a new life"<<endl;
 	string ** ptr=new string*[5];
@@ -580,8 +651,9 @@ int main(int argc, char *argv[]) {
 	ptr[3]=new string[5];
 	ptr[4]=new string[5];
 	cout <<"got a new life"<<endl;
-	ptr[0][0]="container1";
+	
 	cout <<"got a new life"<<endl;
+	ptr[0][0]="container1";
 	ptr[0][1]="load";
 	ptr[0][2]="1";
 	ptr[0][3]="2";
@@ -597,7 +669,7 @@ int main(int argc, char *argv[]) {
 	ptr[2][3]="3";
 	ptr[2][4]="1";
 	ptr[3][0]="container3";
-	ptr[3][1]="unload";
+	ptr[3][1]="load";
 	ptr[3][2]="1";
 	ptr[3][3]="3";
 	ptr[3][4]="1";
@@ -613,9 +685,9 @@ cout << "is valid : "<<check<<endl;
 	strcpy(s,"AAAAA_1.cargo_data");
 	
 	instructionsOut(ptr,s);
-	
-	closedir(fd_path);
-	delete[] workPath;
-	delete[] parse_out;
+	*/
+	//closedir(fd_path);
+	//delete[] workPath;
+	//delete[] parse_out;
 	return 0;
 }
