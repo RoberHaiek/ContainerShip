@@ -13,6 +13,10 @@
 	{
 	    Container container;
 	    struct node *next;
+		node(){
+			Port p = Port("TEST");
+			container = Container(1,p,"TESTING");
+			next = NULL;}
 	};
 	// each cellLinkedList represents a cell (specific row and column) in which containers are represented as nodes in the linked list, and the size
 	struct cellLinkedList
@@ -20,6 +24,11 @@
 		node linkedList;
 		int size;
 		int maxHeight;
+		cellLinkedList(){
+			linkedList = node();
+			size=0;
+			maxHeight=10;
+}
 	};
 
 
