@@ -12,7 +12,7 @@ public:
 			int c=0;
 			while(array[c].toString()!="last")
 				c++;
-			return 0;
+			return c;
 	}
 
 	// checks if a container's destination port is in route
