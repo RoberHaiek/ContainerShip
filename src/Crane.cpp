@@ -10,7 +10,7 @@
 class Crane{
 public:
 	Ship* ship;
-	Crane(Ship& ship):ship(&ship){
+	Crane(Ship* ship):ship(ship){
 	}
 	// unload a single container from a specific location
 	void unload(Container container, int row, int column, int floor) {
@@ -25,30 +25,28 @@ public:
 			ship->planMap->erase(container.uniqueId);
 			ship->planLinkedList[row][column].size--;
 		}
-		cout << "unload done";
 	}
 
 	// load a single container to a specific location
-	void load(Container* cont,int row, int column, int floor) {
-		cout << "???";
-		Container container=*cont;
+	void load(Container* container,int row, int column, int floor) {
 		int* rowColumn = new int[3];
 		rowColumn[0] = row;
 		rowColumn[1] = column;
 		rowColumn[2] = floor;
-		ship->planMap->insert(pair<string, int*>(container.uniqueId,rowColumn));	// Adding container to the map
+		ship->planMap->insert(pair<string, int*>(container->uniqueId,rowColumn));	// Adding container to the map
 		struct node *temp, *newNode;
 		temp =new node();
 		newNode =new node();
-		Port port = Port(container.destPort.toString());
-		newNode->container=new Container(container.weight,port,container.uniqueId);
+		Port port = Port(container->destPort.toString());
+		newNode->container=new Container(container->weight,port,container->uniqueId);
 		newNode->next=NULL;
 		temp=ship->planLinkedList[row][column].linkedList;
-		cout<<(temp->next==NULL)<<endl;
 		while(temp->next!=NULL){
 			temp=temp->next;
 		}
 		temp->next=newNode;
+		cout << "LOADED CONTAINER in linked list " << ship->planLinkedList[row][column].linkedList->container->uniqueId << endl;
+		cout << "LOADED CONTAINER in map " << ship->planMap->find(container->uniqueId)->first << endl;
 		ship->planLinkedList[row][column].size++;
 	}
 

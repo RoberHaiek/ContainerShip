@@ -9,11 +9,11 @@
 class CraneTester{
 public:
 // checks if the ship is full
-	static bool isFull(Ship ship, string uniqueId){
+	static bool isFull(Ship* ship, string uniqueId){
 		cout << "isFull" << endl;
-		for(int i=0;i<ship.shipLength;i++){
-			for(int j=0;j<ship.shipWidth;j++){
-				if(ship.planLinkedList[i][j].maxHeight==ship.planLinkedList[i][j].size){
+		for(int i=0;i<ship->shipLength;i++){
+			for(int j=0;j<ship->shipWidth;j++){
+				if(ship->planLinkedList[i][j].maxHeight==ship->planLinkedList[i][j].size){
 					std::cout << "Container "+uniqueId+" was rejected - reason: ship is full";
 					return true;
 				}
