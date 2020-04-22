@@ -14,9 +14,8 @@ public:
 	}
 	// unload a single container from a specific location
 	void unload(Container container, int row, int column, int floor) {
-		struct node *temp,*newNode;
-		newNode->container=&(container);
-		newNode->next=NULL;
+		struct node *temp;
+		temp =new node();
 		temp=ship->planLinkedList[row][column].linkedList;
 		for(int i=0;i<floor;i++){
 			temp=temp->next;
@@ -30,16 +29,19 @@ public:
 	}
 
 	// load a single container to a specific location
-	void load(Container& container,int row, int floor, int column) {
+	void load(Container* cont,int row, int floor, int column) {
+		cout << "???";
+		Container container=*cont;
 		int* rowColumn = new int[3];
 		rowColumn[0] = row;
 		rowColumn[1] = column;
 		rowColumn[2] = floor;
 		ship->planMap->insert(pair<string, int*>(container.uniqueId,rowColumn));	// Adding container to the map
-		struct node* temp,*newNode;										// Adding container to linked list
+		struct node *temp, *newNode;
 		temp =new node();
 		newNode =new node();
-		newNode->container=&container;
+		Port port = Port(container.destPort.toString());
+		newNode->container=new Container(container.weight,port,container.uniqueId);
 		newNode->next=NULL;
 		temp=ship->planLinkedList[row][column].linkedList;
 		cout<<(temp->next==NULL)<<endl;

@@ -44,7 +44,7 @@ public:
 		currentInstructions[instNum][3]=column;
 		currentInstructions[instNum][4]=height;
 		cout << "done "<< uniqueId << endl;
-		instNum++;
+		instNum = instNum + 1;
 	}
 
 	// the logic for unloading the containers to a port
@@ -101,7 +101,7 @@ public:
 					currentContainer.container=&(tempContainers.front());
 					tempContainers.pop();
 					if(CraneTester::isValidUnload(row,column,this->ship.planLinkedList[row][column].size,ship.shipWidth,ship.shipLength,this->ship.planLinkedList[row][column].maxHeight,currentContainer.container->uniqueId)){
-						crane.load(*(currentContainer.container),row,column,this->ship.planLinkedList[row][column].size);
+						crane.load(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
 						fillInstructions(currentContainer.container->uniqueId,"load",rowStr,columnStr,sizeStr);
 					}
 				}
@@ -130,10 +130,8 @@ public:
 						columnStream>>columnStr;
 						if(ship.planLinkedList[row][column].size<=ship.planLinkedList[row][column].maxHeight && weightBalance()){		// check if we are below height limit and balanced
 							if(CraneTester::isValidLoad(row,column,this->ship.planLinkedList[row][column].size,ship.shipWidth,ship.shipLength,this->ship.planLinkedList[row][column].maxHeight,currentContainer.container->uniqueId,ship.planMap)){
-								cout << "this is column number1 " << column << endl;
-								Container cont=*(currentContainer.container);
-								cout << "this is column number1 " << column << endl;
-								crane.load(cont,row,column,this->ship.planLinkedList[row][column].size);
+								cout << "current container ID: " << currentContainer.container->uniqueId << column << endl;
+								crane.load(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
 								cout << "this is column number2 " << column << endl;
 								fillInstructions(currentContainer.container->uniqueId,"load",rowStr,columnStr,sizeStr);
 								cout << "this is column number3 " << column << endl;
@@ -171,7 +169,7 @@ public:
 	//	This function takes the index of the current port in the list of routes as the parameter i (first port: i=0)
 	//	and the ship
 	//	returns a list of instructions as following:
-	//	{a container's unique id, "load/unload/reject", row, column, height, and a boolean representing whether it's loaded\unloaded to\from a temporary storage}
+	//	{a container's unique id, "load/unload/reject", row, column, height}
 	/*/
 	Stowage(int i, Ship& ship, Port *route, Container* instructions):ship(ship){
 			this->instNum = 0;	// The instruction number of the returned instruction

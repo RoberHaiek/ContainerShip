@@ -22,8 +22,8 @@
 	struct cellLinkedList
 	{
 		node* linkedList;
-		int size=2;
-		int maxHeight=20;
+		int size;
+		int maxHeight;
 		cellLinkedList(){
 			linkedList =new node();
 			size=0;
