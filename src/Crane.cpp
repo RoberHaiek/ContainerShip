@@ -29,7 +29,7 @@ public:
 	}
 
 	// load a single container to a specific location
-	void load(Container* cont,int row, int floor, int column) {
+	void load(Container* cont,int row, int column, int floor) {
 		cout << "???";
 		Container container=*cont;
 		int* rowColumn = new int[3];

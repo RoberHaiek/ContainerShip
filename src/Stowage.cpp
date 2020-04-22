@@ -36,15 +36,15 @@ public:
 	}
 
 	void fillInstructions(string uniqueId, string LUR, string row, string column, string height){
-		cout << "filling "<< uniqueId << "instNum " <<instNum<< endl;
+		cout << "filling "<< uniqueId << endl;
 		currentInstructions[instNum] = new string[5];
 		currentInstructions[instNum][0]=uniqueId;
 		currentInstructions[instNum][1]=LUR;
 		currentInstructions[instNum][2]=row;
 		currentInstructions[instNum][3]=column;
 		currentInstructions[instNum][4]=height;
-		cout << "done "<< uniqueId << endl;
 		instNum = instNum + 1;
+		cout << "done filling" << endl;
 	}
 
 	// the logic for unloading the containers to a port
@@ -59,7 +59,7 @@ public:
 				if(this->ship.planLinkedList[row][column].size == 0){
 					continue;
 				}
-				std::cout << "ssssssss";
+				std::cout << "UNLOADING...";
 				rowStream<<row;
 				columnStream<<column;
 				sizeStream<<(this->ship.planLinkedList[row][column].size+1);
@@ -67,8 +67,8 @@ public:
 				columnStream>>columnStr;
 				sizeStream>>sizeStr;
 				popAllAbove=false;
-				struct cellLinkedList a = ship.planLinkedList[row][column];
 				currentContainer=*(ship.planLinkedList[row][column].linkedList);
+				cout << "current container ID: " << currentContainer.container->uniqueId << column << endl;
 				for(int c=0;c<ship.planLinkedList[row][column].size;c++){		// starting from the bottom !!!
 					if(currentContainer.container->destPort.toString() == route[i].toString()){	// does ship container belong to ship port?
 						std::cout << "1" << endl;
@@ -117,7 +117,7 @@ public:
 		string rowStr,columnStr,sizeStr;
 		Crane crane = Crane(this->ship);
 		for(int p=0;p<sizeOfArray(PortInstructions);p++){
-			cout << "this is p: " <<p << endl;
+			cout << "********************this is p: " <<p << endl;
 			currentContainer.container=&(PortInstructions[p]);
 			if(!isRejected(currentContainer)){
 				for(int row=0;row<ship.shipWidth;row++){
@@ -130,11 +130,36 @@ public:
 						columnStream>>columnStr;
 						if(ship.planLinkedList[row][column].size<=ship.planLinkedList[row][column].maxHeight && weightBalance()){		// check if we are below height limit and balanced
 							if(CraneTester::isValidLoad(row,column,this->ship.planLinkedList[row][column].size,ship.shipWidth,ship.shipLength,this->ship.planLinkedList[row][column].maxHeight,currentContainer.container->uniqueId,ship.planMap)){
-								cout << "current container ID: " << currentContainer.container->uniqueId << column << endl;
-								crane.load(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
+								cout << "current container ID: " << currentContainer.container->uniqueId << endl;
+								//crane.load(currentContainer.container,row,column,this->ship.planLinkedList[row][column].size);
+		int* rowColumn = new int[3];
+		rowColumn[0] = row;
+		rowColumn[1] = column;
+		rowColumn[2] = this->ship.planLinkedList[row][column].size;
+		ship.planMap->insert(pair<string, int*>(currentContainer.container->uniqueId,rowColumn));
+		struct node *temp, *newNode;
+		temp =new node();
+		newNode =new node();
+		Port port = Port(currentContainer.container->destPort.toString());
+		newNode->container=new Container(currentContainer.container->weight,port,currentContainer.container->uniqueId);
+		newNode->next=NULL;
+		temp=ship.planLinkedList[row][column].linkedList;
+		cout << "row " << row << " column " << column << " ships width " << ship.shipWidth << endl;
+		cout<< ship.planLinkedList[row][column].size;
+cout << "2" << endl;
+		cout<< ship.planLinkedList[row][column].linkedList->container->uniqueId <<endl;
+cout << "3" << endl;
+		while(temp->next!=NULL){
+cout << "1" << endl;
+
+			temp=temp->next;
+		}
+cout << "4" << endl;
+		temp->next=newNode;
+cout << "5" << endl;
+		ship.planLinkedList[row][column].size++;
 								cout << "this is column number2 " << column << endl;
 								fillInstructions(currentContainer.container->uniqueId,"load",rowStr,columnStr,sizeStr);
-								cout << "this is column number3 " << column << endl;
 								breakIt = true;
 								break;
 							}
@@ -151,12 +176,11 @@ public:
 
 	// rejection test
 	bool isRejected(node currentContainer){
-		cout << "welcome to: "<< endl << "isrejected" << endl;
+		cout << "isRejected" << endl;
 		if(!StowageTester::isInRoute(currentContainer.container->destPort.toString(),this->route,currentContainer.container->uniqueId)
 			|| CraneTester::isFull(this->ship,currentContainer.container->uniqueId)
 				|| !CraneTester::isValidId(currentContainer.container->uniqueId)
 					|| !CraneTester::isLegalWeight(currentContainer.container->weight,currentContainer.container->uniqueId)){
-			cout << "stuck";
 			fillInstructions(currentContainer.container->uniqueId,"reject","-1","-1","-1");
 			return true;
 		}
@@ -181,10 +205,10 @@ public:
 			unloadingAlgo(i);
 			std::cout << "loadingAlgo " << endl;
 			loadingAlgo(instructions, weightBalance);
-			std::cout << "fillInstructions" << endl;
+			std::cout << "filling last instructions" << endl;
 			fillInstructions("last","last","last","last","last");
 			std::cout << "FINITO!";
-			cout << currentInstructions[1][1];
+			//cout << currentInstructions[1][1];
 	//	}
 	}
 
