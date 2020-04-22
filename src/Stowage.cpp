@@ -74,7 +74,7 @@ public:
 		currentInstructions[instNum][4]=height;
 		instNum = instNum + 1;
 		std::cout << "done filling" << endl;
-		//printPlanMap();
+		printPlanMap();
 	}
 
 	// the logic for unloading the containers to a port
@@ -89,7 +89,6 @@ public:
 				if(this->ship->planLinkedList[row][column].size == 0){
 					continue;
 				}
-				std::cout << "UNLOADING...";
 				rowStream<<row;
 				columnStream<<column;
 				sizeStream<<(this->ship->planLinkedList[row][column].size+1);
@@ -98,39 +97,33 @@ public:
 				sizeStream>>sizeStr;
 				popAllAbove=false;
 				currentContainer=*(ship->planLinkedList[row][column].linkedList);
-				std::cout << "current container ID: " << currentContainer.container->uniqueId << column << endl;
 				for(int c=0;c<ship->planLinkedList[row][column].size;c++){		// starting from the bottom !!!
+					cout << " dest port " << currentContainer.container->destPort.toString() << " current port " << route[i].toString() <<endl;
 					if(currentContainer.container->destPort.toString() == route[i].toString()){	// does ship container belong to ship port?
-						std::cout << "1" << endl;
 						int* dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
-						if(CraneTester::isValidUnload(row,column,ship->planLinkedList[row][column].size,dimensions[0],dimensions[1],dimensions[2],currentContainer.container->uniqueId)){
-							std::cout << "2" << endl;
+						if(CraneTester::isValidUnload(row,column,dimensions[0],dimensions[1],currentContainer.container->uniqueId)){
 							crane.unload(*(currentContainer.container),row,column,this->ship->planLinkedList[row][column].size);
 							fillInstructions(currentContainer.container->uniqueId,"unload",rowStr,columnStr,sizeStr);
 							popAllAbove=true;
 						}
 					}
 					else{	// ship container does NOT belong to ship port
-						std::cout << "3" << endl;
 						if(popAllAbove){	// but should I put it in temp?
 							int* dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
-							if(CraneTester::isValidUnload(row,column,ship->planLinkedList[row][column].size,dimensions[0],dimensions[1],dimensions[2],currentContainer.container->uniqueId)){
-								std::cout << "4" << endl;
+							if(CraneTester::isValidUnload(row,column,dimensions[0],dimensions[1],currentContainer.container->uniqueId)){
 								crane.unload(*(currentContainer.container),row,column,this->ship->planLinkedList[row][column].size);
 								tempContainers.push(*(currentContainer.container));
 								fillInstructions(currentContainer.container->uniqueId,"unload",rowStr,columnStr,sizeStr);
 							}
 						}
 					}
-					currentContainer=*currentContainer.next;
+						currentContainer=*currentContainer.next;
 				}
-				std::cout << "ISTEMP";
 				// loading containers from temp back to ship
 				while(!tempContainers.empty()){
-					std::cout << "in temp";
 					currentContainer.container=&(tempContainers.front());
 					tempContainers.pop();
-					if(CraneTester::isValidUnload(row,column,this->ship->planLinkedList[row][column].size,ship->shipWidth,ship->shipLength,this->ship->planLinkedList[row][column].maxHeight,currentContainer.container->uniqueId)){
+					if(CraneTester::isValidUnload(row,column,ship->shipWidth,ship->shipLength,currentContainer.container->uniqueId)){
 						crane.load(currentContainer.container,row,column,this->ship->planLinkedList[row][column].size);
 						fillInstructions(currentContainer.container->uniqueId,"load",rowStr,columnStr,sizeStr);
 					}
@@ -147,7 +140,6 @@ public:
 		string rowStr,columnStr,sizeStr;
 		Crane crane = Crane(this->ship);
 		for(int p=0;p<sizeOfArray(PortInstructions);p++){
-			std::cout << "********************this is p: " <<p << endl;
 			currentContainer.container=&(PortInstructions[p]);
 			if(!isRejected(currentContainer)){
 				for(int row=0;row<ship->shipWidth;row++){
