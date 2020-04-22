@@ -44,9 +44,11 @@ public:
 		while(temp->next!=NULL){
 			temp=temp->next;
 		}
-		temp->next=newNode;
-		cout << "LOADED CONTAINER in linked list " << ship->planLinkedList[row][column].linkedList->container->uniqueId << endl;
-		cout << "LOADED CONTAINER in map " << ship->planMap->find(container->uniqueId)->first << endl;
+		if(temp->container->uniqueId.compare("TESTING")==0){
+		temp->container=newNode->container;
+		}else{
+			temp->next=newNode;
+		}
 		ship->planLinkedList[row][column].size++;
 	}
 

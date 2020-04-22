@@ -74,7 +74,7 @@ public:
 		currentInstructions[instNum][4]=height;
 		instNum = instNum + 1;
 		std::cout << "done filling" << endl;
-		printPlanMap();
+		//printPlanMap();
 	}
 
 	// the logic for unloading the containers to a port
