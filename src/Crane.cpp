@@ -13,18 +13,22 @@ public:
 	Crane(Ship* ship):ship(ship){
 	}
 	// unload a single container from a specific location
-	void unload(Container container, int row, int column, int floor) {
-		struct node *temp;
-		temp =new node();
+	node * unload(Container container, int row, int column, int floor) {
+		struct node *temp,*prev;
 		temp=ship->planLinkedList[row][column].linkedList;
-		for(int i=0;i<floor;i++){
+		prev=temp;
+		while(temp!=NULL && temp->container->uniqueId.compare(container.uniqueId)!=0 ){
+			prev=temp;
 			temp=temp->next;
 		}
-		if(CraneTester::isCorrectContainer(container.uniqueId,temp->next->container->uniqueId)){
-			temp->next=NULL;
+		if(temp==prev){
+			ship->planLinkedList[row][column].linkedList=temp->next;
+		}else{
+			prev->next=temp->next;
+		}
 			ship->planMap->erase(container.uniqueId);
 			ship->planLinkedList[row][column].size--;
-		}
+		return temp;
 	}
 
 	// load a single container to a specific location
