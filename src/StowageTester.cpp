@@ -16,8 +16,12 @@ public:
 	}
 
 	// checks if a container's destination port is in route
-	static bool isInRoute(string destPort, Port* route, string uniqueId){
-		for(int i=0;i<sizeOfArray(route);i++){
+	static bool isInRoute(string destPort, Port* route, string uniqueId,int routeIndex){
+		int sizeArray=sizeOfArray(route);
+		if(routeIndex==sizeArray-1){
+			return false;
+		}
+		for(int i=routeIndex+1;i<sizeArray;i++){
 			if(destPort==route[i].toString()){
 				return true;
 			}

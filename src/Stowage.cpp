@@ -18,6 +18,7 @@ public:
 	string **currentInstructions;
 	queue<node*> tempContainers;
 	queue<node*> loadBackContainers;
+	int routeIndex;
 
 	//parinting
 	void printContainers(Container *array) {
@@ -112,7 +113,6 @@ public:
 						ship->planLinkedList[row][column].linkedList;
 				for (int c = 0; c < ship->planLinkedList[row][column].size;
 						c++) {		// starting from the bottom !!!
-					cout<<"00000000000000000000000000000000000000000000000"<<endl;
 					cout << " dest port "
 							<< currentContainer->container->destPort.toString()
 							<< " current port " << route[i].toString() << endl;
@@ -120,16 +120,13 @@ public:
 							== route[i].toString()) {// does ship container belong to ship port?
 						int *dimensions = ship->planMap->find(
 								currentContainer->container->uniqueId)->second;
-					cout<<"11111111111111111111111111111111111111111111111"<<endl;
-						if (CraneTester::isValidUnload(row, column,
+							if (CraneTester::isValidUnload(row, column,
 								dimensions[0], dimensions[1],
 								currentContainer->container->uniqueId)) {
-							cout<<"22222222 in unload 22222222222222222"<<endl;
-							node *temp =
+									node *temp =
 									crane.unload(*(currentContainer->container),
 											row, column,
 											this->ship->planLinkedList[row][column].size);
-							cout<<"33333333333333333333333333333333333333"<<endl;
 							currentContainer = temp->next;
 
 							tempContainers.push(temp);
@@ -160,7 +157,6 @@ public:
 							}
 						}
 					}
-					cout<<"44444444444444444444444444"<<endl;
 					if(!popAllAbove){
 					currentContainer =currentContainer->next;}
 					
@@ -171,7 +167,6 @@ public:
 				// loading containers from temp back to ship
 				node *popedElem;
 				while (!tempContainers.empty()) {
-					cout<<"5555555555555555555555555"<<endl;
 					popedElem = tempContainers.back();
 					tempContainers.pop();
 					string dstPort = popedElem->container->destPort.toString();
@@ -252,7 +247,7 @@ public:
 		std::cout << "isRejected" << endl;
 		if (!StowageTester::isInRoute(
 				currentContainer.container->destPort.toString(), this->route,
-				currentContainer.container->uniqueId)
+				currentContainer.container->uniqueId,routeIndex)
 				|| CraneTester::isFull(this->ship,
 						currentContainer.container->uniqueId)
 				|| !CraneTester::isValidId(currentContainer.container->uniqueId)
@@ -278,6 +273,7 @@ public:
 			ship(ship) {
 		this->instNum = 0;// The instruction number of the returned instruction
 		this->currentInstructions = new string*[100];
+		routeIndex=i;
 		//this->ship=ship;
 		this->route = route;
 		this->tempContainers = queue<node*>();

@@ -6,4 +6,5 @@
 	Algorithem name=fakeAlgorithim
 	In port -1: 0
 	In port -2: 0
+	In port -3: 0
 	
