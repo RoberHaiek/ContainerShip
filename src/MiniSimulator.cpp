@@ -551,9 +551,8 @@ void simulateTravel(){
 	  //example
 	cout<<"printing the cargo file ame"<<endl;
 	
-	parseResults (AlgoName,travelName,0,0);
 	int check;
-	for(int i=0;i<routeSize;i++){
+	/*for(int i=0;i<routeSize;i++){
 		char* FileName=getCargoFileName(i);
 		cout<<"	parsing :"<<FileName<<endl;
 		string** fakeInstructions=ReadExpectedInstructionsFAKE(FileName);
@@ -564,7 +563,27 @@ void simulateTravel(){
 
 		}else{
 			parseResults (AlgoName,travelName,numInstructions,0-(i+1));
-		}
+		}*/
+	//try
+	Port* ports=getPortsFromRoute();
+	parseResults (AlgoName,travelName,0,0);
+	for(int routeIndex=0;routeIndex<routeSize;routeIndex++){
+		char* FileName=getCargoFileName(routeIndex);
+	Container * containers=parseCargoFile(FileName);
+		printContainerArray(containers, FileName);
+	  curAlgo =new Stowage(routeIndex,ship,ports,containers);
+	  string** algoInstructions=curAlgo->currentInstructions;
+		instructionsOut(algoInstructions,FileName);
+	   check=checkInstructionPerPort(routeIndex,algoInstructions);
+	if(check==SUCCESS){
+			parseResults (AlgoName,travelName,numInstructions,routeIndex+1);
+
+		}else{
+			parseResults (AlgoName,travelName,numInstructions,0-(routeIndex+1));
+	}
+	 /* get the instruction
+	 * update the ship
+	 */
 
 	}
 	 /*	
@@ -575,11 +594,11 @@ void simulateTravel(){
 	
 	Container* instructions=NULL;
 	if(instructions!=NULL){
-	Port* ports=getPortsFromRoute();
+	//Port* ports=getPortsFromRoute();
 	for(int routeIndex=0;routeIndex<routeSize;routeIndex++){
 	/*clone the ship
 	 */
-	  curAlgo =new Stowage(routeIndex,*ship,ports,instructions);
+	  curAlgo =new Stowage(routeIndex,ship,ports,instructions);
 	  string** algoInstructions=curAlgo->currentInstructions;
 	   int check=checkInstructionPerPort(0,algoInstructions);
 	bool o=tryOperation();

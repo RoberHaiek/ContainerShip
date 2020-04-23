@@ -28,6 +28,7 @@ public:
 		}
 			ship->planMap->erase(container.uniqueId);
 			ship->planLinkedList[row][column].size--;
+		if(floor){}
 		return temp;
 	}
 

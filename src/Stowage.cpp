@@ -88,25 +88,12 @@ public:
 		instNum = instNum + 1;
 		std::cout << "done filling" << endl;
 	}
-	void fillInstructionsToArray(string uniqueId, string LUR, string row,
-			string column, string height, string **currentInstructions,
-			int instNum) {
-		std::cout << "filling " << uniqueId << endl;
-		currentInstructions[instNum] = new string[5];
-		currentInstructions[instNum][0] = uniqueId;
-		currentInstructions[instNum][1] = LUR;
-		currentInstructions[instNum][2] = row;
-		currentInstructions[instNum][3] = column;
-		currentInstructions[instNum][4] = height;
-		std::cout << "done filling" << endl;
-	}
-
 	// the logic for unloading the containers to a port
 	void unloadingAlgo(int i) {
 		bool popAllAbove; // true if we're popping a container from a stack and we need to pop all above it
 		stringstream rowStream, columnStream, sizeStream;
 		string rowStr, columnStr, sizeStr;
-		struct node currentContainer = node();
+		struct node *currentContainer;
 		Crane crane = Crane(this->ship);
 		for (int row = 0; row < ship->shipWidth; row++) {
 			for (int column = 0; column < ship->shipLength; column++) {
@@ -122,24 +109,29 @@ public:
 				sizeStream >> sizeStr;
 				popAllAbove = false;
 				currentContainer =
-						*(ship->planLinkedList[row][column].linkedList);
+						ship->planLinkedList[row][column].linkedList;
 				for (int c = 0; c < ship->planLinkedList[row][column].size;
 						c++) {		// starting from the bottom !!!
-
+					cout<<"00000000000000000000000000000000000000000000000"<<endl;
 					cout << " dest port "
-							<< currentContainer.container->destPort.toString()
+							<< currentContainer->container->destPort.toString()
 							<< " current port " << route[i].toString() << endl;
-					if (currentContainer.container->destPort.toString()
+					if (currentContainer->container->destPort.toString()
 							== route[i].toString()) {// does ship container belong to ship port?
 						int *dimensions = ship->planMap->find(
-								currentContainer.container->uniqueId)->second;
+								currentContainer->container->uniqueId)->second;
+					cout<<"11111111111111111111111111111111111111111111111"<<endl;
 						if (CraneTester::isValidUnload(row, column,
 								dimensions[0], dimensions[1],
-								currentContainer.container->uniqueId)) {
+								currentContainer->container->uniqueId)) {
+							cout<<"22222222 in unload 22222222222222222"<<endl;
 							node *temp =
-									crane.unload(*(currentContainer.container),
+									crane.unload(*(currentContainer->container),
 											row, column,
 											this->ship->planLinkedList[row][column].size);
+							cout<<"33333333333333333333333333333333333333"<<endl;
+							currentContainer = temp->next;
+
 							tempContainers.push(temp);
 							popAllAbove = true;
 						}
@@ -147,25 +139,32 @@ public:
 						if (popAllAbove) {	// but should I put it in temp?
 							int *dimensions =
 									ship->planMap->find(
-											currentContainer.container->uniqueId)->second;
+											currentContainer->container->uniqueId)->second;
 							if (CraneTester::isValidUnload(row, column,
 									dimensions[0], dimensions[1],
-									currentContainer.container->uniqueId)) {
+									currentContainer->container->uniqueId)) {
 								node *temp =
 										crane.unload(
-												*(currentContainer.container),
+												*(currentContainer->container),
 												row, column,
 												this->ship->planLinkedList[row][column].size);
+								currentContainer = temp->next;
 								tempContainers.push(temp);
 
 							}
 						}
 					}
-					currentContainer = *currentContainer.next;
+					cout<<"44444444444444444444444444"<<endl;
+					//currentContainer =currentContainer.next;
+					
+
 				}
+					
+
 				// loading containers from temp back to ship
 				node *popedElem;
 				while (!tempContainers.empty()) {
+					cout<<"5555555555555555555555555"<<endl;
 					popedElem = tempContainers.back();
 					tempContainers.pop();
 					string dstPort = popedElem->container->destPort.toString();

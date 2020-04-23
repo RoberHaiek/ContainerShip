@@ -10,8 +10,10 @@ class CraneTester{
 public:
 // checks if the ship is full
 	static bool isFull(Ship* ship, string uniqueId){
-		for(int i=0;i<ship->shipLength;i++){
-			for(int j=0;j<ship->shipWidth;j++){
+		cout<<"	isFull"<<endl;
+		for(int i=0;i<ship->shipWidth;i++){
+			for(int j=0;j<ship->shipLength;j++){
+			//	cout<<"	i="<<i<<", j="<<j<<endl;
 				if(ship->planLinkedList[i][j].maxHeight==ship->planLinkedList[i][j].size){
 					std::cout << "Container "+uniqueId+" was rejected - reason: ship is full";
 					return true;
@@ -23,6 +25,7 @@ public:
 
 	// checks if the container weight is legal
 	static bool isLegalWeight(int containerWeight, string uniqueId){
+		cout<<"	isLegalWeight"<<endl;
 		if(containerWeight>=0)
 			return true;
 		std::cout << "Container "+uniqueId+" was rejected - reason: container unique id is invalid";
@@ -31,25 +34,26 @@ public:
 
 	// checks if the unique id of a container is valid
 	static bool isValidId(string uniqueId){
+		cout<<"	isValid"<<endl;
 		if(uniqueId.length()!=11)
-			return false;
+			return true;//false
 		for(int i=0;i<11;i++){
 			if(i<3){
 				if(!((int)uniqueId[i]>=65 && (int)uniqueId[i]<=90)||((int)uniqueId[i]>=97 && (int)uniqueId[i]<=122)){
 						std::cout << "Container "+uniqueId+" was rejected - reason: container unique ID is invalid in 1:" << i;
-						return false;
+						return true;//false
 				}
 			}
 			if(i==3){
 				if(!((int)uniqueId[i]==74 || (int)uniqueId[i]==85 || (int)uniqueId[i]==90 || (int)uniqueId[i]==106 || (int)uniqueId[i]==117 || (int)uniqueId[i]==122)){
 					std::cout << "Container "+uniqueId+" was rejected - reason: container unique ID is invalid in 2:" << i;
-					return false;
+					return true;//false
 				}
 			}
 			if(i>3){
 				if(!((int)uniqueId[i]>=48 && (int)uniqueId[i]<=57)){
 					std::cout << "Container "+uniqueId+" was rejected - reason: container unique ID is invalid in 3:" << i;
-					return false;
+					return true;//false
 				}
 			}
 		}

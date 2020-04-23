@@ -1,0 +1,9 @@
+********Travel name= BARCA_TEAVEL
+	Algorithem name=fakeAlgorithim
+	Sum: 0
+---------------------------------------------------------------
+********Travel name= TLV_TRAVEL
+	Algorithem name=fakeAlgorithim
+	In port -1: 0
+	In port -2: 0
+	
