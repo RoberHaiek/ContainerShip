@@ -127,10 +127,10 @@ public:
 						list.linkedList;
 				//node* c =list.linkedList;
 				while(currentContainer !=NULL) {		// starting from the bottom !!!
-					cout << " dest port "
-							<< currentContainer->container->destPort.toString()
-							<< " current port " << route[i].toString() << endl;
-					printContainersZeroZero();
+			//		cout << " dest port "
+			//				<< currentContainer->container->destPort.toString()
+			//				<< " current port " << route[i].toString() << endl;
+				//	printContainersZeroZero();
 					if (currentContainer->container->destPort.toString()
 							== route[i].toString()) {// does ship container belong to ship port?
 						int *dimensions = ship->planMap->find(
@@ -142,14 +142,14 @@ public:
 									crane.unload(*(currentContainer->container),
 											row, column,
 											this->ship->planLinkedList[row][column].size);
-							printContainersZeroZero();
+							//printContainersZeroZero();
 							currentContainer = temp->next;
 
 							tempContainers.push_front(temp);
 							if(tempContainers.empty()){
 								cout<<"tempContainers is empty"<<endl;
 							}else{
-								cout<<"tempContainers is not empty"<<endl;
+							//	cout<<"tempContainers is not empty"<<endl;
 
 							}
 							popAllAbove = true;
@@ -167,7 +167,7 @@ public:
 												*(currentContainer->container),
 												row, column,
 												this->ship->planLinkedList[row][column].size);
-								printContainersZeroZero();
+							//	printContainersZeroZero();
 
 								currentContainer = temp->next;
 								tempContainers.push_front(temp);
@@ -181,7 +181,7 @@ public:
 
 				}
 				cout<<"after unloading  "<<endl;
-				printContainersZeroZero();
+				//printContainersZeroZero();
 				// loading containers from temp back to ship
 				node *popedElem;
 				while (!tempContainers.empty()) {
@@ -294,7 +294,7 @@ public:
 	Stowage(int i, Ship *ship, Port *route, Container *instructions) :
 			ship(ship) {
 		cout<<"************in port number "<<i<<endl;
-		printContainersZeroZero();
+	//	printContainersZeroZero();
 		this->instNum = 0;// The instruction number of the returned instruction
 		this->currentInstructions = new string*[100];
 		routeIndex=i;
@@ -303,13 +303,13 @@ public:
 		//this->tempContainers = dequeue<node*>();
 		std::cout << "unloadingAlgo " << endl;
 		unloadingAlgo(i);
-		cout<<"************in port number after unload "<<i<<endl;
-		printContainersZeroZero();
+	//	cout<<"************in port number after unload "<<i<<endl;
+	//	printContainersZeroZero();
 
 		std::cout << "loadingAlgo " << endl;
 		loadingAlgo(instructions, weightBalance);
-		cout<<"************in port number after load "<<i<<endl;
-		printContainersZeroZero();
+	//	cout<<"************in port number after load "<<i<<endl;
+	//	printContainersZeroZero();
 
 		std::cout << "filling last instructions" << endl;
 		fillInstructions("last", "last", "last", "last", "last");

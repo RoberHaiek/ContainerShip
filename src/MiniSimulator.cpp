@@ -321,6 +321,7 @@ int instructionsOut(string** instructions,char* outName){
 	//open output file to write the instruction to output dir ??????????????????????? we must open a output dir to every algo????
 	ofstream fd_info;
 	cout << "in out" <<endl;
+	numInstructions=0;
 	char* filePath=new char[strlen(travelPath)+strlen(OUTPUT)+strlen(outName)+6];
 	
 	strcpy(filePath,travelPath);
@@ -336,6 +337,7 @@ int instructionsOut(string** instructions,char* outName){
 	int instIndex=0;
 	while(instructions[instIndex][0].compare("last")!=0){
 		//uid,L/R/U,row,column,height
+		numInstructions++;
 		fd_info<< instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4];
 		instIndex++;
 		if(instructions[instIndex][0].compare("last")!=0){
@@ -553,6 +555,8 @@ void simulateTravel(){
 	
 	int check;
 	/*for(int i=0;i<routeSize;i++){
+		cin  >>check ;
+	getch();
 		char* FileName=getCargoFileName(i);
 		cout<<"	parsing :"<<FileName<<endl;
 		string** fakeInstructions=ReadExpectedInstructionsFAKE(FileName);

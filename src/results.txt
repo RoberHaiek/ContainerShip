@@ -4,7 +4,10 @@
 ---------------------------------------------------------------
 ********Travel name= TLV_TRAVEL
 	Algorithem name=fakeAlgorithim
-	In port -1: 0
-	In port -2: 0
-	In port -3: 0
-	
+	In port 1: 4
+	In port 2: 7
+	In port 3: 7
+	In port 4: 7
+	In port 5: 2
+	In port 6: 3
+	Sum: 30
