@@ -18,6 +18,7 @@ public:
 	string **currentInstructions;
 	deque<node*> tempContainers;
 	deque<node*> loadBackContainers;
+	deque<string*> indexies;
 	int routeIndex;
 
 	void printContainersZeroZero(){
@@ -49,30 +50,7 @@ public:
 				<< endl;
 	}
 
-	void printPlanMap() {
-		cellLinkedList **linkedList = ship->planLinkedList;
-		node *tmp;
-		std::cout
-				<< "--------------------printing linked list content---------------------"
-				<< endl;
-		for (int row = 0; row < ship->shipWidth; row++) {
-			std::cout << "-size= " << linkedList[row]->size << " MAX_HIGHET= "
-					<< linkedList[row]->maxHeight << endl;
-			for (int col = 0; col < ship->shipLength; col++) {
-				std::cout << endl << "**" << row << "**" << col << endl;
-				std::cout << "	size= " << linkedList[row][col].size
-						<< " MAX_HIGHET= " << linkedList[row][col].maxHeight
-						<< endl;
-				tmp = linkedList[row][col].linkedList;
-				bool isNULL = tmp->next == NULL;
-				std::cout << "	-ContainerID: " << tmp->container->uniqueId
-						<< "  IS_NEXT_NULL=" << isNULL << endl;
-
-			}
-		}
-		std::cout << "--------------------END---------------------" << endl
-				<< endl;
-	}
+	
 	// TO DO:
 	//	void getInstructionsForCargo(const std::string& input_full_path_and_file_name, const std::string& output_full_path_and_file_name)
 
@@ -105,22 +83,14 @@ public:
 	// the logic for unloading the containers to a port
 	void unloadingAlgo(int i) {
 		bool popAllAbove; // true if we're popping a container from a stack and we need to pop all above it
-		stringstream rowStream, columnStream, sizeStream;
-		string rowStr, columnStr, sizeStr;
 		struct node *currentContainer;
+		string* indxes;
 		Crane crane = Crane(this->ship);
 		for (int row = 0; row < ship->shipWidth; row++) {
 			for (int column = 0; column < ship->shipLength; column++) {
 				if (this->ship->planLinkedList[row][column].size == 0) {
 					continue;
 				}
-				rowStream << row;
-				columnStream << column;
-				sizeStream
-						<< (this->ship->planLinkedList[row][column].size + 1);
-				rowStream >> rowStr;
-				columnStream >> columnStr;
-				sizeStream >> sizeStr;
 				popAllAbove = false;
 				cellLinkedList list=ship->planLinkedList[row][column];
 				currentContainer =
@@ -146,6 +116,9 @@ public:
 							currentContainer = temp->next;
 
 							tempContainers.push_front(temp);
+							indxes=new string[3];
+							indxes[0]=to_string(row+1);indxes[1]=to_string(column+1);indxes[2]=to_string(this->ship->planLinkedList[row][column].size+1);
+							indexies.push_front(indxes);
 							if(tempContainers.empty()){
 								cout<<"tempContainers is empty"<<endl;
 							}else{
@@ -171,6 +144,10 @@ public:
 
 								currentContainer = temp->next;
 								tempContainers.push_front(temp);
+								indxes=new string[3];
+								indxes[0]=to_string(row+1);indxes[1]=to_string(column+1);indxes[2]=to_string(this->ship->planLinkedList[row][column].size+1);
+								indexies.push_front(indxes);
+
 
 							}
 						}
@@ -180,31 +157,45 @@ public:
 					
 
 				}
+				
 				cout<<"after unloading  "<<endl;
 				//printContainersZeroZero();
 				// loading containers from temp back to ship
 				node *popedElem;
+				string *indx;
 				while (!tempContainers.empty()) {
 					popedElem = tempContainers.front();
+					indx=indexies.front();
+					indexies.pop_front();
 					tempContainers.pop_front();
 					string dstPort = popedElem->container->destPort.toString();
 					fillInstructions(popedElem->container->uniqueId, "unload",
-							rowStr, columnStr, sizeStr);
+							indx[0], indx[1], indx[2]);
+					cout<<"1111111111111111111111111111111111111111111111111111111111"<<endl;
 					if (dstPort.compare(route[i].toString()) == 0) {
 						delete popedElem;
+						delete[] indx;
+						cout<<"22222222222222222222222222222222222222222222222222"<<endl;
 					} else {
 						loadBackContainers.push_front(popedElem);
+						indexies.push_back(indx);
+						cout<<"3333333333333333333333333333333333333333333"<<endl;
 					}
 				}
 				cout<<"done with the tempContainers "<<endl;
 				while (!loadBackContainers.empty()) {
 					cout<<"in the loadBackContainers"<<endl;
 					popedElem = loadBackContainers.back();
+					indx=indexies.back();
+					indexies.pop_back();
 					loadBackContainers.pop_back();
 					fillInstructions(popedElem->container->uniqueId, "load",
-							rowStr, columnStr, sizeStr);
+							indx[0], indx[1], indx[2]);
 					crane.load(popedElem->container, row, column,
 							this->ship->planLinkedList[row][column].size);
+					delete popedElem;
+					delete indx;
+
 
 				}
 
@@ -216,22 +207,12 @@ public:
 	void loadingAlgo(Container *PortInstructions, bool (*weightBalance)()) {
 		bool breakIt = false;// move to the next container from the port instructions list
 		struct node currentContainer;
-		stringstream rowStream, columnStream, sizeStream;
-		string rowStr, columnStr, sizeStr;
 		Crane crane = Crane(this->ship);
 		for (int p = 0; p < sizeOfArray(PortInstructions); p++) {
 			currentContainer.container = &(PortInstructions[p]);
 			if (!isRejected(currentContainer)) {
 				for (int row = 0; row < ship->shipWidth; row++) {
 					for (int column = 0; column < ship->shipLength; column++) {
-						rowStream << row;
-						columnStream << column;
-						sizeStream
-								<< (this->ship->planLinkedList[row][column].size
-										+ 1);
-						rowStream >> rowStr;
-						sizeStream >> sizeStr;
-						columnStream >> columnStr;
 						if (ship->planLinkedList[row][column].size
 								<= ship->planLinkedList[row][column].maxHeight
 								&& weightBalance()) {// check if we are below height limit and balanced
@@ -249,7 +230,7 @@ public:
 										this->ship->planLinkedList[row][column].size);
 								fillInstructions(
 										currentContainer.container->uniqueId,
-										"load", rowStr, columnStr, sizeStr);
+										"load", to_string(row+1), to_string(column+1), to_string((this->ship->planLinkedList[row][column].size)));
 								breakIt = true;
 								break;
 							}
