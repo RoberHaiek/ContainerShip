@@ -133,6 +133,12 @@ public:
 							currentContainer = temp->next;
 
 							tempContainers.push(temp);
+							if(tempContainers.empty()){
+								cout<<"tempContainers is empty"<<endl;
+							}else{
+								cout<<"tempContainers is not empty"<<endl;
+
+							}
 							popAllAbove = true;
 						}
 					} else {	// ship container does NOT belong to ship port
@@ -155,7 +161,8 @@ public:
 						}
 					}
 					cout<<"44444444444444444444444444"<<endl;
-					//currentContainer =currentContainer.next;
+					if(!popAllAbove){
+					currentContainer =currentContainer->next;}
 					
 
 				}
