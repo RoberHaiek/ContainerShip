@@ -22,7 +22,13 @@ public:
 			temp=temp->next;
 		}
 		if(temp==prev){
-			ship->planLinkedList[row][column].linkedList=temp->next;
+			if(temp->next==NULL){
+			node *newNode =new node();
+			ship->planLinkedList[row][column].linkedList=newNode;
+			ship->planLinkedList[row][column].size++;
+			}else{
+				ship->planLinkedList[row][column].linkedList=temp->next;
+			}
 		}else{
 			prev->next=temp->next;
 		}
@@ -40,17 +46,22 @@ public:
 		rowColumn[2] = floor;
 		ship->planMap->insert(pair<string, int*>(container->uniqueId,rowColumn));	// Adding container to the map
 		struct node *temp, *newNode;
-		temp =new node();
 		newNode =new node();
 		Port port = Port(container->destPort.toString());
 		newNode->container=new Container(container->weight,port,container->uniqueId);
 		newNode->next=NULL;
 		temp=ship->planLinkedList[row][column].linkedList;
-		while(temp->next!=NULL){
+		while(temp!=NULL && temp->next!=NULL){
 			temp=temp->next;
 		}
-		if(temp->container->uniqueId.compare("TESTING")==0){
-		temp->container=newNode->container;
+		if(temp==NULL){
+			ship->planLinkedList[row][column].linkedList=newNode;
+		}
+		else if(temp->container->uniqueId.compare("TESTING")==0){
+	//	temp->container=newNode->container;
+		ship->planLinkedList[row][column].linkedList=newNode;//
+
+		ship->planLinkedList[row][column].size--;
 		}else{
 			temp->next=newNode;
 		}

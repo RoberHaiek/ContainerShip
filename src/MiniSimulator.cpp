@@ -705,6 +705,7 @@ cout << "is valid : "<<check<<endl;
 	
 	instructionsOut(ptr,s);
 	*/
+
 	//closedir(fd_path);
 	//delete[] workPath;
 	//delete[] parse_out;

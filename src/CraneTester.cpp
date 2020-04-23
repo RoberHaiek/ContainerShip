@@ -73,6 +73,7 @@ public:
 
 	static bool isValidUnload(int row, int column, int shipWidth, int shipLength, string uniqueId){
 		if(row != shipWidth || column!=shipLength){
+			cout<<"row ="<<row <<" , column="<<column<<endl;
 			std::cout << "Container "+uniqueId+" was rejected - reason: unloading container from invalid ship indexes";
 			return false;
 		}

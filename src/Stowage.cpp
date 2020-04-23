@@ -16,9 +16,22 @@ public:
 	Ship *ship;
 	Port *route;					// array of ports
 	string **currentInstructions;
-	queue<node*> tempContainers;
-	queue<node*> loadBackContainers;
+	deque<node*> tempContainers;
+	deque<node*> loadBackContainers;
 	int routeIndex;
+
+	void printContainersZeroZero(){
+		node* temp=ship->planLinkedList[0][0].linkedList;
+		cout<< "--------------------[0][0]---------------------------------"<<endl;
+
+		while(temp!=NULL){
+			cout<< temp->container->uniqueId <<" --> ";
+			temp=temp->next;
+		}
+		cout<<" NULL "<<endl;
+
+		cout<< "--------------------[0][0] END---------------------------------"<<endl;
+	}
 
 	//parinting
 	void printContainers(Container *array) {
@@ -109,13 +122,15 @@ public:
 				columnStream >> columnStr;
 				sizeStream >> sizeStr;
 				popAllAbove = false;
+				cellLinkedList list=ship->planLinkedList[row][column];
 				currentContainer =
-						ship->planLinkedList[row][column].linkedList;
-				for (int c = 0; c < ship->planLinkedList[row][column].size;
-						c++) {		// starting from the bottom !!!
+						list.linkedList;
+				//node* c =list.linkedList;
+				while(currentContainer !=NULL) {		// starting from the bottom !!!
 					cout << " dest port "
 							<< currentContainer->container->destPort.toString()
 							<< " current port " << route[i].toString() << endl;
+					printContainersZeroZero();
 					if (currentContainer->container->destPort.toString()
 							== route[i].toString()) {// does ship container belong to ship port?
 						int *dimensions = ship->planMap->find(
@@ -127,9 +142,10 @@ public:
 									crane.unload(*(currentContainer->container),
 											row, column,
 											this->ship->planLinkedList[row][column].size);
+							printContainersZeroZero();
 							currentContainer = temp->next;
 
-							tempContainers.push(temp);
+							tempContainers.push_front(temp);
 							if(tempContainers.empty()){
 								cout<<"tempContainers is empty"<<endl;
 							}else{
@@ -151,41 +167,47 @@ public:
 												*(currentContainer->container),
 												row, column,
 												this->ship->planLinkedList[row][column].size);
+								printContainersZeroZero();
+
 								currentContainer = temp->next;
-								tempContainers.push(temp);
+								tempContainers.push_front(temp);
 
 							}
 						}
 					}
-					if(!popAllAbove){
+					if(!popAllAbove && currentContainer!=NULL){
 					currentContainer =currentContainer->next;}
 					
 
 				}
-					
-
+				cout<<"after unloading  "<<endl;
+				printContainersZeroZero();
 				// loading containers from temp back to ship
 				node *popedElem;
 				while (!tempContainers.empty()) {
-					popedElem = tempContainers.back();
-					tempContainers.pop();
+					popedElem = tempContainers.front();
+					tempContainers.pop_front();
 					string dstPort = popedElem->container->destPort.toString();
 					fillInstructions(popedElem->container->uniqueId, "unload",
 							rowStr, columnStr, sizeStr);
 					if (dstPort.compare(route[i].toString()) == 0) {
 						delete popedElem;
 					} else {
-						loadBackContainers.push(popedElem);
+						loadBackContainers.push_front(popedElem);
 					}
 				}
+				cout<<"done with the tempContainers "<<endl;
 				while (!loadBackContainers.empty()) {
+					cout<<"in the loadBackContainers"<<endl;
 					popedElem = loadBackContainers.back();
-					loadBackContainers.pop();
+					loadBackContainers.pop_back();
 					fillInstructions(popedElem->container->uniqueId, "load",
 							rowStr, columnStr, sizeStr);
 					crane.load(popedElem->container, row, column,
 							this->ship->planLinkedList[row][column].size);
+
 				}
+
 			}
 		}
 	}
@@ -271,18 +293,27 @@ public:
 	 /*/
 	Stowage(int i, Ship *ship, Port *route, Container *instructions) :
 			ship(ship) {
+		cout<<"************in port number "<<i<<endl;
+		printContainersZeroZero();
 		this->instNum = 0;// The instruction number of the returned instruction
 		this->currentInstructions = new string*[100];
 		routeIndex=i;
 		//this->ship=ship;
 		this->route = route;
-		this->tempContainers = queue<node*>();
+		//this->tempContainers = dequeue<node*>();
 		std::cout << "unloadingAlgo " << endl;
 		unloadingAlgo(i);
+		cout<<"************in port number after unload "<<i<<endl;
+		printContainersZeroZero();
+
 		std::cout << "loadingAlgo " << endl;
 		loadingAlgo(instructions, weightBalance);
+		cout<<"************in port number after load "<<i<<endl;
+		printContainersZeroZero();
+
 		std::cout << "filling last instructions" << endl;
 		fillInstructions("last", "last", "last", "last", "last");
+		
 		std::cout << "FINITO!";
 		//std::cout << currentInstructions[1][1];
 	}
