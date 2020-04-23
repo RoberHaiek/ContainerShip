@@ -1,10 +1,3 @@
-/*
- * Crane.cpp
- *
- *  Created on: 17 Apr 2020
- *      Author: rober.haiek
- */
-
 #include "CraneTester.cpp"
 
 class Crane{
@@ -43,7 +36,7 @@ public:
 		rowColumn[0] = row;
 		rowColumn[1] = column;
 		rowColumn[2] = floor;
-		ship->planMap->insert(pair<string, int*>(container->uniqueId,rowColumn));	// Adding container to the map
+		ship->planMap->insert(std::pair<std::string, int*>(container->uniqueId,rowColumn));	// Adding container to the map
 		struct node *temp, *newNode;
 		newNode =new node();
 		Port port = Port(container->destPort.toString());

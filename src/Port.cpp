@@ -1,19 +1,11 @@
-/*
- * Port.cpp
- *
- *  Created on: 29 Mar 2020
- *      Author: rober.haiek
- */
-
 #include <iostream>
 #include <list>
-using namespace std;
 
 class Port {
 public:
-	string port;	// 5 capital English letters
+	std::string port;	// 5 capital English letters
 
-	Port(string port){
+	Port(std::string port){
 		this->port=port;
 	}
 
@@ -21,7 +13,7 @@ public:
 		this->port="";
 	}
 
-	string toString(){
+	std::string toString(){
 		return port;
 	}
 };

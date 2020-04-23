@@ -1,9 +1,3 @@
-/*
- * Tester.cpp
- *
- *  Created on: 17 Apr 2020
- *      Author: rober.haiek
- */
 #include "Crane.cpp"
 
 class StowageTester{
@@ -16,13 +10,12 @@ public:
 	}
 
 	// checks if a container's destination port is in route
-	static bool isInRoute(string destPort, Port* route, string uniqueId,int routeIndex){
+	static bool isInRoute(std::string destPort, Port* route,int routeIndex){
 		int sizeArray=sizeOfArray(route);
 		if(routeIndex==sizeArray-1){
 			return false;
 		}
 		if(destPort==route[routeIndex].toString()){
-			std::cout << "Container "+uniqueId+" was rejected - reason: why to load a container if it will be back to you ??";
 				return false;
 			}
 		
@@ -31,7 +24,6 @@ public:
 				return true;
 			}
 		}
-		std::cout << "Container "+uniqueId+" was rejected - reason: destination port is not in route";
 		return false;
 	}
 
