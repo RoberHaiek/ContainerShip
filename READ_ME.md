@@ -4,6 +4,7 @@ Container ship – Design
 
 Inclusion flow:
 Simulator >> Stowage >> StowageTester >> Crane >> CraneTester >> Ship >> Container >> Port
+
 Data structures:
 1-	Ship
   a.	Container Plan [][]		# 2D matric of stacks of containers
