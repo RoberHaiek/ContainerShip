@@ -34,7 +34,7 @@ Simulator >> Stowage >> StowageTester >> Crane >> CraneTester >> Ship >> Contain
     Constructor: Crane(Ship ship)
         a- Ship ship - the ship on which the crane operates on
 ### **5- CraneTester**        // tests the laods/unloads validity  
-### **6- Stowage**          // the algorithm  
+### **6- Stowage**          // the algorithm   
    Constructor: Stowage(int i, Ship *ship, Port *route, Container *instructions, bool weightBalance function)
         a- int instNum   // the index of the current instruction to be returned in the end
         b- Ship ship
@@ -46,14 +46,15 @@ Simulator >> Stowage >> StowageTester >> Crane >> CraneTester >> Ship >> Contain
 ### **7- StowageTester**  // tests if a container's destPort is in route or not  
 ### **8- Simulator** // runs the stowage  
 
-## **Input:**
-directory path (root)
+## **Input/Output:**
+input is directory path (root)
 - in the root directory, there are travel directories, in each there are:  
 1- ship plan
 2- route
 3- cargo file for each port in the route
 4- output folder (container's unique id, "load/unload/reject", row, column, height)
 5- expected_output folder (does not refer to the indexes of the containers, but to the content)
+6- results.txt - result of algorithm as instruction number
 
 ## **The flow:**  
 The Simulator receives info about the ship, initializes it, then receives the route of ports, and a list of instructions for each port, and runs the Stowage algorithm for each port with it's instructions.
