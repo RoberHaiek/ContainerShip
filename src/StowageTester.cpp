@@ -21,6 +21,11 @@ public:
 		if(routeIndex==sizeArray-1){
 			return false;
 		}
+		if(destPort==route[routeIndex].toString()){
+			std::cout << "Container "+uniqueId+" was rejected - reason: why to load a container if it will be back to you ??";
+				return false;
+			}
+		
 		for(int i=routeIndex+1;i<sizeArray;i++){
 			if(destPort==route[i].toString()){
 				return true;

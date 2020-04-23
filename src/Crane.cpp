@@ -25,7 +25,6 @@ public:
 			if(temp->next==NULL){
 			node *newNode =new node();
 			ship->planLinkedList[row][column].linkedList=newNode;
-			ship->planLinkedList[row][column].size++;
 			}else{
 				ship->planLinkedList[row][column].linkedList=temp->next;
 			}
@@ -60,8 +59,6 @@ public:
 		else if(temp->container->uniqueId.compare("TESTING")==0){
 	//	temp->container=newNode->container;
 		ship->planLinkedList[row][column].linkedList=newNode;//
-
-		ship->planLinkedList[row][column].size--;
 		}else{
 			temp->next=newNode;
 		}

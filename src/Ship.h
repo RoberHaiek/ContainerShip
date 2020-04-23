@@ -29,6 +29,12 @@
 			size=0;
 			maxHeight=10;
 }
+		cellLinkedList(int max){
+			linkedList =new node();
+			size=0;
+			maxHeight=max;
+	}
+
 	};
 
 

@@ -1,5 +1,8 @@
 #<uid>,<weight>,<dstPort>
-container1,1,AAAAA
+#container1,1,AAAAA
+#container2,1,BBBBB
+#container3,1,CCCCC
+#container4,1,DDDDD
+container1,1,BBBBB
 container2,1,BBBBB
-container3,1,CCCCC
-container4,1,DDDDD
+container3,1,BBBBB

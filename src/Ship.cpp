@@ -31,7 +31,7 @@ public:
 		}
 		for(int row=0;row<this->shipWidth;row++){
 			for(int column=0;column<this->shipLength;column++){
-				this->planLinkedList[row][column] = cellLinkedList();
+				this->planLinkedList[row][column] = cellLinkedList(shipHeight);
 				
 				//this->planLinkedList[row][column].linkedList = node();
 				//this->planLinkedList[row][column].linkedList.next = NULL;
@@ -41,7 +41,7 @@ public:
 			}
 		}
 	}
-
+	
 	Ship(){
 		this->weight = 0;
 		this->shipLength = 0;
@@ -58,5 +58,28 @@ public:
 	~Ship(){
 		delete[] this->planLinkedList[0];
 	}
+	void printPlanMap() {
+		cellLinkedList **linkedList = this->planLinkedList;
+		node *tmp;
+		std::cout
+				<< "--------------------printing linked list content---------------------"
+				<< endl;
+		for (int row = 0; row < this->shipWidth; row++) {
+			std::cout << "-size= " << linkedList[row]->size << " MAX_HIGHET= "
+					<< linkedList[row]->maxHeight << endl;
+			for (int col = 0; col < this->shipLength; col++) {
+				std::cout << endl << "**" << row << "**" << col << endl;
+				std::cout << "	size= " << linkedList[row][col].size
+						<< " MAX_HIGHET= " << linkedList[row][col].maxHeight
+						<< endl;
+				tmp = linkedList[row][col].linkedList;
+				bool isNULL = tmp->next == NULL;
+				std::cout << "	-ContainerID: " << tmp->container->uniqueId
+						<< "  IS_NEXT_NULL=" << isNULL << endl;
 
+			}
+		}
+		std::cout << "--------------------END---------------------" << endl
+				<< endl;
+	}
 };

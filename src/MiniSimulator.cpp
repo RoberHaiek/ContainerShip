@@ -576,6 +576,7 @@ void simulateTravel(){
 	Container * containers=parseCargoFile(FileName);
 		printContainerArray(containers, FileName);
 	  curAlgo =new Stowage(routeIndex,ship,ports,containers);
+		(*ship).printPlanMap();
 	  string** algoInstructions=curAlgo->currentInstructions;
 		instructionsOut(algoInstructions,FileName);
 	   check=checkInstructionPerPort(routeIndex,algoInstructions);

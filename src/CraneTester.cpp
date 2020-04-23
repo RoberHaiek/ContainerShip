@@ -13,14 +13,14 @@ public:
 		cout<<"	isFull"<<endl;
 		for(int i=0;i<ship->shipWidth;i++){
 			for(int j=0;j<ship->shipLength;j++){
-			//	cout<<"	i="<<i<<", j="<<j<<endl;
-				if(ship->planLinkedList[i][j].maxHeight==ship->planLinkedList[i][j].size){
+				cout<<"	i="<<i<<", j="<<j<<endl;
+				if(!(ship->planLinkedList[i][j].maxHeight==ship->planLinkedList[i][j].size)){
 					std::cout << "Container "+uniqueId+" was rejected - reason: ship is full";
-					return true;
+					return false;
 				}
 			}
 		}
-		return false;
+		return true;
 	}
 
 	// checks if the container weight is legal
