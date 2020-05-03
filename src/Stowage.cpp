@@ -59,6 +59,28 @@ public:
 		return 0;
 	}
 
+	// ask Aubaida:
+
+	int readShipPlan(const std::string& full_path_and_file_name){
+		// read the ship plan from a file
+		return 0; // success
+	}
+
+	int readShipRoute(const std::string& full_path_and_file_name){
+		// read ship route from file
+		return 0; // success
+	}
+
+	int setWeightBalanceCalculator(WeightBalanceCalculator& calculator){
+		// what???
+		return 0;
+	}
+
+	int getInstructionsForCargo(const std::string& input_full_path_and_file_name, const std::string& output_full_path_and_file_name){
+		// read from input, write to output - PARSING
+		return 0;
+	}
+
 	void fillInstructions(std::string LUR, std::string uniqueId, std::string height, std::string row,
 			std::string column) {
 		currentInstructions[instNum] = new std::string[5];
@@ -86,7 +108,7 @@ public:
 				while(currentContainer !=NULL) {		// starting from the bottom !!!
 					if (currentContainer->container->destPort.toString() == route[i].toString()) {// does ship container belong to ship port?
 						int *dimensions = ship->planMap->find(currentContainer->container->uniqueId)->second;
-							if (CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1])) {
+							if (CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]) == 0) {
 									node *temp = crane.unload(*(currentContainer->container),row, column,this->ship->planLinkedList[row][column].size);
 							currentContainer = temp->next;
 							tempContainers.push_front(temp);
@@ -98,7 +120,7 @@ public:
 					} else {	// ship container does NOT belong to ship port
 						if (popAllAbove) {	// but should I put it in temp?
 							int *dimensions = ship->planMap->find(currentContainer->container->uniqueId)->second;
-							if (CraneTester::isValidUnload(row, column, dimensions[0], dimensions[1])) {
+							if (CraneTester::isValidUnload(row, column, dimensions[0], dimensions[1]) == 0) {
 								node *temp = crane.unload(*(currentContainer->container),row,column,this->ship->planLinkedList[row][column].size);
 								currentContainer = temp->next;
 								tempContainers.push_front(temp);
@@ -158,7 +180,7 @@ public:
 				for (int row = 0; row < ship->shipWidth; row++) {	// for each row
 					for (int column = 0; column < ship->shipLength; column++) {	// for each column
 						if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight && weightBalance()) {		// check if we are below height limit and balanced
-							if (CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId)) {
+							if (CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId) == 0) {
 								crane.load(currentContainer.container, row,column,this->ship->planLinkedList[row][column].size);	// load it
 								fillInstructions(LOAD, currentContainer.container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size)), std::to_string(row+1), std::to_string(column+1));	// edit instructions
 								breakIt = true;
@@ -177,10 +199,10 @@ public:
 
 // rejection test
 	bool isRejected(node currentContainer) {
-		if (!StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex)	// is the container's destination NOT port in route?
-				|| CraneTester::isFull(this->ship)																// is the ship full?
-					|| !CraneTester::isValidId(currentContainer.container->uniqueId)							// is the container's unique ID invalid?
-						|| !CraneTester::isLegalWeight(currentContainer.container->weight)) {					// is the container's weight illegal?
+		if (StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex) != 0	// is the container's destination NOT port in route?
+				|| CraneTester::isFull(this->ship) != 0																// is the ship full?
+					|| CraneTester::isValidId(currentContainer.container->uniqueId) != 0							// is the container's unique ID invalid?
+						|| CraneTester::isLegalWeight(currentContainer.container->weight) != 0	) {					// is the container's weight illegal?
 			fillInstructions(REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");
 			return true;
 		}
