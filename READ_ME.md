@@ -1,5 +1,5 @@
-[Link to ex1](https://docs.google.com/document/d/1PloUy0vfoR0AWHmpWb0W85FZXM_BZqbaQhKXzHhwC1o/edit) //
-[Link to ex2](https://docs.google.com/document/d/1qpXBOM24UiHUc5l2QiUlNGZOnfNm40aVd7bXbNVLIFs/edit) //
+[Link to ex1](https://docs.google.com/document/d/1PloUy0vfoR0AWHmpWb0W85FZXM_BZqbaQhKXzHhwC1o/edit) <br/>
+[Link to ex2](https://docs.google.com/document/d/1qpXBOM24UiHUc5l2QiUlNGZOnfNm40aVd7bXbNVLIFs/edit) <br/>
 
 # **Container ship – Design**  
 
