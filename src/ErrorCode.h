@@ -6,6 +6,9 @@
  */
 #pragma once
 #include <cmath>
+#include <string>
+
+ofstream fd_errors;
 enum status{Ignore,FatalError};
 enum ErrorID{
 	ShipPlanWrongFloors=0,
@@ -28,7 +31,5 @@ enum ErrorID{
 	ContainersLastPortHasWaitingContainers=17,
 	ContainersTooManyContainers=18
 	};
-
-
-	void addErrorCode(ErrorID err);
+class ErrorCode;
 
