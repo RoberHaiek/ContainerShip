@@ -19,7 +19,7 @@ public:
 	static int isLegalWeight(int containerWeight){
 		if(containerWeight>=0)
 			return 0;
-		return -1;
+		return std::pow(2,18);
 	}
 
 	// checks if the unique id of a container is valid
