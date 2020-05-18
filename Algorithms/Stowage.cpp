@@ -1,5 +1,5 @@
 #include "StowageTester.cpp"
-#include "AbstractAlgorithm.h"
+#include "../Interfaces/AbstractAlgorithm.h"
 #include <cctype>
 #include <queue>
 #include <sstream>

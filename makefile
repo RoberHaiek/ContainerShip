@@ -1,8 +1,9 @@
 COMP = g++-8.3.0
-#put all your object files here
-OBJS = MiniSimulator.o #objects should be placed here!
-#The executabel filename DON'T CHANGE
+
+OBJS = MiniSimulator.o
+
 EXEC = ex1
+
 CPP_COMP_FLAG = -std=c++2a -Wall -Wextra -pedantic-errors -DNDEBUG
 //CPP_COMP_FLAG = -std=c++2a -Wall -Wextra -Werror -pedantic-errors -DNDEBUG
 CPP_LINK_FLAG = -lstdc++fs

@@ -10,9 +10,9 @@
 #include <string.h>
 #include <dirent.h>
 #include <fstream>
-//#include "Stowage.cpp"
+//#include "../Algorithms/_205962657_a.cpp"
 //#include "WeightBalanceCalculator.cpp"
-#include "IOHandler.cpp"//may changed
+#include "../Common/IOHandler.cpp"//may changed
 #define LAST 1
 #define REGULAR 0
 using namespace std;

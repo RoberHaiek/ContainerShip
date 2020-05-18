@@ -1,9 +1,9 @@
 ********Travel name= BARCA_TEAVEL
-	Algorithem name=StowageAlgo
+	Algorithem name=fakeAlgorithim
 	Sum: 0
 ---------------------------------------------------------------
 ********Travel name= TLV_TRAVEL
-	Algorithem name=StowageAlgo
+	Algorithem name=fakeAlgorithim
 	In port -1: 3
-	In port -2: 2
+	In port -2: 5
 	

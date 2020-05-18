@@ -1,10 +1,14 @@
 #include "StowageTester.cpp"
-#include "AbstractAlgorithm.h"
+#include "../Interfaces/AbstractAlgorithm.h"	// move to header
+#include "../Interfaces/AlgorithmRegistration.h"
+#include "../Interfaces/WeightBalanceCalculator.h"	// move to header
 #include <cctype>
 #include <queue>
 #include <sstream>
 
-class Stowage: public AbstractAlgorithm:{
+//REGISTER_ALGORITHM (_205962657_a)
+
+class _205962657_a: public AbstractAlgorithm{
 public:
 	int instNum;
 	Ship *ship;
@@ -60,7 +64,7 @@ public:
 	}
 
 	// ask Aubaida:
-
+	/*
 	int readShipPlan(const std::string& full_path_and_file_name){
 		// read the ship plan from a file
 		return 0; // success
@@ -80,12 +84,13 @@ public:
 		// read from input, write to output - PARSING
 		return 0;
 	}
-
-	void fillInstructions(std::string LUR, std::string uniqueId, std::string height, std::string row,
+	*/
+	void fillInstructions(AbstractAlgorithm::Action LUR, std::string uniqueId, std::string height, std::string row,
 			std::string column) {
+		std::string s= std::string(1, (char)LUR);
 		currentInstructions[instNum] = new std::string[5];
 		currentInstructions[instNum][0] = uniqueId;
-		currentInstructions[instNum][1] = LUR;
+		currentInstructions[instNum][1] = s;
 		currentInstructions[instNum][2] = row;
 		currentInstructions[instNum][3] = column;
 		currentInstructions[instNum][4] = height;
@@ -143,7 +148,7 @@ public:
 					indexies.pop_front();
 					tempContainers.pop_front();
 					std::string dstPort = popedElem->container->destPort.toString();
-					fillInstructions(UNLOAD, popedElem->container->uniqueId, indx[2], indx[0], indx[1]);
+					fillInstructions(AbstractAlgorithm::Action::UNLOAD, popedElem->container->uniqueId, indx[2], indx[0], indx[1]);
 					if (dstPort.compare(route[i].toString()) == 0) {
 						delete popedElem;
 						delete[] indx;
@@ -157,7 +162,7 @@ public:
 					indx=indexies.back();
 					indexies.pop_back();
 					loadBackContainers.pop_back();
-					fillInstructions(LOAD,popedElem->container->uniqueId, indx[2],indx[0], indx[1]);
+					fillInstructions(AbstractAlgorithm::Action::LOAD,popedElem->container->uniqueId, indx[2],indx[0], indx[1]);
 					crane.load(popedElem->container, row, column,this->ship->planLinkedList[row][column].size);
 					delete popedElem;
 					delete indx;
@@ -182,7 +187,7 @@ public:
 						if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight && weightBalance()) {		// check if we are below height limit and balanced
 							if (CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId) == 0) {
 								crane.load(currentContainer.container, row,column,this->ship->planLinkedList[row][column].size);	// load it
-								fillInstructions(LOAD, currentContainer.container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size)), std::to_string(row+1), std::to_string(column+1));	// edit instructions
+								fillInstructions(AbstractAlgorithm::Action::LOAD, currentContainer.container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size)), std::to_string(row+1), std::to_string(column+1));	// edit instructions
 								breakIt = true;
 								break;
 							}
@@ -203,7 +208,7 @@ public:
 				|| CraneTester::isFull(this->ship) != 0																// is the ship full?
 					|| CraneTester::isValidId(currentContainer.container->uniqueId) != 0							// is the container's unique ID invalid?
 						|| CraneTester::isLegalWeight(currentContainer.container->weight) != 0	) {					// is the container's weight illegal?
-			fillInstructions(REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");
+			fillInstructions(AbstractAlgorithm::Action::REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");
 			return true;
 		}
 		return false;
@@ -218,14 +223,14 @@ public:
 	 //	{"load/unload/reject", a container's unique id, height, row, column}
 	 /*/
 
-	Stowage(int i, Ship *ship, Port *route, Container *instructions):ship(ship) {
+	_205962657_a(int i, Ship *ship, Port *route, Container *instructions):ship(ship) {
 		this->instNum = 0;	// The instruction number of the returned instruction
 		this->currentInstructions = new std::string*[100];
 		this->route = route;
 		routeIndex=i;
 		unloadingAlgo(i);
 		loadingAlgo(instructions, weightBalance);
-		fillInstructions("last", "last", "last", "last", "last");
+		fillInstructions(AbstractAlgorithm::Action::REJECT, "last", "last", "last", "last");
 	}
 }
 ;

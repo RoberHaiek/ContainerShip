@@ -6,8 +6,8 @@
 #include <fstream>
 #include<string.h>
 #include <map>
-#include "Stowage.cpp"
-#include "WeightBalanceCalculator.cpp"
+#include "../Algorithms/Stowage.cpp"
+#include "../WeightBalanceCalculator.cpp"
 #define SUCCESS 1
 #define ERROR 0
 #define MAX_LINE 1024
