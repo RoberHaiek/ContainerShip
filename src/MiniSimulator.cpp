@@ -10,23 +10,17 @@
 #include <string.h>
 #include <dirent.h>
 #include <fstream>
-#include "Stowage.cpp"
-#include "WeightBalanceCalculator.cpp"
+//#include "Stowage.cpp"
+//#include "WeightBalanceCalculator.cpp"
 #include "IOHandler.cpp"//may changed
 #define LAST 1
 #define REGULAR 0
+using namespace std;
 const char* EXPECTED_OUTPUT="/expected_output";
-Ship* ship;
-Stowage* curAlgo;
-ofstream fd_results;
-const char* fake_out="/fake_out";
 string travelName;
-string AlgoName="fakeAlgorithim";
-int numInstructions=0;
+string AlgoName="StowageAlgo";
 
 /*---------------FUNC DEC-------------*/
-int getNumOfLines(ifstream& fd);
-char* getCargoFileName(int portIndex);
 void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 /*------------------DEBUGGING METHODS-------------------*/
 void printFiles(DIR* fd){
@@ -45,52 +39,6 @@ void printContainerArray(Container* arr,char* fileName){
 		pt=arr[++index];
 	}
 	
-}
-//must remove this 
-string** ReadExpectedInstructionsFAKE(char* cargoFileName){
-	ifstream fd_info;
-	string** expectedInstructions;
-	char* expectedPath=new char[strlen(travelPath)+strlen(fake_out)+strlen(cargoFileName)+15];
- 	strcpy(expectedPath,travelPath);
-	strcat(expectedPath,fake_out);
-	strcat(expectedPath,"/");
-	strcat(expectedPath,cargoFileName);
-	strcat(expectedPath,".expected");
-
-	fd_info.open(expectedPath,ios_base::in);//open the file
-	//checking the access to the file
-	if(!fd_info){
-		std::cout << "ERROR[13][1]- can't open "<< expectedPath<< std::endl;
-		return NULL;
-	}
-	int lineNum = getNumOfLines(fd_info);
-	numInstructions=lineNum;
-	expectedInstructions = new string*[lineNum+1];//the +1 used as indicator of the last container
-	for(int i = 0;i < lineNum+1;i++){
-		expectedInstructions[i]=new string[5];
-	
-	}
-	//start reading from file
-	int instructionIndex=0;
-	string line;
-	int seek; 
-	while(getline(fd_info,line)){
-		if(line.at(0)=='#'){
-			continue;
-		}else{
-			seek=0;
-			getFiveElementsIntoArray(line,seek,expectedInstructions[instructionIndex],REGULAR);
-			instructionIndex++;
-		}
-	}
-	getFiveElementsIntoArray("",seek,expectedInstructions[instructionIndex],LAST);
-	
-	int index=0;
-	while((expectedInstructions[index][0]).compare("last")!=0){
-		cout<<"**reading expected :"<< expectedInstructions[index][0] << " , "<< expectedInstructions[index][1]<<"  " <<index <<endl;
-		index++;
-	}
-	return expectedInstructions;
 }
 
 /*-------------------------------------------------------------------------------------------------------------*/
@@ -223,6 +171,25 @@ string** ReadExpectedInstructions(char* cargoFileName){
 	}
 	return expectedInstructions;
 }
+//[12]
+int checkInstructionPerPort(int portIndex,string** algoInstructions){
+	char* cargoFileName = getCargoFileName(portIndex);
+	map<string,vector<string>> InstructionsMap;
+	int fillMap=insertInstructionToMap(algoInstructions,InstructionsMap);
+	if(fillMap!=SUCCESS){
+		return ERROR;
+	}
+	string** expectedInstructions = ReadExpectedInstructions(cargoFileName);
+	cout<<endl<<"done reading expected instructions" <<endl;
+	cout<<endl<<"start checking the map content" <<endl;
+
+	int isSuccess=checkMapIfAsExpected(expectedInstructions,InstructionsMap);
+	cout<<endl<<"finished checking the map content" <<endl;
+
+	return isSuccess;
+
+
+}
 
 
 //[3] called in [2]
@@ -258,7 +225,7 @@ void simulateTravel(){
 	Container * containers=parseCargoFile(FileName);
 		printContainerArray(containers, FileName);
 	  curAlgo =new Stowage(routeIndex,ship,ports,containers);
-		(*ship).printPlanMap();
+		//(*ship).printPlanMap();
 	  string** algoInstructions=curAlgo->currentInstructions;
 		instructionsOut(algoInstructions,FileName);
 	   check=checkInstructionPerPort(routeIndex,algoInstructions);

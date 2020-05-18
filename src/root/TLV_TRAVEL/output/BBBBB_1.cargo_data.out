@@ -1,5 +1,2 @@
-container1,unload,0,0,2
-container2,unload,0,0,2
-container3,unload,0,0,2
-container5,reject,-1,-1,-1
-container6,reject,-1,-1,-1
+container5,R,-1,-1,-1
+container6,R,-1,-1,-1

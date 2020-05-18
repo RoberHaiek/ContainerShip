@@ -4,7 +4,7 @@
 #include <queue>
 #include <sstream>
 
-class Stowage: public AbstractAlgorithm:{
+class Stowage: public AbstractAlgorithm{
 public:
 	int instNum;
 	Ship *ship;
@@ -81,11 +81,11 @@ public:
 		return 0;
 	}
 
-	void fillInstructions(std::string LUR, std::string uniqueId, std::string height, std::string row,
+	void fillInstructions(Action LUR, std::string uniqueId, std::string height, std::string row,
 			std::string column) {
 		currentInstructions[instNum] = new std::string[5];
 		currentInstructions[instNum][0] = uniqueId;
-		currentInstructions[instNum][1] = LUR;
+		currentInstructions[instNum][1] = std::string(1,(char)LUR);
 		currentInstructions[instNum][2] = row;
 		currentInstructions[instNum][3] = column;
 		currentInstructions[instNum][4] = height;
@@ -143,7 +143,7 @@ public:
 					indexies.pop_front();
 					tempContainers.pop_front();
 					std::string dstPort = popedElem->container->destPort.toString();
-					fillInstructions(UNLOAD, popedElem->container->uniqueId, indx[2], indx[0], indx[1]);
+					fillInstructions(Action::UNLOAD, popedElem->container->uniqueId, indx[2], indx[0], indx[1]);
 					if (dstPort.compare(route[i].toString()) == 0) {
 						delete popedElem;
 						delete[] indx;
@@ -157,7 +157,7 @@ public:
 					indx=indexies.back();
 					indexies.pop_back();
 					loadBackContainers.pop_back();
-					fillInstructions(LOAD,popedElem->container->uniqueId, indx[2],indx[0], indx[1]);
+					fillInstructions(Action::LOAD,popedElem->container->uniqueId, indx[2],indx[0], indx[1]);
 					crane.load(popedElem->container, row, column,this->ship->planLinkedList[row][column].size);
 					delete popedElem;
 					delete indx;
@@ -182,7 +182,7 @@ public:
 						if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight && weightBalance()) {		// check if we are below height limit and balanced
 							if (CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId) == 0) {
 								crane.load(currentContainer.container, row,column,this->ship->planLinkedList[row][column].size);	// load it
-								fillInstructions(LOAD, currentContainer.container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size)), std::to_string(row+1), std::to_string(column+1));	// edit instructions
+								fillInstructions(Action::LOAD, currentContainer.container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size)), std::to_string(row+1), std::to_string(column+1));	// edit instructions
 								breakIt = true;
 								break;
 							}
@@ -203,7 +203,7 @@ public:
 				|| CraneTester::isFull(this->ship) != 0																// is the ship full?
 					|| CraneTester::isValidId(currentContainer.container->uniqueId) != 0							// is the container's unique ID invalid?
 						|| CraneTester::isLegalWeight(currentContainer.container->weight) != 0	) {					// is the container's weight illegal?
-			fillInstructions(REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");
+			fillInstructions(Action::REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");
 			return true;
 		}
 		return false;
@@ -225,7 +225,7 @@ public:
 		routeIndex=i;
 		unloadingAlgo(i);
 		loadingAlgo(instructions, weightBalance);
-		fillInstructions("last", "last", "last", "last", "last");
+		fillInstructions(Action::REJECT, "last", "last", "last", "last");
 	}
 }
 ;

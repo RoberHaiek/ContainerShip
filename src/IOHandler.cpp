@@ -4,17 +4,30 @@
 #include <string.h>
 #include <dirent.h>
 #include <fstream>
+#include<string.h>
+#include <map>
+#include "Stowage.cpp"
+#include "WeightBalanceCalculator.cpp"
 #define SUCCESS 1
 #define ERROR 0
 #define MAX_LINE 1024
+using namespace std;
 int width,length,maxHeight;
 char *travelPath;
+char *workPath;
 char **route;
+ofstream fd_results;
 int routeSize;
 const char* SHIP_PLAN="ship_plan";
 const char* ROUTE="route";
 const char* OUTPUT="/output";
 char* parse_out=new char[MAX_LINE];
+int numInstructions=0;
+Ship* ship;
+Stowage* curAlgo;
+/****************dec***************/
+int getNumOfLines(ifstream& fd);
+char* getCargoFileName(int portIndex);
 
 /*--------------------------PARSING METHODS--------------------------*/
 char* getElem(string s , int& seek,char delmiter=' '){
@@ -66,25 +79,6 @@ void parseResults (string algoName,string travelName,int numInst, int port){
 }
 
 
-//[12]
-int checkInstructionPerPort(int portIndex,string** algoInstructions){
-	char* cargoFileName = getCargoFileName(portIndex);
-	map<string,vector<string>> InstructionsMap;
-	int fillMap=insertInstructionToMap(algoInstructions,InstructionsMap);
-	if(fillMap!=SUCCESS){
-		return ERROR;
-	}
-	string** expectedInstructions = ReadExpectedInstructions(cargoFileName);
-	cout<<endl<<"done reading expected instructions" <<endl;
-	cout<<endl<<"start checking the map content" <<endl;
-
-	int isSuccess=checkMapIfAsExpected(expectedInstructions,InstructionsMap);
-	cout<<endl<<"finished checking the map content" <<endl;
-
-	return isSuccess;
-
-
-}
 //[11]
 Port* getPortsFromRoute(){
 	int index;
