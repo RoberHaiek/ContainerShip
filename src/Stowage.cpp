@@ -197,8 +197,21 @@ public:
 		}
 	}
 
+/*test result print */
+void printTestResults(node  currentContainer){
+	std::cout<< "*************RESULTS : "<<currentContainer.container->uniqueId<<" *************"<<std::endl;
+	std::cout<< "1)isInRoute : "<<StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex)<<std::endl;
+	std::cout<< "2)isFull: "<<CraneTester::isFull(this->ship)<<std::endl;
+	std::cout<< "3)isValidId: "<<CraneTester::isValidId(currentContainer.container->uniqueId)<<std::endl;
+	std::cout<< "4)isLegalWeight: "<<CraneTester::isLegalWeight(currentContainer.container->weight)<<std::endl;
+	std::cout<< "*************END*************"<<std::endl;
+
+}
+
+
 // rejection test
 	bool isRejected(node currentContainer) {
+		printTestResults(currentContainer);
 		if (StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex) != 0	// is the container's destination NOT port in route?
 				|| CraneTester::isFull(this->ship) != 0																// is the ship full?
 					|| CraneTester::isValidId(currentContainer.container->uniqueId) != 0							// is the container's unique ID invalid?

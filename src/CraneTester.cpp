@@ -8,11 +8,11 @@ public:
 		for(int i=0;i<ship->shipWidth;i++){
 			for(int j=0;j<ship->shipLength;j++){
 				if(!(ship->planLinkedList[i][j].maxHeight==ship->planLinkedList[i][j].size)){
-					return 18;
+					return 0;
 				}
 			}
 		}
-		return 0;
+		return 18;
 	}
 
 	// checks if the container weight is legal
