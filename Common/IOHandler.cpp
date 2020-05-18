@@ -7,7 +7,7 @@
 #include<string.h>
 #include <map>
 #include "../Algorithms/Stowage.cpp"
-#include "../WeightBalanceCalculator.cpp"
+#include "../Simulation/WeightBalanceCalculator.cpp"
 #define SUCCESS 1
 #define ERROR 0
 #define MAX_LINE 1024
