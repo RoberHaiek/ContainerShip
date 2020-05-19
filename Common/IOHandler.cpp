@@ -5,10 +5,10 @@
 #include <dirent.h>
 #include <fstream>
 #include<string.h>
+#include <string>
 #include <map>
-#include "../Algorithms/Stowage.cpp"
-#include "../Simulation/WeightBalanceCalculator.cpp"
-#define SUCCESS 1
+#include "../Interfaces/IOHandler.h"
+/*#define SUCCESS 1
 #define ERROR 0
 #define MAX_LINE 1024
 using namespace std;
@@ -24,13 +24,10 @@ const char* OUTPUT="/output";
 char* parse_out=new char[MAX_LINE];
 int numInstructions=0;
 Ship* ship;
-Stowage* curAlgo;
-/****************dec***************/
-int getNumOfLines(ifstream& fd);
-char* getCargoFileName(int portIndex);
+Stowage* curAlgo;*/
 
 /*--------------------------PARSING METHODS--------------------------*/
-char* getElem(string s , int& seek,char delmiter=' '){
+char* getElem(string s , int& seek,char delmiter){
 	int index=0;
 	if(delmiter==' '){//find the first index which not whitspace
 		while(seek < (int)s.length() && s.at(seek)==delmiter){
@@ -38,9 +35,6 @@ char* getElem(string s , int& seek,char delmiter=' '){
 		}
 	}
 	while(seek < (int)s.length()){
-		/*if(delmiter==','){
-				cout << s.at(seek)<<endl;
-			}*/
 		if(s.at(seek)==delmiter){
 			break;
 		}

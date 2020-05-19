@@ -1,5 +1,5 @@
-#include "StowageTester.cpp"
 #include "../Interfaces/AbstractAlgorithm.h"
+#include "../Interfaces/IOHandler.h"
 #include <cctype>
 #include <queue>
 #include <sstream>
@@ -14,6 +14,13 @@ public:
 	std::deque<node*> loadBackContainers;
 	std::deque<std::string*> indexies;
 	int routeIndex;
+	/*
+	 *
+	 *added
+	 *
+	 */
+	
+	
 
 	/*
 	void printContainersZeroZero(){
@@ -212,7 +219,7 @@ void printTestResults(node  currentContainer){
 // rejection test
 	bool isRejected(node currentContainer) {
 		printTestResults(currentContainer);
-		if (StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex) != 0	// is the container's destination NOT port in route?
+		if (StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex) == 0	// is the container's destination NOT port in route?
 				|| CraneTester::isFull(this->ship) != 0																// is the ship full?
 					|| CraneTester::isValidId(currentContainer.container->uniqueId) != 0							// is the container's unique ID invalid?
 						|| CraneTester::isLegalWeight(currentContainer.container->weight) != 0	) {					// is the container's weight illegal?

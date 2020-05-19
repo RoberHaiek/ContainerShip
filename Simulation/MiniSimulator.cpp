@@ -10,16 +10,17 @@
 #include <string.h>
 #include <dirent.h>
 #include <fstream>
-//#include "../Algorithms/_205962657_a.cpp"
-//#include "WeightBalanceCalculator.cpp"
-#include "../Common/IOHandler.cpp"//may changed
+#include "../Algorithms/Stowage.cpp"
+#include "../Simulation/WeightBalanceCalculator.cpp"
+//#include "../Interfaces/IOHandler.h"//may changed
+#include "../Common/IOHandler.cpp"
 #define LAST 1
 #define REGULAR 0
 using namespace std;
 const char* EXPECTED_OUTPUT="/expected_output";
 string travelName;
 string AlgoName="StowageAlgo";
-
+Stowage* curAlgo;
 /*---------------FUNC DEC-------------*/
 void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 /*------------------DEBUGGING METHODS-------------------*/
@@ -201,72 +202,28 @@ void simulateTravel(){
 	  initRoute();
 	  //example
 	cout<<"printing the cargo file ame"<<endl;
-	
 	int check;
-	/*for(int i=0;i<routeSize;i++){
-		cin  >>check ;
-	getch();
-		char* FileName=getCargoFileName(i);
-		cout<<"	parsing :"<<FileName<<endl;
-		string** fakeInstructions=ReadExpectedInstructionsFAKE(FileName);
-		instructionsOut(fakeInstructions,FileName);
-		check=checkInstructionPerPort(i,fakeInstructions);
-		if(check==SUCCESS){
-			parseResults (AlgoName,travelName,numInstructions,i+1);
-
-		}else{
-			parseResults (AlgoName,travelName,numInstructions,0-(i+1));
-		}*/
 	//try
-	Port* ports=getPortsFromRoute();
-	parseResults (AlgoName,travelName,0,0);
-	for(int routeIndex=0;routeIndex<routeSize;routeIndex++){
-		char* FileName=getCargoFileName(routeIndex);
-	Container * containers=parseCargoFile(FileName);
-		printContainerArray(containers, FileName);
-	  curAlgo =new Stowage(routeIndex,ship,ports,containers);
-		//(*ship).printPlanMap();
-	  string** algoInstructions=curAlgo->currentInstructions;
-		instructionsOut(algoInstructions,FileName);
-	   check=checkInstructionPerPort(routeIndex,algoInstructions);
-	if(check==SUCCESS){
-			parseResults (AlgoName,travelName,numInstructions,routeIndex+1);
 
+	Port* ports = getPortsFromRoute();
+	parseResults (AlgoName ,travelName ,0 ,0);
+	for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
+		char* FileName=getCargoFileName(routeIndex);
+		Container * containers=parseCargoFile(FileName);
+		printContainerArray(containers, FileName);
+	 	curAlgo =new Stowage(routeIndex,ship,ports,containers);
+	  	string** algoInstructions=curAlgo->currentInstructions;
+		instructionsOut(algoInstructions,FileName);
+	   	check=checkInstructionPerPort(routeIndex,algoInstructions);
+		if(check==SUCCESS){
+			parseResults (AlgoName,travelName,numInstructions,routeIndex+1);
 		}else{
 			parseResults (AlgoName,travelName,numInstructions,0-(routeIndex+1));
+		}
 	}
-	 /* get the instruction
-	 * update the ship
-	 */
-
-	}
-	 /*	
-	  *
-	  init algorithm ? and start to play
-	  *
-	  */
-	
-	Container* instructions=NULL;
-	if(instructions!=NULL){
-	//Port* ports=getPortsFromRoute();
-	for(int routeIndex=0;routeIndex<routeSize;routeIndex++){
-	/*clone the ship
-	 */
-	  curAlgo =new Stowage(routeIndex,ship,ports,instructions);
-	  string** algoInstructions=curAlgo->currentInstructions;
-	   int check=checkInstructionPerPort(0,algoInstructions);
-	bool o=tryOperation();
-		cout<<check<<o<<endl;
-	 /* get the instruction
-	 * update the ship
-	 */
-	}
-
-	//
-
-	
-	}
+	 	
 }
+
 //[2] called in [1]
 void simulate(DIR* fd){
     struct dirent *entry;
@@ -303,7 +260,6 @@ int main(int argc, char *argv[]) {
 		std::cout << "ERROR[1][1]- Wrong Number of Parameters!" << std::endl;
 		return ERROR;
 	}
-	/*initiate wieght balance???????????????????????????????????????????????????????????*/
 	//getting the path
 	workPath=argv[1];
 	//checking the access to the DIR
@@ -314,54 +270,6 @@ int main(int argc, char *argv[]) {
 	}
 	//get the travels
 	simulate(fd_path);
-/*
-	//container* containers=new container[5];
-	cout <<"got a new life"<<endl;
-	string ** ptr=new string*[5];
-	ptr[0]=new string[5];
-	ptr[1]=new string[5];
-	ptr[2]=new string[5];
-	ptr[3]=new string[5];
-	ptr[4]=new string[5];
-	cout <<"got a new life"<<endl;
-	
-	cout <<"got a new life"<<endl;
-	ptr[0][0]="container1";
-	ptr[0][1]="load";
-	ptr[0][2]="1";
-	ptr[0][3]="2";
-	ptr[0][4]="1";
-	ptr[1][0]="container2";
-	ptr[1][1]="unload";
-	ptr[1][2]="1";
-	ptr[1][3]="3";
-	ptr[1][4]="1";
-	ptr[2][0]="container3";
-	ptr[2][1]="load";
-	ptr[2][2]="1";
-	ptr[2][3]="3";
-	ptr[2][4]="1";
-	ptr[3][0]="container3";
-	ptr[3][1]="load";
-	ptr[3][2]="1";
-	ptr[3][3]="3";
-	ptr[3][4]="1";
-	ptr[4][0]="last";
-	ptr[4][1]="load";
-	ptr[4][2]="1";
-	ptr[4][3]="2";
-	ptr[4][4]="1";
-	int check=checkInstructionPerPort(0,ptr);
-	
-cout << "is valid : "<<check<<endl;
-	char* s=new char[25];
-	strcpy(s,"AAAAA_1.cargo_data");
-	
-	instructionsOut(ptr,s);
-	*/
 
-	//closedir(fd_path);
-	//delete[] workPath;
-	//delete[] parse_out;
 	return 0;
 }
