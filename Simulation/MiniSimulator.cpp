@@ -213,7 +213,7 @@ void simulateTravel(){
 	parseResults (AlgoName ,travelName ,0 ,0);
 	Stowage algo;
 	algo.readShipPlan(travelName);//must change the prototype
-	algo.readShipRoute(travelName);//must prototype
+	algo.readShipRoute(travelName);//must change the prototype
 	for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
 		char* FileName=getCargoFileName(routeIndex);
 		algo.getInstructionsForCargo(travelPath+"/"+FileName, travelPath+OUTPUT+"/"+FileName+".out");
@@ -253,17 +253,47 @@ void simulate(DIR* fd){
 	}
 }
 	
+int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorithm_path ,string& output){
+	for(int i=1;i<argc;i+=2){
+		if(string(argv[i]).compare("-travel_path")==0 && travel_path.compare("")==0){
+			travel_path=string(argv[i+1]);
+		}else if(string(argv[i]).compare("-algorithm_path")==0 && algorithm_path.compare("")==0){
+			algorithm_path=string(argv[i+1]);
+		}else if(string(argv[i]).compare("-output")==0 && output.compare("")==0){
+			output=string(argv[i+1]);
+		}else{
+			return ERROR;
+		}
+	}
+	if(travel_path.compare("")==0){
+		return ERROR;
+	}
+	if(algorithm_path.compare("")==0){
+		algorithm_path=".";
+	}
+	if(output.compare("")==0){
+		output=".";
+	}
+	return SUCCESS;
+}
 
 /* argv[1] will be the path of the workspace(IO-Files)*/
 //[1]
 int main(int argc, char *argv[]) {
 
-	if(argc!=2){
+	if(argc!=3 && argc!=5 && argc!=7){
 		std::cout << "ERROR[1][1]- Wrong Number of Parameters!" << std::endl;
 		return ERROR;
 	}
+	string travel_path="",algorithm_path="",output="";
+        int checkErr=getFromCommandLine(argv,argc,travel_path,algorithm_path ,output);
+	if (checkErr==ERROR){
+		std::cout << "ERROR[1][2]- Wrong Parameters foramt! or A missing -travel_path argument" << std::endl;
+		std::cout << "did you mean : simulator [-travel_path <path>] [-algorithm_path <algorithm path>] [-output <output path>]" << std::endl;
+		return ERROR;
+	}
 	//getting the path
-	workPath=string(argv[1]);
+	workPath=travel_path;
 	//checking the access to the DIR
 	const char *cstr = workPath.c_str();
 	DIR *fd_path=opendir(cstr);
