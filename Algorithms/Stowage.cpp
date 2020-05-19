@@ -19,8 +19,8 @@ public:
 	 *added
 	 *
 	 */
-	
-	
+	//decleration
+	//void unloadingAlgo(int i);
 
 	/*
 	void printContainersZeroZero(){
@@ -65,16 +65,52 @@ public:
 		}
 		return 0;
 	}
+	/**********implement some funcs*********/
 
+	int getRouteIndex(int &routeIndex,const std::string& input_full_path_and_file_name){
+		int seek=0;
+		while(seek < (int)input_full_path_and_file_name.length()){
+		getElem(input_full_path_and_file_name,seek,'/');
+		}
+		seek=0;
+		string fileName(parse_out);
+		getElem(fileName,seek,'_');
+		string portName(parse_out);
+		getElem(fileName,seek,'.');
+		int portNum=std::stoi(parse_out);
+		routeIndex=0;
+		while(true){
+			if(portName.compare(route[routeIndex].toString())==0){
+				portNum--;	
+			}
+			if(portNum==0){
+				break;
+			}
+			routeIndex++;
+		}
+
+		return 0;
+	}
+	
+	/*****************************************/
 	// ask Aubaida:
 
 	int readShipPlan(const std::string& full_path_and_file_name){
 		// read the ship plan from a file
+		cout << "*initShipPlan"<<endl;
+	  	initShipPlan(ship);
+
 		return 0; // success
 	}
 
 	int readShipRoute(const std::string& full_path_and_file_name){
 		// read ship route from file
+		cout << "*initRoute from stowage"<<endl;
+		char** routeArray;
+	  	initRoute(routeArray);
+		route= getPortsFromRoute(routeArray);
+		cout<<"* finish route from stowage"<<endl;
+
 		return 0; // success
 	}
 
@@ -85,6 +121,15 @@ public:
 
 	int getInstructionsForCargo(const std::string& input_full_path_and_file_name, const std::string& output_full_path_and_file_name){
 		// read from input, write to output - PARSING
+		getRouteIndex(routeIndex,input_full_path_and_file_name);
+		cout<<"the index in get inst ="<<routeIndex<<endl;
+		Container* containers=parseCargoFile(input_full_path_and_file_name);
+		cout<<"the first container is :"<<containers[0].uniqueId<<endl;
+		unloadingAlgo(routeIndex);
+		loadingAlgo(containers, weightBalance);
+		fillInstructions(Action::REJECT, "last", "last", "last", "last");
+		instructionsOut(currentInstructions,output_full_path_and_file_name);
+		this->instNum = 0;
 		return 0;
 	}
 
@@ -246,6 +291,11 @@ void printTestResults(node  currentContainer){
 		unloadingAlgo(i);
 		loadingAlgo(instructions, weightBalance);
 		fillInstructions(Action::REJECT, "last", "last", "last", "last");
+	}
+	Stowage(){
+	this->instNum = 0;	// The instruction number of the returned instruction
+	this->currentInstructions = new std::string*[150];
+
 	}
 }
 ;

@@ -9,8 +9,8 @@
 #define MAX_LINE 1024
 using namespace std;
 int width,length,maxHeight;
-char *travelPath;
-char *workPath;
+string travelPath;
+string workPath;
 char **route;
 ofstream fd_results;
 int routeSize;
@@ -28,14 +28,13 @@ char* getElem(string s , int& seek){
 }
 
 void parseResults (string algoName,string travelName,int numInst, int port);
-Port* getPortsFromRoute();
-int instructionsOut(string** instructions,char* outName);
+Port* getPortsFromRoute(char** &currRoute);
+int instructionsOut(string** instructions,string outName);
 char* getCargoFileName(int portIndex);
-Container* parseCargoFile(char* fileName);
+Container* parseCargoFile(string fileName);
 int checkPortName(char* name);
 int getNumOfLines(ifstream& fd);
-void initRoute();
+void initRoute(char** &currRoute);
 void getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem);
-void initShipPlan();
-
+void initShipPlan(Ship* &currShip);
 #endif

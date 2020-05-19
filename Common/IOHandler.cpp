@@ -74,29 +74,30 @@ void parseResults (string algoName,string travelName,int numInst, int port){
 
 
 //[11]
-Port* getPortsFromRoute(){
+Port* getPortsFromRoute(char** &currRoute){
 	int index;
 	Port* ports=new Port[routeSize+1];
 	for(index=0;index<routeSize;index++){
-		ports[index]=Port(string(route[index]));
+		ports[index]=Port(string(currRoute[index]));
 	}
 	ports[index]=Port("last");
 	return ports;
 
 }
 //[10]//not finished yet
-int instructionsOut(string** instructions,char* outName){
+int instructionsOut(string** instructions,string outName){
 	//open output file to write the instruction to output dir ??????????????????????? we must open a output dir to every algo????
 	ofstream fd_info;
 	cout << "in out" <<endl;
 	numInstructions=0;
-	char* filePath=new char[strlen(travelPath)+strlen(OUTPUT)+strlen(outName)+6];
+	/*char* filePath=new char[strlen(travelPath)+strlen(OUTPUT)+strlen(outName)+6];
 
 	strcpy(filePath,travelPath);
 	strcat(filePath,OUTPUT);
 	strcat(filePath,"/");
 	strcat(filePath,outName);
-	strcat(filePath,".out");
+	strcat(filePath,".out");*/
+	string filePath=outName;
 	cout << filePath <<endl;
 	fd_info.open(filePath,ios_base::out);//open the file to out
 	if(!fd_info){
@@ -111,8 +112,7 @@ int instructionsOut(string** instructions,char* outName){
 		if(instructions[instIndex][0].compare("last")!=0){
 			fd_info<<endl;
 		}
-	}
-	delete[] filePath;
+	} 
 	fd_info.close();
 	return SUCCESS;
 }
@@ -134,15 +134,12 @@ char* getCargoFileName(int portIndex){
 
 }
 //[8]
-    Container* parseCargoFile(char* fileName){
+    Container* parseCargoFile(string fileName){
 	ifstream fd_info;
 	int is_err=SUCCESS;//must change this.........................................
 	Container* containers;
 	int containerNum;
-	char* filePath=new char[strlen(travelPath)+strlen(fileName)+2];
-	strcpy(filePath,travelPath);
-	strcat(filePath,"/");
-	strcat(filePath,fileName);
+	string filePath=fileName;
 	fd_info.open(filePath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
@@ -218,22 +215,19 @@ int getNumOfLines(ifstream& fd){
 }
 
 //[5] called in [3]
-void initRoute(){
+void initRoute(char** &currRoute){
 	ifstream fd_info;
 	int is_err;
-	char* filePath=new char[strlen(travelPath)+strlen(ROUTE)+2];
-	strcpy(filePath,travelPath);
-	strcat(filePath,"/");
-	strcat(filePath,ROUTE);
+	string filePath=travelPath+"/"+ROUTE;
 	fd_info.open(filePath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
 		std::cout << "ERROR[5][1]- can't open "<< filePath<< std::endl;
 	}
 	routeSize=getNumOfLines(fd_info);//get route size
-	route=new char*[routeSize];
+	currRoute=new char*[routeSize];
 	for(int i=0;i<routeSize;i++){
-		route[i]=new char[5];
+		currRoute[i]=new char[5];
 	}
 	//get the route
 	string line;
@@ -250,8 +244,8 @@ void initRoute(){
 				std::cout << "ERROR[5][2]- wrong port name "<< parse_out<< std::endl;
 			}
 			if(is_err!=ERROR){
-				strcpy(route[portIndex],parse_out);
-				cout<<route[portIndex]<<endl;
+				strcpy(currRoute[portIndex],parse_out);
+				cout<<currRoute[portIndex]<<endl;
 			}
 			portIndex++;
 	}
@@ -267,12 +261,13 @@ void getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thir
 	cout << firstElem <<","<<secElem<<","<<thirdElem<<endl;
 }
 //[4] called in [3]
-void initShipPlan(){
+void initShipPlan(Ship* &currShip){
 	ifstream fd_info;
-	char* filePath=new char[strlen(travelPath)+strlen(SHIP_PLAN)+2];
+	/*char* filePath=new char[strlen(travelPath)+strlen(SHIP_PLAN)+2];
 	strcpy(filePath,travelPath);
 	strcat(filePath,"/");
-	strcat(filePath,SHIP_PLAN);
+	strcat(filePath,SHIP_PLAN);*/
+	string filePath=travelPath+"/"+SHIP_PLAN;
 	fd_info.open(filePath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
@@ -295,7 +290,7 @@ void initShipPlan(){
 		 intiate the ship
 		*/
 		cout<<"initiate the ship :"<<width<<", "<<length<<", "<<maxHeight<<endl;
-		ship=new Ship(width,length,maxHeight);
+		currShip=new Ship(width,length,maxHeight);
 		cout << "ship done init"<<endl;
 
 		firstLine=!firstLine;
@@ -307,7 +302,7 @@ void initShipPlan(){
 			/*
 			update ship plan
 			*/
-			(*ship).setHeight(x,y,floors);
+			(*currShip).setHeight(x,y,floors);
 			}
 		}
 	}

@@ -131,12 +131,13 @@ void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDIC
 string** ReadExpectedInstructions(char* cargoFileName){
 	ifstream fd_info;
 	string** expectedInstructions;
-	char* expectedPath=new char[strlen(travelPath)+strlen(EXPECTED_OUTPUT)+strlen(cargoFileName)+15];
+	/*char* expectedPath=new char[strlen(travelPath)+strlen(EXPECTED_OUTPUT)+strlen(cargoFileName)+15];
  	strcpy(expectedPath,travelPath);
 	strcat(expectedPath,EXPECTED_OUTPUT);
 	strcat(expectedPath,"/");
 	strcat(expectedPath,cargoFileName);
-	strcat(expectedPath,".expected");
+	strcat(expectedPath,".expected");*/
+	string expectedPath=travelPath+EXPECTED_OUTPUT+"/"+ cargoFileName+".expected";
 
 	fd_info.open(expectedPath,ios_base::in);//open the file
 	//checking the access to the file
@@ -197,24 +198,26 @@ int checkInstructionPerPort(int portIndex,string** algoInstructions){
 void simulateTravel(){
 	  //intiate the ship and get the route
 	cout << "*initShipPlan"<<endl;
-	  initShipPlan();
+	  cout<< "the travel path is : "<<travelPath<<endl;
+	  initShipPlan(ship);
+ cout<< "the travel path is : "<<travelPath<<endl;
+
 	cout << "*initRoute"<<endl;
-	  initRoute();
+	  initRoute(route);
 	  //example
-	cout<<"printing the cargo file ame"<<endl;
+	cout<<"printing the cargo file name"<<endl;
 	int check;
 	//try
 
-	Port* ports = getPortsFromRoute();
+	Port* ports = getPortsFromRoute(route);
 	parseResults (AlgoName ,travelName ,0 ,0);
+	Stowage algo;
+	algo.readShipPlan(travelName);//must change the prototype
+	algo.readShipRoute(travelName);//must prototype
 	for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
 		char* FileName=getCargoFileName(routeIndex);
-		Container * containers=parseCargoFile(FileName);
-		printContainerArray(containers, FileName);
-	 	curAlgo =new Stowage(routeIndex,ship,ports,containers);
-	  	string** algoInstructions=curAlgo->currentInstructions;
-		instructionsOut(algoInstructions,FileName);
-	   	check=checkInstructionPerPort(routeIndex,algoInstructions);
+		algo.getInstructionsForCargo(travelPath+"/"+FileName, travelPath+OUTPUT+"/"+FileName+".out");
+		
 		if(check==SUCCESS){
 			parseResults (AlgoName,travelName,numInstructions,routeIndex+1);
 		}else{
@@ -230,11 +233,11 @@ void simulate(DIR* fd){
     while ((entry = readdir(fd)))
       if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 		  //open the travel dir
-		  travelPath=new char[strlen(workPath)+strlen(entry->d_name)+2];
-		  strcpy(travelPath,workPath);
-		  strcat(travelPath,"/");
-		  strcat(travelPath,entry->d_name);
-		  DIR* fd_travel=opendir(travelPath);
+		  cout<< "the work path is : "<<workPath<<endl;
+		  travelPath=workPath+"/"+string(entry->d_name);
+		  const char *cstr = travelPath.c_str();
+		  cout<< "the travel path is : "<<travelPath<<endl;
+		  DIR* fd_travel=opendir(cstr);
 		  std::cout <<entry->d_name<<std::endl;
 		  if(fd_travel==NULL){
 			  std::cout << "ERROR[2][1]- can't open "<<entry->d_name<<std::endl; 
@@ -243,7 +246,6 @@ void simulate(DIR* fd){
 				  simulateTravel();//simulate the travel
 				  //free resources
 				  closedir(fd_travel);
-			          delete[] travelPath;
 			  }
 	  }
 	if(fd_results.is_open()){
@@ -261,15 +263,17 @@ int main(int argc, char *argv[]) {
 		return ERROR;
 	}
 	//getting the path
-	workPath=argv[1];
+	workPath=string(argv[1]);
 	//checking the access to the DIR
-	DIR *fd_path=opendir(workPath);
+	const char *cstr = workPath.c_str();
+	DIR *fd_path=opendir(cstr);
 	if(fd_path==NULL){
 		std::cout << "ERROR[1][2]- can't open "<<workPath<<std::endl;
 		return ERROR;
 	}
 	//get the travels
 	simulate(fd_path);
-
+	//delete cstr;
+	cout << "Done!"<<endl;
 	return 0;
 }
