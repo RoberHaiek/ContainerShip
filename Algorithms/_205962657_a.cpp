@@ -16,6 +16,7 @@ public:
 	std::deque<node*> loadBackContainers;
 	std::deque<std::string*> indexies;
 	int routeIndex;
+	string name="in algo A";
 	/*
 	 *
 	 *added
@@ -99,8 +100,8 @@ public:
 
 	int readShipPlan(const std::string& full_path_and_file_name){
 		// read the ship plan from a file
-		cout << "*initShipPlan"<<endl;
-	  	initShipPlan(ship);
+		cout << "*initShipPlan "<<name<<endl;
+	  	//initShipPlan(ship);
 
 		return 0; // success
 	}

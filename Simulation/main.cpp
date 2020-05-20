@@ -1,7 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include "AlgorithmRegistrar.h"
-//#include "../Algorithms/_205962657_b.cpp"
 
 int main(){
 
@@ -12,11 +11,16 @@ int main(){
 	        	std::cerr << error << '\n'; 
             		return EXIT_FAILURE;
         	}
+	    	if (!registrar.loadAlgorithmFromFile("../Algorithms/_205962657_b.so", error)) {
+	        	std::cerr << error << '\n'; 
+            		return EXIT_FAILURE;
+        	}
+
     	}
     
     	for (auto algo_iter = registrar.begin(); algo_iter != registrar.end(); ++algo_iter) {	
 		auto algo = (*algo_iter)();
-		std::cout << "DONE!!!!";
+		std::cout << algo->readShipPlan("hhhh")<<" DONE!!!! \n";
 	}	
     	return EXIT_SUCCESS;
 /*
