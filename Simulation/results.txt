@@ -5,4 +5,5 @@
 	---------------------------------------------------------------
 ********Travel name= BARCA_TRAVEL
 	Algorithem name=StowageAlgo
-	Sum: 8
+	In port -1: 0
+	

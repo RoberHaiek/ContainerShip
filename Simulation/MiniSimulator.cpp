@@ -10,6 +10,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <fstream>
+#include <sys/stat.h>
 #include "../Algorithms/Stowage.cpp"
 #include "../Simulation/WeightBalanceCalculator.cpp"
 //#include "../Interfaces/IOHandler.h"//may changed
@@ -21,6 +22,7 @@ const char* EXPECTED_OUTPUT="/expected_output";
 string travelName;
 string AlgoName="StowageAlgo";
 Stowage* curAlgo;
+string travel_path="",algorithm_path="",output="";
 /*---------------FUNC DEC-------------*/
 void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 /*------------------DEBUGGING METHODS-------------------*/
@@ -128,7 +130,7 @@ void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDIC
 }
 
 //[13]
-string** ReadExpectedInstructions(char* cargoFileName){
+string** ReadExpectedInstructions(string cargoFileName){
 	ifstream fd_info;
 	string** expectedInstructions;
 	/*char* expectedPath=new char[strlen(travelPath)+strlen(EXPECTED_OUTPUT)+strlen(cargoFileName)+15];
@@ -175,7 +177,7 @@ string** ReadExpectedInstructions(char* cargoFileName){
 }
 //[12]
 int checkInstructionPerPort(int portIndex,string** algoInstructions){
-	char* cargoFileName = getCargoFileName(portIndex);
+	string cargoFileName = getCargoFileName(portIndex,true);
 	map<string,vector<string>> InstructionsMap;
 	int fillMap=insertInstructionToMap(algoInstructions,InstructionsMap);
 	if(fillMap!=SUCCESS){
@@ -214,9 +216,18 @@ void simulateTravel(){
 	Stowage algo;
 	algo.readShipPlan(travelName);//must change the prototype
 	algo.readShipRoute(travelName);//must change the prototype
+	//make directory
+	string makeDir="AlgoName_"+travelName+"_crane_instructions";//must change the algo name
+	const char *cstr = makeDir.c_str();
+	int err= mkdir (cstr,0777);
+	if(err){	
+	std::cout << "ERROR[3][1]- can't make dir with name : "<<makeDir<<std::endl; 
+	
+	}
 	for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
-		char* FileName=getCargoFileName(routeIndex);
-		algo.getInstructionsForCargo(travelPath+"/"+FileName, travelPath+OUTPUT+"/"+FileName+".out");
+		string FileNameCarge=getCargoFileName(routeIndex,true);
+		string FileNameInstruction=getCargoFileName(routeIndex,false);
+		algo.getInstructionsForCargo(travelPath+"/"+FileNameCarge, output+"/"+makeDir+"/"+FileNameInstruction);
 		
 		if(check==SUCCESS){
 			parseResults (AlgoName,travelName,numInstructions,routeIndex+1);
@@ -285,7 +296,6 @@ int main(int argc, char *argv[]) {
 		std::cout << "ERROR[1][1]- Wrong Number of Parameters!" << std::endl;
 		return ERROR;
 	}
-	string travel_path="",algorithm_path="",output="";
         int checkErr=getFromCommandLine(argv,argc,travel_path,algorithm_path ,output);
 	if (checkErr==ERROR){
 		std::cout << "ERROR[1][2]- Wrong Parameters foramt! or A missing -travel_path argument" << std::endl;
