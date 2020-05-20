@@ -5,8 +5,8 @@
 class WeightBalanceCalculator {
 public:
 
-	enum BalanceStatus {
-		APPROVED, X_IMBALANCED, Y_IMBALANCED, X_Y_IMBALANCED
+	enum BalanceStatus { 
+	APPROVED, X_IMBALANCED, Y_IMBALANCED, X_Y_IMBALANCED 
 	};
 
 	// EDIT, 05-05-2020L: the method below is required even for ex2
@@ -15,3 +15,4 @@ public:
 
 	BalanceStatus tryOperation(char loadUnload, int kg, int x, int y);
 };
+

@@ -7,6 +7,7 @@
 #pragma once
 #include <cmath>
 #include <string>
+#include <fstream>
 using namespace std;
 ofstream fd_errors;
 enum status{Ignore,FatalError};

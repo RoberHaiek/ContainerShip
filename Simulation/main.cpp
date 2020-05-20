@@ -1,33 +1,25 @@
 #include <iostream>
-//#include <dlfcn.h>
-//#include <memory>
+#include <stdlib.h>
+#include "AlgorithmRegistrar.h"
+//#include "../Algorithms/_205962657_b.cpp"
 
-//#include "_205962657_a.cpp"
-#include "../Algorithms/_205962657_b.cpp"
-
-/*
-struct DLCloser
-{
-	void operator()(void *dlhandle) const noexcept {
-		std::cout << "Closing dl \n";
-		dlclose(dlhandle);
-	}
-};
-*/
 int main(){
+
+    	auto& registrar = AlgorithmRegistrar::getInstance();
+    	{
+        	std::string error;
+	    	if (!registrar.loadAlgorithmFromFile("../Algorithms/_205962657_a.so", error)) {
+	        	std::cerr << error << '\n'; 
+            		return EXIT_FAILURE;
+        	}
+    	}
+    
+    	for (auto algo_iter = registrar.begin(); algo_iter != registrar.end(); ++algo_iter) {	
+		auto algo = (*algo_iter)();
+		std::cout << "DONE!!!!";
+	}	
+    	return EXIT_SUCCESS;
 /*
-	std::unique_ptr<void, DLCloser> handle1(dlopen( "../Algorithms/_205962657_a.so", RTLD_LAZY));
-	if(!handle1)
-		std::cerr << "dlopen failed " << dlerror() << "\n";
-	else
-		std::cout << "_205962657_a.so opened \n";
-	
-	std::unique_ptr<void, DLCloser> handle2(dlopen("../Algorithms/_205962657_b.so", RTLD_LAZY));
-	if(!handle1)
-		std::cerr << "dlopen failed " << dlerror() << "\n";
-	else
-		std::cout << "_205962657_b.so opened \n";
-*/
 	// init route
 	Port* route = new Port[4];
 	Port port0, port1, port3;
@@ -70,5 +62,5 @@ int main(){
 	//	a = Stowage(i,*ship,route,instructions[i]);
 	//}
 	return 0;
-
+*/
 }

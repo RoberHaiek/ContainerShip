@@ -4,6 +4,7 @@
 
 //includes and globals
 #include "../Algorithms/StowageTester.cpp"
+#include <fstream>
 #define SUCCESS 1
 #define ERROR 0
 #define MAX_LINE 1024
