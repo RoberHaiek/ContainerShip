@@ -117,19 +117,24 @@ int instructionsOut(string** instructions,string outName){
 	return SUCCESS;
 }
 //[9]
-char* getCargoFileName(int portIndex){
+string getCargoFileName(int portIndex,bool cargoData){
 	int cnt=1;
 	for(int i=0;i<portIndex;i++){
 		if(strcmp(route[portIndex],route[i])==0){
 			cnt++;
 		}
 	}
-	char* fileName=new char[20];
+	/*char* fileName=new char[20];
 	strcpy(fileName,route[portIndex]);
 	strcat(fileName,"_");
 	fileName[strlen(fileName)]='0'+cnt;
-	fileName[strlen(fileName)]='\0';
-	strcat(fileName,".cargo_data");
+	fileName[strlen(fileName)]='\0';*/
+	string fileName=string(route[portIndex])+"_"+to_string(cnt);
+	if(cargoData==true){
+	fileName+=".cargo_data";
+	}else{
+	fileName+=".crane_instructions";
+	}
 	return fileName;
 
 }

@@ -30,7 +30,7 @@ char* getElem(string s , int& seek){
 void parseResults (string algoName,string travelName,int numInst, int port);
 Port* getPortsFromRoute(char** &currRoute);
 int instructionsOut(string** instructions,string outName);
-char* getCargoFileName(int portIndex);
+string getCargoFileName(int portIndex,bool cargoData);
 Container* parseCargoFile(string fileName);
 int checkPortName(char* name);
 int getNumOfLines(ifstream& fd);
