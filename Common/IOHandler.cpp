@@ -21,14 +21,14 @@ int routeSize;
 const char* SHIP_PLAN="ship_plan";
 const char* ROUTE="route";
 const char* OUTPUT="/output";
-char* parse_out=new char[MAX_LINE];
+
 int numInstructions=0;
 Ship* ship;
 Stowage* curAlgo;*/
 
 /*--------------------------PARSING METHODS--------------------------*/
 char* getElem(string s , int& seek,char delmiter){
-	int index=0;
+	parse_out="";
 	if(delmiter==' '){//find the first index which not whitspace
 		while(seek < (int)s.length() && s.at(seek)==delmiter){
 			seek++;
@@ -38,9 +38,9 @@ char* getElem(string s , int& seek,char delmiter){
 		if(s.at(seek)==delmiter){
 			break;
 		}
-		parse_out[index++]=s.at(seek++);
+		parse_out=parse_out+s.at(seek++);
 	}
-	parse_out[index]='\0';
+	cout <<"getElem : "<< parse_out<<endl;
 	seek++;
 	return NULL;//must return
 }
@@ -157,8 +157,8 @@ string getCargoFileName(int portIndex,bool cargoData){
 	string line;
 	int containerIndex=0;
 	int seek;
-	char* containerUID=new char[MAX_LINE];
-	char* containerDstPort=new char[MAX_LINE];
+	string containerUID;
+	string containerDstPort;
 	int containerWeight;
 	while(getline(fd_info,line)){
 		if(line.at(0)=='#'){
@@ -166,11 +166,11 @@ string getCargoFileName(int portIndex,bool cargoData){
 			}
 			seek=0;
 			getElem(line,seek,',');
-			strcpy(containerUID,parse_out);
+			containerUID=string(parse_out);
 			getElem(line,seek,',');
 			containerWeight=std::stoi(parse_out); // get length
 			getElem(line,seek,',');
-			strcpy(containerDstPort,parse_out);
+			containerDstPort=string(parse_out);
 			/*is_err=checkUid(containerUID);*/
 			if(is_err==ERROR){
 				std::cout << "ERROR[8][1]- wrong container uid format  "<< containerUID<< std::endl;
@@ -185,13 +185,13 @@ string getCargoFileName(int portIndex,bool cargoData){
 }
 
 //[7] called in [5]
-int checkPortName(char* name){
-	if(strlen(name)!=5){
+int checkPortName(string name){
+	if(name.length()!=5){
 		return ERROR;
 	}
 	char c;
 	for(int i=0;i<5;i++){
-		c=name[i];
+		c=name.at(i);
 		if(c>='A' && c<='Z'){
 			continue;
 		}else{
@@ -249,7 +249,7 @@ void initRoute(char** &currRoute){
 				std::cout << "ERROR[5][2]- wrong port name "<< parse_out<< std::endl;
 			}
 			if(is_err!=ERROR){
-				strcpy(currRoute[portIndex],parse_out);
+				strcpy(currRoute[portIndex],parse_out.c_str());
 				cout<<currRoute[portIndex]<<endl;
 			}
 			portIndex++;
@@ -312,4 +312,44 @@ void initShipPlan(Ship* &currShip){
 		}
 	}
 }
+/**********implement some funcs*********/
 
+	int getRouteIndex(int &routeIndex,const std::string& input_full_path_and_file_name){
+		int seek=0;
+		while(seek < (int)input_full_path_and_file_name.length()){
+		getElem(input_full_path_and_file_name,seek,'/');
+		}
+		seek=0;
+		string fileName(parse_out);
+		getElem(fileName,seek,'_');
+		string portName(parse_out);
+		getElem(fileName,seek,'.');
+		std::cout<<"the parse_out is :"<<parse_out<<std::endl;
+		int portNum=std::stoi(parse_out);
+		routeIndex=0;
+		while(true){
+			if(portName.compare(route[routeIndex])==0){
+				portNum--;	
+			}
+			if(portNum==0){
+				break;
+			}
+			routeIndex++;
+		}
+
+		return 0;
+	}
+	string getTheFileName(string fullFilePath){
+		int seek=0;
+		string fileName;
+		cout<<"in getTheFileName: "<<seek<<endl;
+		while(seek < (int)fullFilePath.length()){
+		getElem(fullFilePath,seek,'/');
+		}
+		fileName=string(parse_out);
+		cout<<"for npw the filename is :"<<fileName<<endl;
+
+		return fileName;
+
+	}
+	/*****************************************/

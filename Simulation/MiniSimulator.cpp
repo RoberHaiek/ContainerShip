@@ -11,17 +11,18 @@
 #include <dirent.h>
 #include <fstream>
 #include <sys/stat.h>
-#include "../Algorithms/Stowage.cpp"
+//#include "../Algorithms/Stowage.cpp"
 #include "../Simulation/WeightBalanceCalculator.cpp"
 //#include "../Interfaces/IOHandler.h"//may changed
 #include "../Common/IOHandler.cpp"
+#include "AlgorithmRegistrar.h"
 #define LAST 1
 #define REGULAR 0
 using namespace std;
 const char* EXPECTED_OUTPUT="/expected_output";
 string travelName;
 string AlgoName="StowageAlgo";
-Stowage* curAlgo;
+//Stowage* curAlgo;
 string travel_path="",algorithm_path="",output="";
 /*---------------FUNC DEC-------------*/
 void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
@@ -213,7 +214,63 @@ void simulateTravel(){
 
 	Port* ports = getPortsFromRoute(route);
 	parseResults (AlgoName ,travelName ,0 ,0);
-	Stowage algo;
+
+//new implemntation using algo regestrar
+	auto& registrar = AlgorithmRegistrar::getInstance();
+    	{
+        	std::string error;
+	    	if (!registrar.loadAlgorithmFromFile("../Algorithms/_205962657_a.so", error)) {
+	        	std::cerr << error << '\n'; 
+            		return ;
+        	}
+	    	if (!registrar.loadAlgorithmFromFile("../Algorithms/_205962657_b.so", error)) {
+	        	std::cerr << error << '\n'; 
+            		return ;
+        	}
+
+    	}
+    	int i=0;
+	cout<<"******starting the loop over the algos **********"<<endl;
+    	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
+		string algoName="Algorithim_"+string(1,char('a'+i))+"_";
+		i++;
+		auto algo = (*algo_iter)();
+		algo->readShipPlan(travelName);//must change the prototype
+		algo->readShipRoute(travelName);//must change the prototype
+		//make directory
+		string makeDir=algoName+travelName+"_crane_instructions";//must change the algo name
+		const char *cstr = makeDir.c_str();
+		int err= mkdir (cstr,0777);
+		if(err){	
+		std::cout << "ERROR[3][1]- can't make dir with name : "<<makeDir<<std::endl; 
+		}
+		cout<<"******starting the loop over the ports **********"<<endl;
+
+		for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
+		cout<<"******port number = "<<routeIndex<<" **********"<<endl;
+
+		string FileNameCarge=getCargoFileName(routeIndex,true);
+		string FileNameInstruction=getCargoFileName(routeIndex,false);
+		cout<<"****** getting instructions **********"<<endl;
+		algo->getInstructionsForCargo(travelPath+"/"+FileNameCarge, output+"/"+makeDir+"/"+FileNameInstruction);
+		
+		if(check==SUCCESS){
+			parseResults (algoName,travelName,numInstructions,routeIndex+1);
+		}else{
+			parseResults (algoName,travelName,numInstructions,0-(routeIndex+1));
+		}
+	}
+
+
+		
+	}	
+    	//return EXIT_SUCCESS;
+
+
+
+
+
+	/*Stowage algo;
 	algo.readShipPlan(travelName);//must change the prototype
 	algo.readShipRoute(travelName);//must change the prototype
 	//make directory
@@ -234,7 +291,7 @@ void simulateTravel(){
 		}else{
 			parseResults (AlgoName,travelName,numInstructions,0-(routeIndex+1));
 		}
-	}
+	}*/
 	 	
 }
 

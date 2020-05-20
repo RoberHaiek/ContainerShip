@@ -18,7 +18,7 @@ int routeSize;
 const char* SHIP_PLAN="ship_plan";
 const char* ROUTE="route";
 const char* OUTPUT="/output";
-char* parse_out=new char[MAX_LINE];
+string parse_out;
 int numInstructions=0;
 Ship* ship;
 
@@ -33,9 +33,11 @@ Port* getPortsFromRoute(char** &currRoute);
 int instructionsOut(string** instructions,string outName);
 string getCargoFileName(int portIndex,bool cargoData);
 Container* parseCargoFile(string fileName);
-int checkPortName(char* name);
+int checkPortName(string name);
 int getNumOfLines(ifstream& fd);
 void initRoute(char** &currRoute);
 void getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem);
 void initShipPlan(Ship* &currShip);
+int getRouteIndex(int &routeIndex,const std::string& input_full_path_and_file_name);
+string getTheFileName(string fullFilePath);
 #endif
