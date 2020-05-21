@@ -11,6 +11,7 @@
 #include <dirent.h>
 #include <fstream>
 #include <sys/stat.h>
+#include <queue> 
 //#include "../Algorithms/Stowage.cpp"
 #include "../Simulation/WeightBalanceCalculator.cpp"
 //#include "../Interfaces/IOHandler.h"//may changed
@@ -24,12 +25,13 @@ string travelName;
 string AlgoName="StowageAlgo";
 //Stowage* curAlgo;
 string travel_path="",algorithm_path="",output="";
+queue<string> algoQueue;
 /*---------------FUNC DEC-------------*/
 void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 /*------------------DEBUGGING METHODS-------------------*/
 void printFiles(DIR* fd){
 	struct dirent *entry;
-    while ((entry = readdir(fd)))
+    	while ((entry = readdir(fd)))
 		if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 			std::cout <<entry->d_name<<std::endl;
 	}
@@ -219,26 +221,52 @@ void simulateTravel(){
 	auto& registrar = AlgorithmRegistrar::getInstance();
     	{
         	std::string error;
-	    	if (!registrar.loadAlgorithmFromFile("../Algorithms/_205962657_a.so", error)) {
+		const char *cstr = algorithm_path.c_str();
+		  DIR* fd_Algo=opendir(cstr);
+		  if(fd_Algo==NULL){
+			  std::cout << "ERROR[3][1]- can't open "<<algorithm_path<<std::endl; 
+				return;
+			}
+
+		struct dirent *entry;
+    		while ((entry = readdir(fd_Algo)))
+		if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+			string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
+			if(algoName.compare("/")!=0){
+			cout << "the algoritim is : "<< algoName <<endl;
+			algoQueue.push(algoName);
+			if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
+	        	std::cerr << error << '\n'; 
+            		return ;
+        		}
+
+
+
+
+
+			}
+			
+		}
+
+	    /*	if (!registrar.loadAlgorithmFromFile("../Algorithms/_205962657_a.so", error)) {
 	        	std::cerr << error << '\n'; 
             		return ;
         	}
 	    	if (!registrar.loadAlgorithmFromFile("../Algorithms/_205962657_b.so", error)) {
 	        	std::cerr << error << '\n'; 
             		return ;
-        	}
+        	}*/
 
     	}
-    	int i=0;
 	cout<<"******starting the loop over the algos **********"<<endl;
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
-		string algoName="Algorithim_"+string(1,char('a'+i))+"_";
-		i++;
+		string algoName=algoQueue.front();
+		algoQueue.pop();
 		auto algo = (*algo_iter)();
 		algo->readShipPlan(travelName);//must change the prototype
 		algo->readShipRoute(travelName);//must change the prototype
 		//make directory
-		string makeDir=algoName+travelName+"_crane_instructions";//must change the algo name
+		string makeDir=algoName+"_"+travelName+"_crane_instructions";
 		const char *cstr = makeDir.c_str();
 		int err= mkdir (cstr,0777);
 		if(err){	

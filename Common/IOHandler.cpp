@@ -352,4 +352,17 @@ void initShipPlan(Ship* &currShip){
 		return fileName;
 
 	}
+string getNameWithoutExtinsion(string fileName,char delemiter,string extension){
+	int seek=0;
+	while(seek < (int)fileName.length()){
+		getElem(fileName,seek,delemiter);
+	}
+	if(extension.compare(parse_out)==0){
+		cout<<"+++int get Name without : "<<parse_out.substr(0,parse_out.find(string(1,delemiter)+extension))<<"  "<<parse_out.find(string(1,delemiter)+extension)<<endl;
+		return fileName.substr(0,fileName.find(string(1,delemiter)+extension));
+	}
+	return "/";
+
+}
+
 	/*****************************************/
