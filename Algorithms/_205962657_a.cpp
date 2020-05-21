@@ -98,11 +98,9 @@ public:
 	int getInstructionsForCargo(const std::string& input_full_path_and_file_name, const std::string& output_full_path_and_file_name){
 		// read from input, write to output - PARSING
 		string fileName=getTheFileName(input_full_path_and_file_name);
-		cout<<"111111111111 "<<input_full_path_and_file_name <<"  and the filename is : "<<fileName<<endl;
 		
 		
 		getRouteIndex(routeIndex,fileName);
-		cout<<"222222222222"<<endl;
 		cout<<"the index in get inst ="<<routeIndex<<endl;
 		Container* containers=parseCargoFile(input_full_path_and_file_name);
 		cout<<"the first container is :"<<containers[0].uniqueId<<endl;
@@ -113,7 +111,17 @@ public:
 		this->instNum = 0;
 		return 0;
 	}
-
+	void priority(Container *PortInstructions){
+		int shipCapacityStatus = ship->planMap->size()/shipMaxCapacity;
+		if(sizeOfArray(PortInstructions) > shipCapacityStatus){
+			for(int i=0;i<sizeOfArray(PortInstructions);i++){
+				/*
+				binarySort( destPort's index );
+				reject the rest;
+				*/
+			}
+		}
+	}
 	void fillInstructions(Action LUR, std::string uniqueId, std::string height, std::string row,
 			std::string column) {
 		currentInstructions[instNum] = new std::string[5];
@@ -268,6 +276,11 @@ void printTestResults(node  currentContainer){
 		this->instNum = 0;	// The instruction number of the returned instruction
 		this->currentInstructions = new std::string*[100];
 		this->route = route;
+		this->shipMaxCapacity = 0;
+		for (int row = 0; row < ship->shipWidth; row++) {	// for each row
+			for (int column = 0; column < ship->shipLength; column++) {	// for each column
+				this->shipMaxCapacity+=ship->planLinkedList[row][column].maxHeight;
+		}}
 		routeIndex=i;
 		unloadingAlgo(i);
 		loadingAlgo(instructions, weightBalance);
