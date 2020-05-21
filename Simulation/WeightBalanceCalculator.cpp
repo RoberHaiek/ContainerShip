@@ -1,5 +1,9 @@
 #include "../Interfaces/WeightBalanceCalculator.h"
 	//char loadUnload, int kg, int X, int Y
-static bool tryOperation(){
-	return true;
+class WeightBalanceCalculator{
+public:
+BalanceStatus tryOperation(char loadUnload, int kg, int x, int y){
+	return APPROVED;
 }
+WeightBalanceCalculator(){}
+};
