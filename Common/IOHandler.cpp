@@ -40,7 +40,6 @@ char* getElem(string s , int& seek,char delmiter){
 		}
 		parse_out=parse_out+s.at(seek++);
 	}
-	cout <<"getElem : "<< parse_out<<endl;
 	seek++;
 	return NULL;//must return
 }
@@ -239,6 +238,8 @@ int initRoute(char** &currRoute,string travelPath){
 		string routeName=getNameWithoutExtinsion(entry->d_name,'.',"route");
 		if(routeName.compare("/")!=0){
 			if(numOfRoutes>0){
+				cout<<"ERROR[5][3]: too many route files"<<endl;
+
 				return ERROR;
 			}
 			cout << "the shipPlane name is : "<< routeName<<endl;
@@ -248,6 +249,8 @@ int initRoute(char** &currRoute,string travelPath){
 			
 	}
 	if(numOfRoutes==0){
+		cout<<"ERROR[5][3]: no route file"<<endl;
+
 		return ERROR;
 	}
 
@@ -317,6 +320,7 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 		string shipPlaneName=getNameWithoutExtinsion(entry->d_name,'.',"ship_plan");
 		if(shipPlaneName.compare("/")!=0){
 			if(numOfShipPlanes>0){
+				cout<<"ERROR[4][1]: too many ship plan files"<<endl;
 				return ERROR;
 			}
 			cout << "the shipPlane name is : "<< shipPlaneName<<endl;
@@ -326,6 +330,7 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 			
 	}
 	if(numOfShipPlanes==0){
+		cout<<"ERROR[4][2]: no ship plan file"<<endl;
 		return ERROR;
 	}
 
@@ -410,15 +415,23 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 		return fileName;
 
 	}
+//20
 string getNameWithoutExtinsion(string fileName,char delemiter,string extension){
 	int seek=0;
+	if(fileName.compare(extension)==0){
+		cout<<"ERROR[20][1]: "<<fileName<<" is the same as the extension"<<endl;
+
+		return "/";
+
+	}
 	while(seek < (int)fileName.length()){
 		getElem(fileName,seek,delemiter);
 	}
 	if(extension.compare(parse_out)==0){
-		cout<<"+++int get Name without : "<<parse_out.substr(0,parse_out.find(string(1,delemiter)+extension))<<"  "<<parse_out.find(string(1,delemiter)+extension)<<endl;
+		cout<<"+++int get Name without : "<<parse_out.substr(0,parse_out.find(string(1,delemiter)+extension))<<endl;
 		return fileName.substr(0,fileName.find(string(1,delemiter)+extension));
 	}
+	
 	return "/";
 
 }

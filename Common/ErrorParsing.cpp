@@ -73,7 +73,7 @@ status documentErrors(ofstream& fd_errors,int errorCode){
 	}
 	for (int index=0 ;index<19 ; index++) {
 			auto it =(ErrorID)index;
-			if ((it & errorCode) == 1){
+			if (((int)(pow(2,(int)it)) & errorCode) == 1){
 				string msg;
 				getInfo(it,msg,currentStatus);
 				fd_errors<<"\t* "+msg+"\n";
