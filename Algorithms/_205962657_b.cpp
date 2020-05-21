@@ -76,7 +76,7 @@ public:
 	int readShipPlan(const std::string& full_path_and_file_name){
 		// read the ship plan from a file
 		cout << "*initShipPlan " << name<<endl;
-	  	initShipPlan(ship);
+	  	initShipPlan(ship,full_path_and_file_name);
 
 		return 0; // success
 	}
@@ -85,7 +85,7 @@ public:
 		// read ship route from file
 		cout << "*initRoute from stowage"<<endl;
 		char** routeArray;
-	  	initRoute(routeArray);
+	  	initRoute(routeArray,full_path_and_file_name);
 		route= getPortsFromRoute(routeArray);
 		cout<<"* finish route from stowage"<<endl;
 

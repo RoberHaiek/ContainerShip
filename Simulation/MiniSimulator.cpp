@@ -204,11 +204,11 @@ void simulateTravel(){
 	  //intiate the ship and get the route
 	cout << "*initShipPlan"<<endl;
 	  cout<< "the travel path is : "<<travelPath<<endl;
-	  initShipPlan(ship);
+	  int errShipPlanSimulator=initShipPlan(ship,travelPath);
  cout<< "the travel path is : "<<travelPath<<endl;
 
 	cout << "*initRoute"<<endl;
-	  initRoute(route);
+	  int errRouteSimulator=initRoute(route,travelPath);
 	  //example
 	cout<<"printing the cargo file name"<<endl;
 	int check;
@@ -233,38 +233,31 @@ void simulateTravel(){
 		if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 			string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
 			if(algoName.compare("/")!=0){
-			cout << "the algoritim is : "<< algoName <<endl;
-			algoQueue.push(algoName);
-			if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
-	        	std::cerr << error << '\n'; 
-            		return ;
-        		}
-
-
-
+				cout << "the algoritim is : "<< algoName <<endl;
+				algoQueue.push(algoName);
+				if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
+	        			std::cerr << error << '\n'; 
+            				return ;
+        			}
 
 
 			}
 			
 		}
 
-	    /*	if (!registrar.loadAlgorithmFromFile("../Algorithms/_205962657_a.so", error)) {
-	        	std::cerr << error << '\n'; 
-            		return ;
-        	}
-	    	if (!registrar.loadAlgorithmFromFile("../Algorithms/_205962657_b.so", error)) {
-	        	std::cerr << error << '\n'; 
-            		return ;
-        	}*/
-
+	
     	}
 	cout<<"******starting the loop over the algos **********"<<endl;
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
 		string algoName=algoQueue.front();
 		algoQueue.pop();
 		auto algo = (*algo_iter)();
-		algo->readShipPlan(travelName);//must change the prototype
-		algo->readShipRoute(travelName);//must change the prototype
+		int errShipPlanAlgo=algo->readShipPlan(travelPath);//must change the prototype
+		int errRouteAlgo=algo->readShipRoute(travelPath);//must change the prototype
+		if(errShipPlanAlgo || errRouteAlgo){
+			cout<< "??????????????error in shipPlan or in route??????????????" << endl;
+			break;
+		}
 		//make directory
 		string makeDir=algoName+"_"+travelName+"_crane_instructions";
 		const char *cstr = makeDir.c_str();

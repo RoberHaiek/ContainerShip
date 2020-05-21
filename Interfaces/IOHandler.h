@@ -35,9 +35,10 @@ string getCargoFileName(int portIndex,bool cargoData);
 Container* parseCargoFile(string fileName);
 int checkPortName(string name);
 int getNumOfLines(ifstream& fd);
-void initRoute(char** &currRoute);
+int initRoute(char** &currRoute,string travelPath);
 void getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem);
-void initShipPlan(Ship* &currShip);
+int initShipPlan(Ship* &currShip,string travelPath);
 int getRouteIndex(int &routeIndex,const std::string& input_full_path_and_file_name);
 string getTheFileName(string fullFilePath);
+string getNameWithoutExtinsion(string fileName,char delemiter,string extension);
 #endif

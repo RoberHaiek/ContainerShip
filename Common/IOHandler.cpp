@@ -220,10 +220,37 @@ int getNumOfLines(ifstream& fd){
 }
 
 //[5] called in [3]
-void initRoute(char** &currRoute){
+int initRoute(char** &currRoute,string travelPath){
 	ifstream fd_info;
 	int is_err;
-	string filePath=travelPath+"/"+ROUTE;
+	//string filePath;=travelPath+"/"+ROUTE;
+	const char *cstr = travelPath.c_str();
+	DIR* fd_travel=opendir(cstr);
+	if(fd_travel==NULL){
+		std::cout << "ERROR[3][1]- can't open "<<travelPath<<std::endl; 
+		return ERROR;
+	}
+	int numOfRoutes=0;
+	string routeName="missing";
+	string filePath="missing";
+	struct dirent *entry;
+    	while ((entry = readdir(fd_travel)))
+	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+		string routeName=getNameWithoutExtinsion(entry->d_name,'.',"route");
+		if(routeName.compare("/")!=0){
+			if(numOfRoutes>0){
+				return ERROR;
+			}
+			cout << "the shipPlane name is : "<< routeName<<endl;
+			filePath=travelPath+"/"+entry->d_name;
+			numOfRoutes++;
+		}
+			
+	}
+	if(numOfRoutes==0){
+		return ERROR;
+	}
+
 	fd_info.open(filePath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
@@ -254,6 +281,7 @@ void initRoute(char** &currRoute){
 			}
 			portIndex++;
 	}
+	return 0;
 }
 //[6] called in[4]
 void getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem){
@@ -266,13 +294,42 @@ void getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thir
 	cout << firstElem <<","<<secElem<<","<<thirdElem<<endl;
 }
 //[4] called in [3]
-void initShipPlan(Ship* &currShip){
+int initShipPlan(Ship* &currShip ,string travelPath){
 	ifstream fd_info;
 	/*char* filePath=new char[strlen(travelPath)+strlen(SHIP_PLAN)+2];
 	strcpy(filePath,travelPath);
 	strcat(filePath,"/");
-	strcat(filePath,SHIP_PLAN);*/
-	string filePath=travelPath+"/"+SHIP_PLAN;
+	strcat(filePath,SHIP_PLAN);
+	string filePath=travelPath+"/"+SHIP_PLAN;*/
+	
+	const char *cstr = travelPath.c_str();
+	DIR* fd_travel=opendir(cstr);
+	if(fd_travel==NULL){
+		std::cout << "ERROR[3][1]- can't open "<<travelPath<<std::endl; 
+		return ERROR;
+	}
+	int numOfShipPlanes=0;
+	string shipPlanName="missing";
+	string filePath="missing";
+	struct dirent *entry;
+    	while ((entry = readdir(fd_travel)))
+	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+		string shipPlaneName=getNameWithoutExtinsion(entry->d_name,'.',"ship_plan");
+		if(shipPlaneName.compare("/")!=0){
+			if(numOfShipPlanes>0){
+				return ERROR;
+			}
+			cout << "the shipPlane name is : "<< shipPlaneName<<endl;
+			filePath=travelPath+"/"+entry->d_name;
+			numOfShipPlanes++;
+		}
+			
+	}
+	if(numOfShipPlanes==0){
+		return ERROR;
+	}
+
+
 	fd_info.open(filePath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
@@ -311,6 +368,7 @@ void initShipPlan(Ship* &currShip){
 			}
 		}
 	}
+	return 0;
 }
 /**********implement some funcs*********/
 
