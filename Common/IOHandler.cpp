@@ -8,11 +8,11 @@
 #include <string>
 #include <map>
 #include "../Interfaces/IOHandler.h"
-/*#define SUCCESS 1
-#define ERROR 0
+#define SUCCESS 0
+#define ERROR 1
 #define MAX_LINE 1024
 using namespace std;
-int width,length,maxHeight;
+/*int width,length,maxHeight;
 char *travelPath;
 char *workPath;
 char **route;
@@ -27,7 +27,7 @@ Ship* ship;
 Stowage* curAlgo;*/
 
 /*--------------------------PARSING METHODS--------------------------*/
-char* getElem(string s , int& seek,char delmiter){
+int getElem(string s , int& seek,char delmiter){
 	parse_out="";
 	if(delmiter==' '){//find the first index which not whitspace
 		while(seek < (int)s.length() && s.at(seek)==delmiter){
@@ -40,8 +40,14 @@ char* getElem(string s , int& seek,char delmiter){
 		}
 		parse_out=parse_out+s.at(seek++);
 	}
+	if(delmiter==','){
+	parse_out.erase(std::remove_if(parse_out.begin(), parse_out.end(), ::isspace), parse_out.end());
+	}
+	if(parse_out.compare("")==0){
+		return ERROR;
+	}
 	seek++;
-	return NULL;//must return
+	return SUCCESS;//must return
 }
 /*-------------------------------------------------------------------------------------------------------------*/
 
@@ -222,42 +228,11 @@ int getNumOfLines(ifstream& fd){
 int initRoute(char** &currRoute,string travelPath){
 	ifstream fd_info;
 	int is_err;
-	//string filePath;=travelPath+"/"+ROUTE;
-	const char *cstr = travelPath.c_str();
-	DIR* fd_travel=opendir(cstr);
-	if(fd_travel==NULL){
-		std::cout << "ERROR[3][1]- can't open "<<travelPath<<std::endl; 
-		return ERROR;
-	}
-	int numOfRoutes=0;
-	string routeName="missing";
-	string filePath="missing";
-	struct dirent *entry;
-    	while ((entry = readdir(fd_travel)))
-	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
-		string routeName=getNameWithoutExtinsion(entry->d_name,'.',"route");
-		if(routeName.compare("/")!=0){
-			if(numOfRoutes>0){
-				cout<<"ERROR[5][3]: too many route files"<<endl;
 
-				return ERROR;
-			}
-			cout << "the shipPlane name is : "<< routeName<<endl;
-			filePath=travelPath+"/"+entry->d_name;
-			numOfRoutes++;
-		}
-			
-	}
-	if(numOfRoutes==0){
-		cout<<"ERROR[5][3]: no route file"<<endl;
-
-		return ERROR;
-	}
-
-	fd_info.open(filePath,ios_base::in);//open the file
+	fd_info.open(travelPath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
-		std::cout << "ERROR[5][1]- can't open "<< filePath<< std::endl;
+		std::cout << "ERROR[5][1]- can't open "<< travelPath<< std::endl;
 	}
 	routeSize=getNumOfLines(fd_info);//get route size
 	currRoute=new char*[routeSize];
@@ -284,66 +259,56 @@ int initRoute(char** &currRoute,string travelPath){
 			}
 			portIndex++;
 	}
-	return 0;
+	return SUCCESS;
 }
 //[6] called in[4]
-void getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem){
-	getElem(line,seek,',');
+int getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem){
+	try{
+	int err=getElem(line,seek,',');
 	firstElem=std::stoi(parse_out); // get max height
-	getElem(line,seek,',');
+	if(err!=SUCCESS|| firstElem<0){
+		return err;
+	}
+	err=getElem(line,seek,',');
 	secElem=std::stoi(parse_out); // get length
-	getElem(line,seek,',');
+	if(err!=SUCCESS|| secElem<0){
+		return err;
+	}
+	err=getElem(line,seek,',');
 	thirdElem=std::stoi(parse_out);// get width
+	if(err!=SUCCESS || thirdElem<0){
+		return err;
+	}
+	}catch(...){
+		cout << "error catched"<<endl;
+
+		return ERROR;
+	}
+	if(seek-1 < (int)line.length()){
+		return ERROR;
+
+	}
 	cout << firstElem <<","<<secElem<<","<<thirdElem<<endl;
+	return SUCCESS;
 }
 //[4] called in [3]
 int initShipPlan(Ship* &currShip ,string travelPath){
 	ifstream fd_info;
-	/*char* filePath=new char[strlen(travelPath)+strlen(SHIP_PLAN)+2];
-	strcpy(filePath,travelPath);
-	strcat(filePath,"/");
-	strcat(filePath,SHIP_PLAN);
-	string filePath=travelPath+"/"+SHIP_PLAN;*/
-	
-	const char *cstr = travelPath.c_str();
-	DIR* fd_travel=opendir(cstr);
-	if(fd_travel==NULL){
-		std::cout << "ERROR[3][1]- can't open "<<travelPath<<std::endl; 
-		return ERROR;
-	}
-	int numOfShipPlanes=0;
-	string shipPlanName="missing";
-	string filePath="missing";
-	struct dirent *entry;
-    	while ((entry = readdir(fd_travel)))
-	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
-		string shipPlaneName=getNameWithoutExtinsion(entry->d_name,'.',"ship_plan");
-		if(shipPlaneName.compare("/")!=0){
-			if(numOfShipPlanes>0){
-				cout<<"ERROR[4][1]: too many ship plan files"<<endl;
-				return ERROR;
-			}
-			cout << "the shipPlane name is : "<< shipPlaneName<<endl;
-			filePath=travelPath+"/"+entry->d_name;
-			numOfShipPlanes++;
-		}
-			
-	}
-	if(numOfShipPlanes==0){
-		cout<<"ERROR[4][2]: no ship plan file"<<endl;
-		return ERROR;
-	}
-
-
-	fd_info.open(filePath,ios_base::in);//open the file
+	int err=0;
+	int isErr=0;	
+	fd_info.open(travelPath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
-		std::cout << "ERROR[4][1]- can't open "<< filePath<< std::endl;
+		return err+(int)ErrorID::ShipPlanBadFirstLine;
+	}
+	//check if empty 
+	if(getNumOfLines(fd_info)==0){
+		return err+(int)ErrorID::ShipPlanBadFirstLine;
 	}
 	//start parsing
 	string line;
 	bool firstLine=true;
-
+	int flag=0;
 	while(getline(fd_info,line)){
 		if(line.at(0)=='#'){
 			continue;
@@ -352,7 +317,12 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 	int seek =0;
 	cout << "the parsing line : " <<line<<endl;
 	if(firstLine){
-		getTripleElem(line,seek,maxHeight,width,length);//each seprated with coma
+		isErr=getTripleElem(line,seek,maxHeight,width,length);//each seprated with coma
+		if(isErr!=SUCCESS || maxHeight==0 || width==0 || length==0){
+		cout << "errrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrror  "<<err+(int)ErrorID::ShipPlanBadLineFormat<<endl;
+		return err|(int)ErrorID::ShipPlanBadLineFormat;
+		}
+
 		/*
 		 intiate the ship
 		*/
@@ -364,16 +334,84 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 		}else{
 		int x,y,floors;
 
-		getTripleElem(line,seek,x,y,floors);//each seprated with coma
-		if(floors<maxHeight){// you can check for an error format
+		isErr=getTripleElem(line,seek,x,y,floors);//each seprated with coma
+		if(isErr!=SUCCESS ){
+		err|=(int)ErrorID::ShipPlanBadFirstLine;
+		flag=1;
+		}
+		if(flag!=1){
+			if(floors>=maxHeight){
+				cout <<"hereeeeeeeeeee 3333333333333333"<<endl;
+				err|=(int)ErrorID::ShipPlanWrongFloors;
+				flag=1;
+			}
+			if(x>=width || y>=length){
+				err|=(int)ErrorID::ShipPlanWrongXY;
+				flag=1;
+			}
+		}
+		
+		
+
+
+		if(flag!=1){
 			/*
 			update ship plan
 			*/
+			cout << "the max floor :"<<(*currShip).planLinkedList[x][y].maxHeight << " and floors is :"<<floors <<" and maxH :"<<maxHeight<<endl;
+			if((*currShip).planLinkedList[x][y].maxHeight!=maxHeight && (*currShip).planLinkedList[x][y].maxHeight!=floors){
+					cout <<"hereeeeeeeeeee 11111111111111111"<<endl;
+					return err|(int)ErrorID::ShipPlanDuplicateXY;
+				}
+			if((*currShip).planLinkedList[x][y].maxHeight==floors){
+				cout <<"hereeeeeeeeeee 22222222222222222 erer :"<<err<<endl;
+
+				err|=(int)ErrorID::ShipPlanBadLineFormat;
+				cout <<"hereeeeeeeeeee 22222222333333 erer :"<<err<<endl;	
+				}
+			
 			(*currShip).setHeight(x,y,floors);
 			}
 		}
+		flag=0;
 	}
-	return 0;
+	return err;
+}
+//22
+int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNeededFile){
+	ErrorCode errCode;
+	const char *cstr = travelPath.c_str();
+	DIR* fd_travel=opendir(cstr);
+	if(fd_travel==NULL){
+		//string errorMsg="ERROR[22][1]- can't open "+travelPath+" (exiting the travel)";
+		//handleError(errorOutputPath,"Simulator",errorMsg);
+		return -1;
+	}
+	int numOfFilesWithTheExtention=0;
+	struct dirent *entry;
+    	while ((entry = readdir(fd_travel)))
+	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+		
+		string currFile=getNameWithoutExtinsion(entry->d_name,'.',extention);
+		if(currFile.compare("/")!=0){
+			cout<<"-*-*-*-*-*-"<<entry->d_name<<endl;
+			if(numOfFilesWithTheExtention>0){
+				//string errorMsg="***ERROR[22][2]: too many "+extention+" files (exiting the travel)";
+				//handleError(errorOutputPath,errorMsg);
+				return (extention.compare("route") ? (int)ErrorID::TravelRouteEmptyOrCantReadFile : (int)ErrorID::ShipPlanBadFirstLine);
+			}
+			theNeededFile=currFile;
+			numOfFilesWithTheExtention++;
+		}
+			
+	}
+	if(numOfFilesWithTheExtention==0){
+		//string errorMsg="***ERROR[22][3]: no "+extention+" file (exiting the travel)";
+		//handleError(errorOutputPath,errorMsg);
+		return (extention.compare("route")==0 ? (int)ErrorID::TravelRouteEmptyOrCantReadFile : (int)ErrorID::ShipPlanBadFirstLine);
+
+	}
+	return SUCCESS;
 }
 /**********implement some funcs*********/
 
@@ -400,7 +438,7 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 			routeIndex++;
 		}
 
-		return 0;
+		return SUCCESS;
 	}
 	string getTheFileName(string fullFilePath){
 		int seek=0;

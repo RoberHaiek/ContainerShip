@@ -1,7 +1,6 @@
 #include "ErrorCode.cpp"
 #include <stdio.h>
 #include<iostream>
-
 void getInfo(int errorId,string& msg,status& currentStatus){
 
 	switch(errorId){
@@ -73,10 +72,10 @@ status documentErrors(ofstream& fd_errors,int errorCode){
 	}
 	for (int index=0 ;index<19 ; index++) {
 			auto it =(ErrorID)index;
-			if (((int)(pow(2,(int)it)) & errorCode) == 1){
+			if (((int)(pow(2,(int)it)) & errorCode) == (int)(pow(2,(int)it))){
 				string msg;
-				getInfo(it,msg,currentStatus);
-				fd_errors<<"\t* "+msg+"\n";
+				getInfo((int)(pow(2,(int)it)),msg,currentStatus);
+				fd_errors<<"\t"<<msg<<"\n";
 
 			}
 		}
@@ -84,14 +83,25 @@ status documentErrors(ofstream& fd_errors,int errorCode){
 	return currentStatus;
 }
 
-status handleError(const string& outputPath,const string& errorFounder,int errorCode){
+status handleError(const string& errorOutputPath,const string& errorFounder,int errorCode){
 	if(!fd_errors.is_open()){
-			fd_errors.open("simulation.errors");
+			fd_errors.open(errorOutputPath+"/"+"simulation.errors");
 
 	}
-
+	fd_errors<<"-----------------"<<errorFounder<<"-------------------------------\n";
 	status currentStatus=documentErrors(fd_errors,errorCode);
-	fd_errors<<"---------------------------------------------------------------\n";
+	fd_errors<<"------------------------------------------------------------------\n";
 	return currentStatus;
 
 }
+
+void handleError(const string& errorOutputPath,const string& errFounder,const string& errorMsg){
+	if(!fd_errors.is_open()){
+			fd_errors.open(errorOutputPath+"/"+"simulation.errors");
+	fd_errors<<"-----------------"<<errFounder<<"-------------------------------\n";
+
+	}
+	fd_errors<<"\t* "+errorMsg+"\n";
+	fd_errors<<"-------------------------------------------------------------------\n";
+}
+

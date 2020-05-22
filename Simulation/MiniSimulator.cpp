@@ -202,17 +202,31 @@ int checkInstructionPerPort(int portIndex,string** algoInstructions){
 //[3] called in [2]
 void simulateTravel(){
 	  //intiate the ship and get the route
-	cout << "*initShipPlan"<<endl;
-	  cout<< "the travel path is : "<<travelPath<<endl;
-	  int errShipPlanSimulator=initShipPlan(ship,travelPath);
- cout<< "the travel path is : "<<travelPath<<endl;
+	ErrorCode errCode;
 
+	cout << "*initShipPlan"<<endl;
+	string shipPlanName;
+	string routeName;
+	int err=getTheFileNameFromTheTravel(travelPath,"ship_plan",shipPlanName);
+	if(err!=0 && err!=-1){
+		handleError(output,"Simulator",err);
+		return;
+	}
+	err=getTheFileNameFromTheTravel(travelPath,"route",routeName);
+	/*if(err!=0 && err!=-1){
+		handleError(output,"Simulator",err);
+		return;
+	}*/
+	cout<<"********************the ship plane :"<<travelPath+"/"+shipPlanName<<"/n******************and the route : "<<travelPath+"/"+routeName<<endl;
+	shipPlanName=travelPath+"/"+shipPlanName+".ship_plan";
+	routeName=travelPath+"/"+routeName+".route";
+	err=initShipPlan(ship,shipPlanName);
+	if(err!=0 && err!=-1){
+		handleError(output,"Simulator",err);
+		return;
+	}
 	cout << "*initRoute"<<endl;
-	  int errRouteSimulator=initRoute(route,travelPath);
-	  //example
-	cout<<"printing the cargo file name"<<endl;
-	int check;
-	//try
+	err=initRoute(route,routeName);
 
 	Port* ports = getPortsFromRoute(route);
 	parseResults (AlgoName ,travelName ,0 ,0);
@@ -252,8 +266,8 @@ void simulateTravel(){
 		string algoName=algoQueue.front();
 		algoQueue.pop();
 		auto algo = (*algo_iter)();
-		int errShipPlanAlgo=algo->readShipPlan(travelPath);//must change the prototype
-		int errRouteAlgo=algo->readShipRoute(travelPath);//must change the prototype
+		int errShipPlanAlgo=algo->readShipPlan(shipPlanName);
+		int errRouteAlgo=algo->readShipRoute(routeName);
 		if(errShipPlanAlgo || errRouteAlgo){
 			cout<< "??????????????error in shipPlan or in route??????????????" << endl;
 			break;
@@ -275,11 +289,11 @@ void simulateTravel(){
 		cout<<"****** getting instructions **********"<<endl;
 		algo->getInstructionsForCargo(travelPath+"/"+FileNameCarge, output+"/"+makeDir+"/"+FileNameInstruction);
 		
-		if(check==SUCCESS){
+		/*if(check==SUCCESS){
 			parseResults (algoName,travelName,numInstructions,routeIndex+1);
 		}else{
 			parseResults (algoName,travelName,numInstructions,0-(routeIndex+1));
-		}
+		}*/
 	}
 
 
@@ -382,6 +396,7 @@ int main(int argc, char *argv[]) {
 	}
 	//getting the path
 	workPath=travel_path;
+	errorOutputPath=output;
 	//checking the access to the DIR
 	const char *cstr = workPath.c_str();
 	DIR *fd_path=opendir(cstr);
@@ -391,6 +406,9 @@ int main(int argc, char *argv[]) {
 	}
 	//get the travels
 	simulate(fd_path);
+	if(fd_errors.is_open()){
+		fd_errors.close();	
+	}
 	//delete cstr;
 	cout << "Done!"<<endl;
 	return 0;

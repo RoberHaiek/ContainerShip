@@ -5,8 +5,8 @@
 //includes and globals
 #include "../Algorithms/StowageTester.cpp"
 #include <fstream>
-#define SUCCESS 1
-#define ERROR 0
+#define SUCCESS 0
+#define ERROR 1
 #define MAX_LINE 1024
 using namespace std;
 int width,length,maxHeight;
@@ -23,8 +23,8 @@ int numInstructions=0;
 Ship* ship;
 
 //functions
-char* getElem(string s , int& seek,char delmiter);
-char* getElem(string s , int& seek){
+int getElem(string s , int& seek,char delmiter);
+int getElem(string s , int& seek){
 	return getElem(s ,seek,' ');
 }
 
@@ -36,9 +36,10 @@ Container* parseCargoFile(string fileName);
 int checkPortName(string name);
 int getNumOfLines(ifstream& fd);
 int initRoute(char** &currRoute,string travelPath);
-void getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem);
+int getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem);
 int initShipPlan(Ship* &currShip,string travelPath);
 int getRouteIndex(int &routeIndex,const std::string& input_full_path_and_file_name);
 string getTheFileName(string fullFilePath);
 string getNameWithoutExtinsion(string fileName,char delemiter,string extension);
+int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNeededFile);
 #endif

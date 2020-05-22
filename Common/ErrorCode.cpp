@@ -12,6 +12,10 @@ class ErrorCode {
 			isIgnore=Ignore;
 		}
 		void addErrorCode(ErrorID err){
-			errCode=+pow(2,(int)err);
+			errCode+=(int)err;
 		}
+		void addErrorCode(int err){
+			errCode+=err;
+		}
+
 };
