@@ -1,5 +1,4 @@
 #include "Ship.cpp"
-#include<cmath>
 
 class CraneTester{
 public:
@@ -12,14 +11,14 @@ public:
 				}
 			}
 		}
-		return 18;
+		return 17;
 	}
 
 	// checks if the container weight is legal
 	static int isLegalWeight(int containerWeight){
 		if(containerWeight>=0)
 			return 0;
-		return 18;
+		return 0;
 	}
 
 	// checks if the unique id of a container is valid
@@ -72,4 +71,31 @@ public:
 		}
 		return 0;
 	}
+	
+	static int isDuplicateIdOnShip(std::map<std::string,int*>* planMap, std::string uniqueId){
+		if(planMap->find(uniqueId) != planMap->end()){
+			return 10;
+		}
+		return 0;
+	}
+	static int lastPortHasContainers(int size){
+		if(size != 0 ){
+			return 18;
+		}
+		return 0;
+	}
+	static int priority(Container *PortInstructions, int numOfInstructions, int shipMaxCapacity, int shipSize){
+		int shipCapacityStatus = shipSize/shipMaxCapacity;
+		if(numOfInstructions > shipCapacityStatus){
+			for(int i=0;i<numOfInstructions;i++){
+				/*
+				binarySort( destPort's index );
+				reject the rest;
+				*/
+			}
+			//std::sort(arr, numOfInstructions);
+		}
+		return 0;
+	}
+
 };

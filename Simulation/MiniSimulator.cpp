@@ -17,6 +17,8 @@
 //#include "../Interfaces/IOHandler.h"//may changed
 #include "../Common/IOHandler.cpp"
 #include "AlgorithmRegistrar.h"
+#include "../Interfaces/AbstractAlgorithm.h"
+//#include "../Algorithms/StowageTester.cpp"
 #define LAST 1
 #define REGULAR 0
 using namespace std;
@@ -48,6 +50,83 @@ void printContainerArray(Container* arr,char* fileName){
 }
 
 /*-------------------------------------------------------------------------------------------------------------*/
+
+// rejection test
+	int isRejected(node currentContainer, Ship *ship,Port* route, int routeIndex) {
+		int error = 0;
+		error+=StowageTester::isInRoute(currentContainer.container->destPort.toString(),route,routeIndex);	// is the container's destination NOT port in route?
+		error+=CraneTester::isValidId(currentContainer.container->uniqueId);						// is the container's unique ID invalid?
+		error+=CraneTester::isDuplicateIdOnShip(ship->planMap,currentContainer.container->uniqueId);				// is the container's unique ID already on the ship?
+		error+=CraneTester::isLegalWeight(currentContainer.container->weight);						// is the container's weight illegal?
+		return error;
+	}
+
+//[??]
+int validateAlgorithm(std::string **currentInstructions, int numOfInstructions, Port port, Ship *ship,Port* route, int routeIndex ){
+	int error = 0;
+	struct node currentContainer;
+	int row, column;
+	Crane crane = Crane(ship);
+	for(int i=0;i<numOfInstructions;i++){
+		*currentContainer.container = Container(0,port,currentInstructions[i][1]);
+		row = std::stoi(currentInstructions[i][3]);
+		column = std::stoi(currentInstructions[i][4]);
+		// Is the command load/reject?
+		if(currentInstructions[i][0] == "L" || currentInstructions[i][0] == "R"){
+			error+=isRejected(currentContainer,ship,route,routeIndex);
+			// Should the container be rejected according to the algorithm?
+			if(currentInstructions[i][0] == "R"){
+				// Was it really rejected?
+				if(error != 0){
+					error = 0;
+					continue;
+				}
+				// The algorithm rejected a container that should not have been rejected
+				else{
+					std::cout << "Illegal algorithm command: Container " << currentContainer.container->uniqueId << " should not be rejected \n";
+					return -1;
+				}
+			}
+			// Should the container be rejected but wasn't rejected by the algorithm?
+			if(error != 0 ){
+				std::cout << "Illegal algorithm command: Container " << currentContainer.container->uniqueId << " should have been rejected \n";
+				return -1;
+			}
+			error+=CraneTester::isValidLoad(row, column, ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId);
+			// Does the container exceed ship height limit?
+			if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight) {
+				// Was the load valid?
+				if(error == 0){
+					crane.load(currentContainer.container, row,column,ship->planLinkedList[row][column].size);
+				}
+				else{
+					std::cout << "Illegal algorithm command: Invalid load for container " << currentContainer.container->uniqueId << "\n";
+					return -1;
+
+				}
+			}
+			else{
+				std::cout << "Illegal algorithm command: Exceeded ship height limit while loading container " << currentContainer.container->uniqueId << " to " << row << ", " << column << "\n";
+				return -1;
+			}	
+		}
+		// Is the command unload?
+		if(currentInstructions[i][0] == "U"){
+			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
+			error+=CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]);
+			// Can we unload legally?
+			if (error == 0) {
+				node *temp = crane.unload(*(currentContainer.container),row, column,ship->planLinkedList[row][column].size);
+			}
+			else{
+				std::cout << "Illegal algorithm command: Could not unload container " << currentContainer.container->uniqueId << "\n";
+				return -1;
+			}
+		}
+	}
+	return 0;
+}
+
 //[16]
 int checkMapIfAsExpected(string** expectedInstructions,map<string,vector<string>>& InstructionsMap){
 	int index=0;
