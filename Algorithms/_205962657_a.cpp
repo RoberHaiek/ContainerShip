@@ -246,10 +246,19 @@ void printTestResults(node  currentContainer){
 
 	// rejection test
 	int isRejected(node currentContainer) {
+		cout<<"isRejected??"<<endl;
+		try{
 		printTestResults(currentContainer);
+		}catch(...){
+		cout<<"what is the problem???"<<endl;
+		}
+		cout<<"isInRoute??"<<endl;
 		error+=StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex);	// is the container's destination NOT port in route?
-		error+=CraneTester::isValidId(currentContainer.container->uniqueId);						// is the container's unique ID invalid?
+		cout<<"isValidId??"<<endl;
+		error+=CraneTester::isValidId(currentContainer.container->uniqueId);
+		cout<<"isDuplicateIdOnShip??"<<endl;						// is the container's unique ID invalid?
 		error+=CraneTester::isDuplicateIdOnShip(ship->planMap,currentContainer.container->uniqueId);				// is the container's unique ID already on the ship?
+		cout<<"isLegalWeight??"<<endl;		
 		error+=CraneTester::isLegalWeight(currentContainer.container->weight);						// is the container's weight illegal?
 		if(error == 0){
 			fillInstructions(Action::REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");

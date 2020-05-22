@@ -1,3 +1,0 @@
-********Travel name= BARCA_TRAVEL
-	Algorithem name=StowageAlgo
-	Sum: 0

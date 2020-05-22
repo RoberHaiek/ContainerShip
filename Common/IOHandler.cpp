@@ -126,19 +126,30 @@ int instructionsOut(string** instructions,string outName){
 	return SUCCESS;
 }
 //[9]
-string getCargoFileName(int portIndex,bool cargoData){
+string getCargoFileName(int portIndex,bool cargoData,char** route){
 	int cnt=1;
 	for(int i=0;i<portIndex;i++){
 		if(strcmp(route[portIndex],route[i])==0){
 			cnt++;
 		}
 	}
+if(route==NULL){
+		cout<<"route in 0 null"<<endl;
+	}
+	if(route[portIndex]==NULL){
+		cout<<"route is null"<<endl;
+	}
+	
+
+	cout<<"in getCargoFileName "<<route[portIndex]<<endl;
 	string fileName=string(route[portIndex])+"_"+to_string(cnt);
+	cout<<"in getCargoFileName "<<fileName<<endl;
 	if(cargoData==true){
 	fileName+=".cargo_data";
 	}else{
 	fileName+=".crane_instructions";
 	}
+	cout<<"exit getCargoFileName "<<fileName<<endl;
 	return fileName;
 
 }

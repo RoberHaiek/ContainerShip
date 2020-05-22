@@ -194,8 +194,8 @@ int insertInstructionToMap(string** algoInstructions,map<string,vector<string>>&
 }
 
 //[12]
-int checkInstructionPerPort(int portIndex,string** algoInstructions){
-	string cargoFileName = getCargoFileName(portIndex,true);
+int checkInstructionPerPort(int portIndex,string** algoInstructions,char** route){
+	string cargoFileName = getCargoFileName(portIndex,true,route);
 	map<string,vector<string>> InstructionsMap;
 	int fillMap=insertInstructionToMap(algoInstructions,InstructionsMap);
 	if(fillMap!=SUCCESS){
@@ -225,12 +225,12 @@ void simulateTravel(){
 	int err=getTheFileNameFromTheTravel(travelPath,"ship_plan",shipPlanName);
 	if(err!=0 && err!=-1){
 		handleError(output,"Simulator",err);
-		return;
+		
 	}
 	err=getTheFileNameFromTheTravel(travelPath,"route",routeName);
 	/*if(err!=0 && err!=-1){
 		handleError(output,"Simulator",err);
-		return;
+		
 	}*/
 	cout<<"********************the ship plane :"<<travelPath+"/"+shipPlanName<<"/n******************and the route : "<<travelPath+"/"+routeName<<endl;
 	shipPlanName=travelPath+"/"+shipPlanName+".ship_plan";
@@ -238,19 +238,14 @@ void simulateTravel(){
 	err=initShipPlan(ship,shipPlanName);
 	if(err!=0 && err!=-1){
 		handleError(output,"Simulator",err);
-		return;
 	}
 	cout << "*initRoute"<<endl;
+	//char ** route;
 	err=initRoute(route,routeName);
 
 	Port* ports = getPortsFromRoute(route);
-	//free route
-	for(int i=0;i<routeSize;i++){
-		delete[] route[i];
-	}
-	if(route!=NULL){
-		delete route;
-	}
+	
+	
 
 	parseResults (AlgoName ,travelName ,0 ,0);
 
@@ -303,18 +298,19 @@ void simulateTravel(){
 		if(err){	
 		std::cout << "ERROR[3][1]- can't make dir with name : "<<makeDir<<std::endl; 
 		}
-		cout<<"******starting the loop over the ports **********"<<endl;
+		cout<<"******starting the loop over the ports with size: "<<routeSize <<"**********"<<endl;
 
 		for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
 		cout<<"******port number = "<<routeIndex<<" **********"<<endl;
 
-		string FileNameCarge=getCargoFileName(routeIndex,true);
-		string FileNameInstruction=getCargoFileName(routeIndex,false);
+		string FileNameCarge=getCargoFileName(routeIndex,true,route);
+		cout<<"1111111111111111111 "<<endl;
+		string FileNameInstruction=getCargoFileName(routeIndex,false,route);
 		cout<<"****** getting instructions **********"<<endl;
 		algo->getInstructionsForCargo(travelPath+"/"+FileNameCarge, output+"/"+makeDir+"/"+FileNameInstruction);
 
 		//validate 
-
+		cout<<"instructions "<<endl;
 		string **instructions=ReadExpectedInstructions( output+"/"+makeDir+"/"+FileNameInstruction);
 		ifstream fd_info;
 		fd_info.open( output+"/"+makeDir+"/"+FileNameInstruction,ios_base::in);//open the file
@@ -324,7 +320,7 @@ void simulateTravel(){
 		}
 
 		int numOfInstructions=getNumOfLines(fd_info);//get container size
-
+		cout<<"validation "<<endl;
 		int validation = validateAlgorithm(instructions, numOfInstructions, ports[routeIndex], ship, ports, routeIndex);
 		cout<<"VALIDATION==========================="<<validation<<endl;
 		
@@ -339,14 +335,7 @@ void simulateTravel(){
 		
 	}	
     	//return EXIT_SUCCESS;
-	if(ship!=NULL){
-		delete ship;
 	}
-	if(ports!=NULL){
-		delete ports;
-	}
-	 	
-}
 
 //[2] called in [1]
 void simulate(DIR* fd){

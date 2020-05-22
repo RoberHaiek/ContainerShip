@@ -1,7 +1,0 @@
------------------Simulator-------------------------------
-	-2^2 - ship plan: bad line format after first line or duplicate x,y appearance with same data (ignored) 
-	-2^4 - ship plan: travel error - duplicate x,y appearance with different data (cannot run this travel)
-------------------------------------------------------------------
------------------Simulator-------------------------------
-	-2^0 - ship plan: a position has an equal number of floors, or more, than the number of floors provided in the first line (ignored) 
-------------------------------------------------------------------
