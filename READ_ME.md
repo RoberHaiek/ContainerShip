@@ -1,10 +1,10 @@
 [Link to ex1](https://docs.google.com/document/d/1PloUy0vfoR0AWHmpWb0W85FZXM_BZqbaQhKXzHhwC1o/edit) <br/>
 [Link to ex2](https://docs.google.com/document/d/1qpXBOM24UiHUc5l2QiUlNGZOnfNm40aVd7bXbNVLIFs/edit) <br/>
 
-# **Container ship – Design**  
+## **How to use**   
+Run the following command from ContainerShip/Simulator: ./simulator --travel_path ../root --algorithm_path ../Algorithms
 
-## **Inclusion flow:**  
-Simulator >> Stowage >> StowageTester >> Crane >> CraneTester >> Ship >> Container >> Port   
+# **Container ship – Design**    
 
 ## **Classes, fields and data structures:**  
 ### **1-	Ship**  
@@ -35,7 +35,7 @@ Simulator >> Stowage >> StowageTester >> Crane >> CraneTester >> Ship >> Contain
     Constructor: Crane(Ship ship)
         a- Ship ship - the ship on which the crane operates on
 ### **5- CraneTester**        // tests the laods/unloads validity  
-### **6- Stowage**          // the algorithm   
+### **6- _205962657_a**          // the algorithm   
    Constructor: Stowage(int i, Ship *ship, Port *route, Container *instructions, bool weightBalance function)
         a- int instNum   // the index of the current instruction to be returned in the end
         b- Ship ship
@@ -45,7 +45,8 @@ Simulator >> Stowage >> StowageTester >> Crane >> CraneTester >> Ship >> Contain
                                            {container's unique id, "load/unload/reject", row, column, height}
         g- three deque<node*>'s  // to help the containers which are unloaded but need to be loaded back in the same port
 ### **7- StowageTester**  // tests if a container's destPort is in route or not  
-### **8- Simulator** // runs the stowage  
+### **8- Simulator** // runs the stowage
+### **9- IOHandler** // Handles input/output files
 
 ## **Input/Output:**
 input is directory path (root)
@@ -63,10 +64,3 @@ The Simulator receives info about the ship, initializes it, then receives the ro
 The Stowage goes over all the containers in the ship and unloads what's relevant to the port, if a container is blocked, the algorithm puts it in a temporary dequeue, unlaods all above, then the container/s we need, then puts the containers that dont belong to the port back.Loads the containers to the ship, and returns a list of instructions.
 
 The Simulator takes the instructions and runs them on an empty ship using the crane and validates that they're legal.
-
-## **Notes**  
-Due to the lack of time and the size of the project we were unfortunately unable to fulfill the whole requirements.
-The Simulator does not receive an algorithm as an input - to run your algorithm, replace the Stowage.cpp file with your own Stowage.cpp file and the API above.
-When loading a container using the crane, it does not load it in the height you want but places it on top.
-The Simulator does gives the Stowage a weightBalance function.
-
