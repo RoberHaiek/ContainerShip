@@ -17,6 +17,17 @@
 			Port p = Port("TEST");
 			container =new Container(1,p,"TESTING");
 			next = NULL;}
+		 ~node(){
+			if (container!=NULL){
+			delete container;
+		}	
+			if(next!=NULL){
+			delete next;
+
+			}
+			
+		}
+
 	};
 	// each cellLinkedList represents a cell (specific row and column) in which containers are represented as nodes in the linked list, and the size
 	struct cellLinkedList
@@ -34,6 +45,13 @@
 			size=0;
 			maxHeight=max;
 	}
+	~cellLinkedList(){
+		if (linkedList!=NULL){
+			delete linkedList;
+		}		
+	
+		}
+
 
 	};
 

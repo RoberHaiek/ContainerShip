@@ -176,6 +176,9 @@ string** ReadExpectedInstructions(string cargoFileName){
 		cout<<"**reading expected :"<< expectedInstructions[index][0] << " , "<< expectedInstructions[index][1]<<"  " <<index <<endl;
 		index++;
 	}
+	if(fd_info.is_open()){
+		fd_info.close();
+	}
 	return expectedInstructions;
 }
 //[12]
@@ -229,6 +232,14 @@ void simulateTravel(){
 	err=initRoute(route,routeName);
 
 	Port* ports = getPortsFromRoute(route);
+	//free route
+	for(int i=0;i<routeSize;i++){
+		delete[] route[i];
+	}
+	if(route!=NULL){
+		delete route;
+	}
+
 	parseResults (AlgoName ,travelName ,0 ,0);
 
 //new implemntation using algo regestrar
@@ -259,8 +270,9 @@ void simulateTravel(){
 			
 		}
 
-	
+	closedir(fd_Algo);
     	}
+	
 	cout<<"******starting the loop over the algos **********"<<endl;
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
 		string algoName=algoQueue.front();
@@ -300,33 +312,12 @@ void simulateTravel(){
 		
 	}	
     	//return EXIT_SUCCESS;
-
-
-
-
-
-	/*Stowage algo;
-	algo.readShipPlan(travelName);//must change the prototype
-	algo.readShipRoute(travelName);//must change the prototype
-	//make directory
-	string makeDir="AlgoName_"+travelName+"_crane_instructions";//must change the algo name
-	const char *cstr = makeDir.c_str();
-	int err= mkdir (cstr,0777);
-	if(err){	
-	std::cout << "ERROR[3][1]- can't make dir with name : "<<makeDir<<std::endl; 
-	
+	if(ship!=NULL){
+		delete ship;
 	}
-	for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
-		string FileNameCarge=getCargoFileName(routeIndex,true);
-		string FileNameInstruction=getCargoFileName(routeIndex,false);
-		algo.getInstructionsForCargo(travelPath+"/"+FileNameCarge, output+"/"+makeDir+"/"+FileNameInstruction);
-		
-		if(check==SUCCESS){
-			parseResults (AlgoName,travelName,numInstructions,routeIndex+1);
-		}else{
-			parseResults (AlgoName,travelName,numInstructions,0-(routeIndex+1));
-		}
-	}*/
+	if(ports!=NULL){
+		delete ports;
+	}
 	 	
 }
 
@@ -409,7 +400,10 @@ int main(int argc, char *argv[]) {
 	if(fd_errors.is_open()){
 		fd_errors.close();	
 	}
-	//delete cstr;
+	
+	closedir(fd_path);	
+	
+
 	cout << "Done!"<<endl;
 	return 0;
 }

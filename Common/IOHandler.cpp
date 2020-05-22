@@ -118,7 +118,10 @@ int instructionsOut(string** instructions,string outName){
 			fd_info<<endl;
 		}
 	} 
+	if(fd_info.is_open()){
 	fd_info.close();
+	}
+
 	return SUCCESS;
 }
 //[9]
@@ -129,11 +132,6 @@ string getCargoFileName(int portIndex,bool cargoData){
 			cnt++;
 		}
 	}
-	/*char* fileName=new char[20];
-	strcpy(fileName,route[portIndex]);
-	strcat(fileName,"_");
-	fileName[strlen(fileName)]='0'+cnt;
-	fileName[strlen(fileName)]='\0';*/
 	string fileName=string(route[portIndex])+"_"+to_string(cnt);
 	if(cargoData==true){
 	fileName+=".cargo_data";
@@ -186,6 +184,10 @@ string getCargoFileName(int portIndex,bool cargoData){
 			}
 			containerIndex++;
 	}
+	if(fd_info.is_open()){
+	fd_info.close();
+	}
+
 	return containers;
 }
 
@@ -259,6 +261,10 @@ int initRoute(char** &currRoute,string travelPath){
 			}
 			portIndex++;
 	}
+	if(fd_info.is_open()){
+	fd_info.close();
+	}
+
 	return SUCCESS;
 }
 //[6] called in[4]
@@ -375,6 +381,9 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 		}
 		flag=0;
 	}
+	if(fd_info.is_open()){
+	fd_info.close();
+	}
 	return err;
 }
 //22
@@ -411,6 +420,7 @@ int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNe
 		return (extention.compare("route")==0 ? (int)ErrorID::TravelRouteEmptyOrCantReadFile : (int)ErrorID::ShipPlanBadFirstLine);
 
 	}
+	closedir(fd_travel);
 	return SUCCESS;
 }
 /**********implement some funcs*********/
