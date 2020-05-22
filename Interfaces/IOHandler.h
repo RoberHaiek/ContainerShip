@@ -8,7 +8,6 @@
 #define SUCCESS 0
 #define ERROR 1
 #define MAX_LINE 1024
-using namespace std;
 int width,length,maxHeight;
 string travelPath;
 string workPath;

@@ -19,8 +19,6 @@
 #include "AlgorithmRegistrar.h"
 #include "../Interfaces/AbstractAlgorithm.h"
 //#include "../Algorithms/StowageTester.cpp"
-#define LAST 1
-#define REGULAR 0
 using namespace std;
 const char* EXPECTED_OUTPUT="/expected_output";
 string travelName;
@@ -194,72 +192,7 @@ int insertInstructionToMap(string** algoInstructions,map<string,vector<string>>&
 	cout<<endl<<"done inserting algo instructions" <<endl;
 	return SUCCESS;
 }
-//[14]
-void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR){
-	switch(INDICATOR){
-		case LAST :{fivedArray[0]="last";fivedArray[1]="";fivedArray[2]="";fivedArray[3]="";fivedArray[4]="";
-				break;
-				}
-		case REGULAR:{	getElem(line,seek,',');fivedArray[0]=string(parse_out);
-				getElem(line,seek,',');fivedArray[1]=string(parse_out);
-				getElem(line,seek,',');fivedArray[2]=string(parse_out);
-				getElem(line,seek,',');fivedArray[3]=string(parse_out);
-				getElem(line,seek,',');fivedArray[4]=string(parse_out);
-				break;
-				}	
-		default : std::cout<<"ERROR[14][1] : Unknown indicator in getFiveElementsIntoArray"<<std::endl;
-			}
-}
 
-//[13]
-string** ReadExpectedInstructions(string cargoFileName){
-	ifstream fd_info;
-	string** expectedInstructions;
-	/*char* expectedPath=new char[strlen(travelPath)+strlen(EXPECTED_OUTPUT)+strlen(cargoFileName)+15];
- 	strcpy(expectedPath,travelPath);
-	strcat(expectedPath,EXPECTED_OUTPUT);
-	strcat(expectedPath,"/");
-	strcat(expectedPath,cargoFileName);
-	strcat(expectedPath,".expected");*/
-	string expectedPath=travelPath+EXPECTED_OUTPUT+"/"+ cargoFileName+".expected";
-
-	fd_info.open(expectedPath,ios_base::in);//open the file
-	//checking the access to the file
-	if(!fd_info){
-		std::cout << "ERROR[13][1]- can't open "<< expectedPath<< std::endl;
-		return NULL;
-	}
-	int lineNum = getNumOfLines(fd_info);
-	expectedInstructions = new string*[lineNum+1];//the +1 used as indicator of the last container
-	for(int i = 0;i < lineNum+1;i++){
-		expectedInstructions[i]=new string[5];
-	
-	}
-	//start reading from file
-	int instructionIndex=0;
-	string line;
-	int seek; 
-	while(getline(fd_info,line)){
-		if(line.at(0)=='#'){
-			continue;
-		}else{
-			seek=0;
-			getFiveElementsIntoArray(line,seek,expectedInstructions[instructionIndex],REGULAR);
-			instructionIndex++;
-		}
-	}
-	getFiveElementsIntoArray("",seek,expectedInstructions[instructionIndex],LAST);
-	
-	int index=0;
-	while((expectedInstructions[index][0]).compare("last")!=0){
-		cout<<"**reading expected :"<< expectedInstructions[index][0] << " , "<< expectedInstructions[index][1]<<"  " <<index <<endl;
-		index++;
-	}
-	if(fd_info.is_open()){
-		fd_info.close();
-	}
-	return expectedInstructions;
-}
 //[12]
 int checkInstructionPerPort(int portIndex,string** algoInstructions){
 	string cargoFileName = getCargoFileName(portIndex,true);
@@ -379,6 +312,21 @@ void simulateTravel(){
 		string FileNameInstruction=getCargoFileName(routeIndex,false);
 		cout<<"****** getting instructions **********"<<endl;
 		algo->getInstructionsForCargo(travelPath+"/"+FileNameCarge, output+"/"+makeDir+"/"+FileNameInstruction);
+
+		//validate 
+
+		string **instructions=ReadExpectedInstructions( output+"/"+makeDir+"/"+FileNameInstruction);
+		ifstream fd_info;
+		fd_info.open( output+"/"+makeDir+"/"+FileNameInstruction,ios_base::in);//open the file
+		//checking the access to the file
+		if(!fd_info){
+		std::cout << "ERROR[8][1]- can't open "<< output+"/"+makeDir+"/"+FileNameInstruction<< std::endl;
+		}
+
+		int numOfInstructions=getNumOfLines(fd_info);//get container size
+
+		int validation = validateAlgorithm(instructions, numOfInstructions, ports[routeIndex], ship, ports, routeIndex);
+		cout<<"VALIDATION==========================="<<validation<<endl;
 		
 		/*if(check==SUCCESS){
 			parseResults (algoName,travelName,numInstructions,routeIndex+1);

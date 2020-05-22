@@ -10,8 +10,9 @@
 #include "../Interfaces/IOHandler.h"
 #define SUCCESS 0
 #define ERROR 1
+#define LAST 1
+#define REGULAR 0
 #define MAX_LINE 1024
-using namespace std;
 /*int width,length,maxHeight;
 char *travelPath;
 char *workPath;
@@ -482,6 +483,62 @@ string getNameWithoutExtinsion(string fileName,char delemiter,string extension){
 	
 	return "/";
 
+}
+
+void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR){
+	switch(INDICATOR){
+		case LAST :{fivedArray[0]="last";fivedArray[1]="";fivedArray[2]="";fivedArray[3]="";fivedArray[4]="";
+				break;
+				}
+		case REGULAR:{	getElem(line,seek,',');fivedArray[0]=string(parse_out);
+				getElem(line,seek,',');fivedArray[1]=string(parse_out);
+				getElem(line,seek,',');fivedArray[2]=string(parse_out);
+				getElem(line,seek,',');fivedArray[3]=string(parse_out);
+				getElem(line,seek,',');fivedArray[4]=string(parse_out);
+				break;
+				}	
+		default : std::cout<<"ERROR[14][1] : Unknown indicator in getFiveElementsIntoArray"<<std::endl;
+			}
+}
+//21
+string** ReadExpectedInstructions(string cargoFileNamePath){
+	ifstream fd_info;
+	string** expectedInstructions;
+ 	
+	fd_info.open(cargoFileNamePath,ios_base::in);//open the file
+	//checking the access to the file
+	if(!fd_info){
+		std::cout << "ERROR[13][1]- can't open "<< cargoFileNamePath<< std::endl;
+		return NULL;
+	}
+	int lineNum = getNumOfLines(fd_info);
+	numInstructions=lineNum;
+	expectedInstructions = new string*[lineNum+1];//the +1 used as indicator of the last container
+	for(int i = 0;i < lineNum+1;i++){
+		expectedInstructions[i]=new string[5];
+	
+	}
+	//start reading from file
+	int instructionIndex=0;
+	string line;
+	int seek; 
+	while(getline(fd_info,line)){
+		if(line.at(0)=='#'){
+			continue;
+		}else{
+			seek=0;
+			getFiveElementsIntoArray(line,seek,expectedInstructions[instructionIndex],REGULAR);
+			instructionIndex++;
+		}
+	}
+	getFiveElementsIntoArray("",seek,expectedInstructions[instructionIndex],LAST);
+	
+	int index=0;
+	while((expectedInstructions[index][0]).compare("last")!=0){
+		cout<<"**reading expected :"<< expectedInstructions[index][0] << " , "<< expectedInstructions[index][1]<<"  " <<index <<endl;
+		index++;
+	}
+	return expectedInstructions;
 }
 
 	/*****************************************/
