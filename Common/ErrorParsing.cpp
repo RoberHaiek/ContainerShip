@@ -88,7 +88,7 @@ status handleError(const string& errorOutputPath,const string& errorFounder,int 
 			fd_errors.open(errorOutputPath+"/"+"simulation.errors");
 
 	}
-	fd_errors<<"-----------------"<<errorFounder<<"-------------------------------\n";
+	fd_errors<<"-----------------"<<errorFounder<<"-----------0------------------\n";
 	status currentStatus=documentErrors(fd_errors,errorCode);
 	fd_errors<<"------------------------------------------------------------------\n";
 	return currentStatus;
@@ -98,7 +98,7 @@ status handleError(const string& errorOutputPath,const string& errorFounder,int 
 void handleError(const string& errorOutputPath,const string& errFounder,const string& errorMsg){
 	if(!fd_errors.is_open()){
 			fd_errors.open(errorOutputPath+"/"+"simulation.errors");
-	fd_errors<<"-----------------"<<errFounder<<"-------------------------------\n";
+	fd_errors<<"-----------------"<<errFounder<<"--------1---------------------\n";
 
 	}
 	fd_errors<<"\t* "+errorMsg+"\n";

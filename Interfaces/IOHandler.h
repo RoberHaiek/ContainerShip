@@ -8,6 +8,7 @@
 #define SUCCESS 0
 #define ERROR 1
 #define MAX_LINE 1024
+using namespace std;
 int width,length,maxHeight;
 string travelPath;
 string workPath;
@@ -19,6 +20,7 @@ const char* ROUTE="route";
 const char* OUTPUT="/output";
 string parse_out;
 int numInstructions=0;
+int numOfCargoFiles=0;
 Ship* ship;
 
 //functions

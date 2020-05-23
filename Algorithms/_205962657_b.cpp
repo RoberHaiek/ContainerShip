@@ -103,6 +103,8 @@ public:
 		cout<<"get the route index"<<fileName<<endl;
 		getRouteIndex(routeIndex,fileName);
 		cout<<"the index in get inst ="<<routeIndex<<endl;
+		cout << "algo b going to parseCargoFile" <<endl;
+
 		Container* containers=parseCargoFile(input_full_path_and_file_name);
 		cout<<"the first container is :"<<containers[0].uniqueId<<endl;
 		unloadingAlgo(routeIndex);

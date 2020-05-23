@@ -19,6 +19,8 @@
 #include "AlgorithmRegistrar.h"
 #include "../Interfaces/AbstractAlgorithm.h"
 //#include "../Algorithms/StowageTester.cpp"
+#define LAST 1
+#define REGULAR 0
 using namespace std;
 const char* EXPECTED_OUTPUT="/expected_output";
 string travelName;
@@ -66,14 +68,20 @@ int validateAlgorithm(std::string **currentInstructions, int numOfInstructions, 
 	int row, column;
 	Crane crane = Crane(ship);
 	for(int i=0;i<numOfInstructions;i++){
-		*currentContainer.container = Container(0,port,currentInstructions[i][1]);
+		if(currentInstructions[i][1] == "U" && currentInstructions[i][1] == "R"&& currentInstructions[i][1] == "L"){
+return -1;}	
+		cout<< "the instruction :" <<currentInstructions[i][0]<<","<<currentInstructions[i][1]<<","<<currentInstructions[i][2]
+<<","<<currentInstructions[i][3]
+<<","<<currentInstructions[i][4]
+<<endl;
+		*currentContainer.container = Container(0,port,currentInstructions[i][0]);
 		row = std::stoi(currentInstructions[i][3]);
 		column = std::stoi(currentInstructions[i][4]);
 		// Is the command load/reject?
-		if(currentInstructions[i][0] == "L" || currentInstructions[i][0] == "R"){
+		if(currentInstructions[i][1] == "L" || currentInstructions[i][1] == "R"){
 			error+=isRejected(currentContainer,ship,route,routeIndex);
 			// Should the container be rejected according to the algorithm?
-			if(currentInstructions[i][0] == "R"){
+			if(currentInstructions[i][1] == "R"){
 				// Was it really rejected?
 				if(error != 0){
 					error = 0;
@@ -109,7 +117,7 @@ int validateAlgorithm(std::string **currentInstructions, int numOfInstructions, 
 			}	
 		}
 		// Is the command unload?
-		if(currentInstructions[i][0] == "U"){
+		if(currentInstructions[i][1] == "U"){
 			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
 			error+=CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]);
 			// Can we unload legally?
@@ -192,10 +200,75 @@ int insertInstructionToMap(string** algoInstructions,map<string,vector<string>>&
 	cout<<endl<<"done inserting algo instructions" <<endl;
 	return SUCCESS;
 }
+//[14]
+void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR){
+	switch(INDICATOR){
+		case LAST :{fivedArray[0]="last";fivedArray[1]="";fivedArray[2]="";fivedArray[3]="";fivedArray[4]="";
+				break;
+				}
+		case REGULAR:{	getElem(line,seek,',');fivedArray[0]=string(parse_out);
+				getElem(line,seek,',');fivedArray[1]=string(parse_out);
+				getElem(line,seek,',');fivedArray[2]=string(parse_out);
+				getElem(line,seek,',');fivedArray[3]=string(parse_out);
+				getElem(line,seek,',');fivedArray[4]=string(parse_out);
+				break;
+				}	
+		default : std::cout<<"ERROR[14][1] : Unknown indicator in getFiveElementsIntoArray"<<std::endl;
+			}
+}
 
+//[13]
+string** ReadExpectedInstructions(string cargoFileName){
+	ifstream fd_info;
+	string** expectedInstructions;
+	/*char* expectedPath=new char[strlen(travelPath)+strlen(EXPECTED_OUTPUT)+strlen(cargoFileName)+15];
+ 	strcpy(expectedPath,travelPath);
+	strcat(expectedPath,EXPECTED_OUTPUT);
+	strcat(expectedPath,"/");
+	strcat(expectedPath,cargoFileName);
+	strcat(expectedPath,".expected");
+	string expectedPath=travelPath+EXPECTED_OUTPUT+"/"+ cargoFileName+".expected";*/
+
+	fd_info.open(cargoFileName,ios_base::in);//open the file
+	//checking the access to the file
+	if(!fd_info){
+		std::cout << "ERROR[13][1]- can't open "<< cargoFileName<< std::endl;
+		return NULL;
+	}
+	int lineNum = getNumOfLines(fd_info);
+	expectedInstructions = new string*[lineNum+1];//the +1 used as indicator of the last container
+	for(int i = 0;i < lineNum+1;i++){
+		expectedInstructions[i]=new string[5];
+	
+	}
+	//start reading from file
+	int instructionIndex=0;
+	string line;
+	int seek; 
+	while(getline(fd_info,line)){
+		if(line.at(0)=='#'){
+			continue;
+		}else{
+			seek=0;
+			getFiveElementsIntoArray(line,seek,expectedInstructions[instructionIndex],REGULAR);
+			instructionIndex++;
+		}
+	}
+	getFiveElementsIntoArray("",seek,expectedInstructions[instructionIndex],LAST);
+	
+	int index=0;
+	while((expectedInstructions[index][0]).compare("last")!=0){
+		cout<<"**reading expected :"<< expectedInstructions[index][0] << " , "<< expectedInstructions[index][1]<<"  " <<index <<endl;
+		index++;
+	}
+	if(fd_info.is_open()){
+		fd_info.close();
+	}
+	return expectedInstructions;
+}
 //[12]
-int checkInstructionPerPort(int portIndex,string** algoInstructions,char** route){
-	string cargoFileName = getCargoFileName(portIndex,true,route);
+int checkInstructionPerPort(int portIndex,string** algoInstructions){
+	string cargoFileName = getCargoFileName(portIndex,true);
 	map<string,vector<string>> InstructionsMap;
 	int fillMap=insertInstructionToMap(algoInstructions,InstructionsMap);
 	if(fillMap!=SUCCESS){
@@ -225,12 +298,10 @@ void simulateTravel(){
 	int err=getTheFileNameFromTheTravel(travelPath,"ship_plan",shipPlanName);
 	if(err!=0 && err!=-1){
 		handleError(output,"Simulator",err);
-		
 	}
 	err=getTheFileNameFromTheTravel(travelPath,"route",routeName);
 	/*if(err!=0 && err!=-1){
 		handleError(output,"Simulator",err);
-		
 	}*/
 	cout<<"********************the ship plane :"<<travelPath+"/"+shipPlanName<<"/n******************and the route : "<<travelPath+"/"+routeName<<endl;
 	shipPlanName=travelPath+"/"+shipPlanName+".ship_plan";
@@ -240,16 +311,25 @@ void simulateTravel(){
 		handleError(output,"Simulator",err);
 	}
 	cout << "*initRoute"<<endl;
-	//char ** route;
 	err=initRoute(route,routeName);
-
+	cout << "init route error is "<< err <<endl<<endl;
+	if(err!=0 && err!=-1){
+		handleError(output,"Simulator",err);
+	}
+	cout << "*end_initRoute"<<endl;
+	
+	err=checkCargoFiles(travelPath);
+	if(err!=0 || err!=-1){
+		handleError(output,"Simulator","missing carfo files / there is additional cargo files");
+	}
+	cout << "*end_checkCargoFiles"<<endl;
 	Port* ports = getPortsFromRoute(route);
-	
-	
+	cout << "*end_ports"<<endl;
 
 	parseResults (AlgoName ,travelName ,0 ,0);
 
 //new implemntation using algo regestrar
+	int flag=0;
 	auto& registrar = AlgorithmRegistrar::getInstance();
     	{
         	std::string error;
@@ -271,15 +351,17 @@ void simulateTravel(){
 	        			std::cerr << error << '\n'; 
             				return ;
         			}
-
+				cout << "*good_regestration"<<endl;
+				flag=1;
 
 			}
 			
 		}
+	cout << "*end_registration"<<endl;
 
 	closedir(fd_Algo);
     	}
-	
+	if(flag){
 	cout<<"******starting the loop over the algos **********"<<endl;
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
 		string algoName=algoQueue.front();
@@ -298,17 +380,42 @@ void simulateTravel(){
 		if(err){	
 		std::cout << "ERROR[3][1]- can't make dir with name : "<<makeDir<<std::endl; 
 		}
-		cout<<"******starting the loop over the ports with size: "<<routeSize <<"**********"<<endl;
+		cout<<"******starting the loop over the ports **********"<<endl;
 
 		for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
 		cout<<"******port number = "<<routeIndex<<" **********"<<endl;
 
-		string FileNameCarge=getCargoFileName(routeIndex,true,route);
-		cout<<"1111111111111111111 "<<endl;
-		string FileNameInstruction=getCargoFileName(routeIndex,false,route);
+		string FileNameCarge=getCargoFileName(routeIndex,true);
+		string FileNameInstruction=getCargoFileName(routeIndex,false);
 		cout<<"****** getting instructions **********"<<endl;
-		algo->getInstructionsForCargo(travelPath+"/"+FileNameCarge, output+"/"+makeDir+"/"+FileNameInstruction);
-
+		std::set<string>::iterator it;
+		string FileNameCargewithout=getNameWithoutExtinsion(FileNameCarge,'.',"cargo_data");
+		it =emptyPorts.find(FileNameCargewithout);
+		int isEmpty=0;
+		
+		if(it!=emptyPorts.end()){
+			for(it=emptyPorts.begin() ;it!=emptyPorts.end();it++){
+			cout<< string(*it);
+			}
+			//cout<<"is empty ??? : "<<it <endl;
+			string makeDirc="emptyFiles";
+			const char *cstr = makeDirc.c_str();
+			mkdir (cstr,0777);
+			ofstream fd;
+			fd.open("emptyFiles/"+FileNameCarge);
+			isEmpty=1;
+		}
+		string input;
+		if(isEmpty){
+		input="emptyFiles/"+FileNameCarge;
+		}else{
+		input=travelPath+"/"+FileNameCarge;
+		}
+		int errGetCargo=algo->getInstructionsForCargo(input, output+"/"+makeDir+"/"+FileNameInstruction);
+		if(errGetCargo!=0){
+			cout<<"errror in get cargo for instruction  " << errGetCargo<<endl;
+		}
+		
 		//validate 
 		cout<<"instructions "<<endl;
 		string **instructions=ReadExpectedInstructions( output+"/"+makeDir+"/"+FileNameInstruction);
@@ -323,7 +430,7 @@ void simulateTravel(){
 		cout<<"validation "<<endl;
 		int validation = validateAlgorithm(instructions, numOfInstructions, ports[routeIndex], ship, ports, routeIndex);
 		cout<<"VALIDATION==========================="<<validation<<endl;
-		
+
 		/*if(check==SUCCESS){
 			parseResults (algoName,travelName,numInstructions,routeIndex+1);
 		}else{
@@ -334,8 +441,8 @@ void simulateTravel(){
 
 		
 	}	
-    	//return EXIT_SUCCESS;
 	}
+}
 
 //[2] called in [1]
 void simulate(DIR* fd){

@@ -39,7 +39,7 @@ public:
 	void setHeight(int row, int column, int maxHeight){
 		this->planLinkedList[row][column].maxHeight=maxHeight;
 	}
-	~Ship(){
+	/*~Ship(){
 		for(int i=0;i<shipWidth;i++){
 			delete[] this->planLinkedList[i];
 		}
@@ -49,5 +49,5 @@ public:
 		if(this->planMap!=NULL){
 			delete this->planMap;
 		}
-	}
+	}*/
 };

@@ -7,18 +7,22 @@
 #include<string.h>
 #include <string>
 #include <map>
+#include <set>
 #include "../Interfaces/IOHandler.h"
 #define SUCCESS 0
 #define ERROR 1
-#define LAST 1
-#define REGULAR 0
 #define MAX_LINE 1024
+using namespace std;
+
+std::set<string> myset;
+std::set<string>emptyPorts;
+
 /*int width,length,maxHeight;
 char *travelPath;
 char *workPath;
 char **route;
 ofstream fd_results;
-int routeSize;
+int routeSize=0;
 const char* SHIP_PLAN="ship_plan";
 const char* ROUTE="route";
 const char* OUTPUT="/output";
@@ -45,6 +49,7 @@ int getElem(string s , int& seek,char delmiter){
 	parse_out.erase(std::remove_if(parse_out.begin(), parse_out.end(), ::isspace), parse_out.end());
 	}
 	if(parse_out.compare("")==0){
+		seek++;
 		return ERROR;
 	}
 	seek++;
@@ -110,15 +115,22 @@ int instructionsOut(string** instructions,string outName){
 		std::cout << "ERROR[10][1]- can't open "<< filePath<< std::endl;
 	}
 	int instIndex=0;
-	while(instructions[instIndex][0].compare("last")!=0){
+	cout<<"11111111111111"<<endl;
+
+	while(instructions[instIndex][2].compare("last")!=0){
 		//uid,L/R/U,row,column,height
-		numInstructions++;
+		cout<<"222222222222222222222 ";
+		cout<<instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4]<<endl;
 		fd_info<< instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4];
 		instIndex++;
-		if(instructions[instIndex][0].compare("last")!=0){
+		cout<<"33333333333333333333"<<endl;
+		if(instructions[instIndex][2].compare("last")!=0){
+			cout<<"44444444444444444444   "<<instIndex<<endl;
+
 			fd_info<<endl;
 		}
 	} 
+	cout<<"555555555555555   "<<instIndex<<endl;
 	if(fd_info.is_open()){
 	fd_info.close();
 	}
@@ -126,36 +138,26 @@ int instructionsOut(string** instructions,string outName){
 	return SUCCESS;
 }
 //[9]
-string getCargoFileName(int portIndex,bool cargoData,char** route){
+string getCargoFileName(int portIndex,bool cargoData){
 	int cnt=1;
 	for(int i=0;i<portIndex;i++){
 		if(strcmp(route[portIndex],route[i])==0){
 			cnt++;
 		}
 	}
-if(route==NULL){
-		cout<<"route in 0 null"<<endl;
-	}
-	if(route[portIndex]==NULL){
-		cout<<"route is null"<<endl;
-	}
-	
-
-	cout<<"in getCargoFileName "<<route[portIndex]<<endl;
 	string fileName=string(route[portIndex])+"_"+to_string(cnt);
-	cout<<"in getCargoFileName "<<fileName<<endl;
 	if(cargoData==true){
 	fileName+=".cargo_data";
 	}else{
 	fileName+=".crane_instructions";
 	}
-	cout<<"exit getCargoFileName "<<fileName<<endl;
 	return fileName;
 
 }
 //[8]
     Container* parseCargoFile(string fileName){
 	ifstream fd_info;
+	cout << "in parseCargoFile"<<endl;
 	int is_err=SUCCESS;//must change this.........................................
 	Container* containers;
 	int containerNum;
@@ -165,8 +167,9 @@ if(route==NULL){
 	if(!fd_info){
 		std::cout << "ERROR[8][1]- can't open "<< filePath<< std::endl;
 	}
-
+	
 	containerNum=getNumOfLines(fd_info);//get container size
+	cout<<"in parseCargoFile with lines "<<containerNum<<endl;
 	containers=new Container[containerNum+1];
 	containers[containerNum]=Container(0,Port(""),"last");//to know we reached the last container
 	string line;
@@ -176,6 +179,7 @@ if(route==NULL){
 	string containerDstPort;
 	int containerWeight;
 	while(getline(fd_info,line)){
+		cout<<"line :  "<<line<<endl;
 		if(line.at(0)=='#'){
 			continue;
 			}
@@ -199,6 +203,7 @@ if(route==NULL){
 	if(fd_info.is_open()){
 	fd_info.close();
 	}
+	cout<<"exit  :  "<<parseCargoFile<<endl;
 
 	return containers;
 }
@@ -242,13 +247,16 @@ int getNumOfLines(ifstream& fd){
 int initRoute(char** &currRoute,string travelPath){
 	ifstream fd_info;
 	int is_err;
-
+	int err=0;
 	fd_info.open(travelPath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
-		std::cout << "ERROR[5][1]- can't open "<< travelPath<< std::endl;
+		return err|=(int)ErrorID::TravelRouteEmptyOrCantReadFile;
 	}
 	routeSize=getNumOfLines(fd_info);//get route size
+	if(routeSize==0){
+		return err|=(int)ErrorID::TravelRouteEmptyOrCantReadFile;
+	}
 	currRoute=new char*[routeSize];
 	for(int i=0;i<routeSize;i++){
 		currRoute[i]=new char[5];
@@ -257,6 +265,8 @@ int initRoute(char** &currRoute,string travelPath){
 	string line;
 	int portIndex=0;
 	int seek;
+	int numOfValids=0;
+	string currPort;
 	while(getline(fd_info,line)){
 		if(line.at(0)=='#'){
 			continue;
@@ -266,18 +276,40 @@ int initRoute(char** &currRoute,string travelPath){
 			is_err=checkPortName(parse_out);
 			if(is_err==ERROR){
 				std::cout << "ERROR[5][2]- wrong port name "<< parse_out<< std::endl;
+				err|=(int)ErrorID::TravelRouteBadPortSymbol;
+				cout<< "1111111111111111111111  err="<<err<<endl;
+				routeSize--;
+				continue;
 			}
 			if(is_err!=ERROR){
+				if(parse_out.compare(currPort)==0){
+					err|=(int)ErrorID::TravelRoutePortAppearsTwice;
+					cout<< "22222222222222222222222222222  err="<<err<<endl;
+					routeSize--;
+					continue;
+				}
 				strcpy(currRoute[portIndex],parse_out.c_str());
 				cout<<currRoute[portIndex]<<endl;
+				currPort=parse_out;
+				portIndex++;
 			}
-			portIndex++;
+			
 	}
 	if(fd_info.is_open()){
 	fd_info.close();
 	}
+	if(routeSize==1){
+		return err|=(int)ErrorID::TravelRoureFileWithOnlySinglePort;
 
-	return SUCCESS;
+	}
+	if(routeSize==0){
+		return err|=(int)ErrorID::TravelRouteEmptyOrCantReadFile;
+	}
+	
+	cout<< "333333333333333333333333333333  err="<<err << "with size :"<< routeSize<<endl;;
+
+	
+	return err;
 }
 //[6] called in[4]
 int getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem){
@@ -358,6 +390,7 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 		flag=1;
 		}
 		if(flag!=1){
+			cout<< "the floors "<<floors << " and the max height  "<<maxHeight<<endl; 
 			if(floors>=maxHeight){
 				cout <<"hereeeeeeeeeee 3333333333333333"<<endl;
 				err|=(int)ErrorID::ShipPlanWrongFloors;
@@ -436,6 +469,59 @@ int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNe
 	return SUCCESS;
 }
 /**********implement some funcs*********/
+int checkCargoFiles(string travelPath){
+	int err=0;
+	const char *cstr = travelPath.c_str();
+	DIR* fd_travel=opendir(cstr);
+	if(fd_travel==NULL){
+		return -1;
+	}
+	struct dirent *entry;
+    	while ((entry = readdir(fd_travel)))
+	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+		cout<<entry->d_name<<endl;
+		string currFile=getNameWithoutExtinsion(entry->d_name,'.',"cargo_data");
+		cout<<currFile<<endl;
+		if(currFile.compare("/")!=0){
+				cout<<"11111111111111111"<<endl;
+
+				numOfCargoFiles++;
+				myset.insert(currFile);
+				cout<<"2222222222222222"<<endl;
+		}
+	}
+	std::set<string>::iterator it;
+	cout << "the size is :"<<myset.size()<<endl;
+	for(it=myset.begin() ;it!=myset.end();it++){
+			cout<< string(*it);
+			}
+
+	cout<<"******************************start loop with :"<<routeSize <<endl;
+	for(int routeIndex=0;routeIndex<routeSize;routeIndex++){
+		cout<<routeIndex<<endl;
+		string FileNameCarge=getCargoFileName(routeIndex,true);
+		cout<<FileNameCarge<<endl;
+
+		FileNameCarge=getNameWithoutExtinsion(FileNameCarge,'.',"cargo_data");
+		cout<<FileNameCarge<<endl;
+		it=myset.find(FileNameCarge);
+		if(it!=myset.end()){
+			myset.erase(it);
+			numOfCargoFiles--;
+		}else{
+			emptyPorts.insert(FileNameCarge);
+		}
+	
+
+	}
+	cout<<"end loop"<<endl;
+	if(numOfCargoFiles!=0){
+		return ERROR;
+	}
+	return SUCCESS;
+	
+	}
+
 
 	int getRouteIndex(int &routeIndex,const std::string& input_full_path_and_file_name){
 		int seek=0;
@@ -465,9 +551,10 @@ int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNe
 	string getTheFileName(string fullFilePath){
 		int seek=0;
 		string fileName;
-		cout<<"in getTheFileName: "<<seek<<endl;
-		while(seek < (int)fullFilePath.length()){
+		cout<<"in getTheFileName: "<<fullFilePath<<endl;
+		while(seek <= (int)fullFilePath.length()){
 		getElem(fullFilePath,seek,'/');
+		cout << parse_out<<endl;
 		}
 		fileName=string(parse_out);
 		cout<<"for npw the filename is :"<<fileName<<endl;
@@ -477,16 +564,25 @@ int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNe
 	}
 //20
 string getNameWithoutExtinsion(string fileName,char delemiter,string extension){
+	cout<<"getNameWithoutExtinsion start"<<endl;
+
 	int seek=0;
+	if(fileName.at(0)==delemiter){
+	return "/";
+	
+	}
+	cout<<"extension comparing start"<<endl;
 	if(fileName.compare(extension)==0){
 		cout<<"ERROR[20][1]: "<<fileName<<" is the same as the extension"<<endl;
 
 		return "/";
 
 	}
+	cout<<"getNameWithoutExtinsion start  while"<<endl;
 	while(seek < (int)fileName.length()){
 		getElem(fileName,seek,delemiter);
 	}
+	cout<<"getNameWithoutExtinsion end  while"<<endl;
 	if(extension.compare(parse_out)==0){
 		cout<<"+++int get Name without : "<<parse_out.substr(0,parse_out.find(string(1,delemiter)+extension))<<endl;
 		return fileName.substr(0,fileName.find(string(1,delemiter)+extension));
@@ -494,62 +590,6 @@ string getNameWithoutExtinsion(string fileName,char delemiter,string extension){
 	
 	return "/";
 
-}
-
-void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR){
-	switch(INDICATOR){
-		case LAST :{fivedArray[0]="last";fivedArray[1]="";fivedArray[2]="";fivedArray[3]="";fivedArray[4]="";
-				break;
-				}
-		case REGULAR:{	getElem(line,seek,',');fivedArray[0]=string(parse_out);
-				getElem(line,seek,',');fivedArray[1]=string(parse_out);
-				getElem(line,seek,',');fivedArray[2]=string(parse_out);
-				getElem(line,seek,',');fivedArray[3]=string(parse_out);
-				getElem(line,seek,',');fivedArray[4]=string(parse_out);
-				break;
-				}	
-		default : std::cout<<"ERROR[14][1] : Unknown indicator in getFiveElementsIntoArray"<<std::endl;
-			}
-}
-//21
-string** ReadExpectedInstructions(string cargoFileNamePath){
-	ifstream fd_info;
-	string** expectedInstructions;
- 	
-	fd_info.open(cargoFileNamePath,ios_base::in);//open the file
-	//checking the access to the file
-	if(!fd_info){
-		std::cout << "ERROR[13][1]- can't open "<< cargoFileNamePath<< std::endl;
-		return NULL;
-	}
-	int lineNum = getNumOfLines(fd_info);
-	numInstructions=lineNum;
-	expectedInstructions = new string*[lineNum+1];//the +1 used as indicator of the last container
-	for(int i = 0;i < lineNum+1;i++){
-		expectedInstructions[i]=new string[5];
-	
-	}
-	//start reading from file
-	int instructionIndex=0;
-	string line;
-	int seek; 
-	while(getline(fd_info,line)){
-		if(line.at(0)=='#'){
-			continue;
-		}else{
-			seek=0;
-			getFiveElementsIntoArray(line,seek,expectedInstructions[instructionIndex],REGULAR);
-			instructionIndex++;
-		}
-	}
-	getFiveElementsIntoArray("",seek,expectedInstructions[instructionIndex],LAST);
-	
-	int index=0;
-	while((expectedInstructions[index][0]).compare("last")!=0){
-		cout<<"**reading expected :"<< expectedInstructions[index][0] << " , "<< expectedInstructions[index][1]<<"  " <<index <<endl;
-		index++;
-	}
-	return expectedInstructions;
 }
 
 	/*****************************************/
