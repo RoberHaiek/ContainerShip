@@ -55,6 +55,7 @@ void printContainerArray(Container* arr,char* fileName){
 	int isRejected(node currentContainer, Ship *ship,Port* route, int routeIndex) {
 		int error = 0;
 		error+=StowageTester::isInRoute(currentContainer.container->destPort.toString(),route,routeIndex);	// is the container's destination NOT port in route?
+		std::cout << "\n \n \n \n is in route \n \n \n \n \n " << error;
 		error+=CraneTester::isValidId(currentContainer.container->uniqueId);						// is the container's unique ID invalid?
 		error+=CraneTester::isDuplicateIdOnShip(ship->planMap,currentContainer.container->uniqueId);				// is the container's unique ID already on the ship?
 		error+=CraneTester::isLegalWeight(currentContainer.container->weight);						// is the container's weight illegal?
@@ -68,20 +69,20 @@ int validateAlgorithm(std::string **currentInstructions, int numOfInstructions, 
 	int row, column;
 	Crane crane = Crane(ship);
 	for(int i=0;i<numOfInstructions;i++){
-		if(currentInstructions[i][1] == "U" && currentInstructions[i][1] == "R"&& currentInstructions[i][1] == "L"){
+		if(currentInstructions[i][0] == "U" && currentInstructions[i][0] == "R" && currentInstructions[i][0] == "L"){
 return -1;}	
 		cout<< "the instruction :" <<currentInstructions[i][0]<<","<<currentInstructions[i][1]<<","<<currentInstructions[i][2]
+<<","<<currentInstructions[i][2]
 <<","<<currentInstructions[i][3]
-<<","<<currentInstructions[i][4]
 <<endl;
-		*currentContainer.container = Container(0,port,currentInstructions[i][0]);
-		row = std::stoi(currentInstructions[i][3]);
-		column = std::stoi(currentInstructions[i][4]);
+		*currentContainer.container = Container(0,port,currentInstructions[i][1]);
+		row = std::stoi(currentInstructions[i][2]);
+		column = std::stoi(currentInstructions[i][3]);
 		// Is the command load/reject?
-		if(currentInstructions[i][1] == "L" || currentInstructions[i][1] == "R"){
+		if(currentInstructions[i][0] == "L" || currentInstructions[i][0] == "R"){
 			error+=isRejected(currentContainer,ship,route,routeIndex);
 			// Should the container be rejected according to the algorithm?
-			if(currentInstructions[i][1] == "R"){
+			if(currentInstructions[i][0] == "R"){
 				// Was it really rejected?
 				if(error != 0){
 					error = 0;
@@ -117,7 +118,7 @@ return -1;}
 			}	
 		}
 		// Is the command unload?
-		if(currentInstructions[i][1] == "U"){
+		if(currentInstructions[i][0] == "U"){
 			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
 			error+=CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]);
 			// Can we unload legally?

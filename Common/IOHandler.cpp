@@ -121,7 +121,7 @@ int instructionsOut(string** instructions,string outName){
 		//uid,L/R/U,row,column,height
 		cout<<"222222222222222222222 ";
 		cout<<instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4]<<endl;
-		fd_info<< instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4];
+		fd_info<< instructions[instIndex][1]<<","<<instructions[instIndex][0]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4];
 		instIndex++;
 		cout<<"33333333333333333333"<<endl;
 		if(instructions[instIndex][2].compare("last")!=0){

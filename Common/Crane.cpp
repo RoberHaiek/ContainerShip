@@ -32,6 +32,7 @@ public:
 
 	// load a single container to a specific location
 	void load(Container* container,int row, int column, int floor) {
+		std::cout << "loading " << container->uniqueId << " to " << row << ", " << column << "/n";
 		int* rowColumn = new int[3];
 		rowColumn[0] = row;
 		rowColumn[1] = column;

@@ -142,7 +142,7 @@ public:
 							currentContainer = temp->next;
 							tempContainers.push_front(temp);
 							indxes=new std::string[3];
-							indxes[0]=std::to_string(row+1);indxes[1]=std::to_string(column+1);indxes[2]=std::to_string(this->ship->planLinkedList[row][column].size+1);
+							indxes[0]=std::to_string(row);indxes[1]=std::to_string(column);indxes[2]=std::to_string(this->ship->planLinkedList[row][column].size);
 							indexies.push_front(indxes);
 							popAllAbove = true;
 						}
@@ -154,7 +154,7 @@ public:
 								currentContainer = temp->next;
 								tempContainers.push_front(temp);
 								indxes=new std::string[3];
-								indxes[0]=std::to_string(row+1);indxes[1]=std::to_string(column+1);indxes[2]=std::to_string(this->ship->planLinkedList[row][column].size+1);
+								indxes[0]=std::to_string(row);indxes[1]=std::to_string(column);indxes[2]=std::to_string(this->ship->planLinkedList[row][column].size);
 								indexies.push_front(indxes);
 							}
 						}
@@ -211,7 +211,7 @@ public:
 						if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight && weightBalance()) {		// check if we are below height limit and balanced
 							if (CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId) == 0) {
 								crane.load(currentContainer.container, row,column,this->ship->planLinkedList[row][column].size);	// load it
-								fillInstructions(Action::LOAD, currentContainer.container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size)), std::to_string(row+1), std::to_string(column+1));	// edit instructions
+								fillInstructions(Action::LOAD, currentContainer.container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size)), std::to_string(row), std::to_string(column));	// edit instructions
 								breakIt = true;
 								break;
 							}
@@ -241,7 +241,7 @@ void printTestResults(node  currentContainer){
 // rejection test
 	bool isRejected(node currentContainer) {
 		printTestResults(currentContainer);
-		if (StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex) == 0	// is the container's destination NOT port in route?
+		if (StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex) != 0	// is the container's destination NOT port in route?
 				|| CraneTester::isFull(this->ship) != 0																// is the ship full?
 					|| CraneTester::isValidId(currentContainer.container->uniqueId) != 0							// is the container's unique ID invalid?
 						|| CraneTester::isLegalWeight(currentContainer.container->weight) != 0	) {					// is the container's weight illegal?
