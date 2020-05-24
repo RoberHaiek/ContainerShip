@@ -15,7 +15,7 @@
 	    struct node *next;
 		node(){
 			Port p = Port("TEST");
-			container =new Container(1,p,"TESTING");
+			container =new Container(1,p,"Floor");
 			next = NULL;}
 	/*	 ~node(){
 			if (container!=NULL){

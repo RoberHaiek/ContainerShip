@@ -11,13 +11,16 @@
 #include <dirent.h>
 #include <fstream>
 #include <sys/stat.h>
+
 #include <queue> 
+#include <vector>
 //#include "../Algorithms/Stowage.cpp"
 #include "../Simulation/WeightBalanceCalculator.cpp"
 //#include "../Interfaces/IOHandler.h"//may changed
 #include "../Common/IOHandler.cpp"
 #include "AlgorithmRegistrar.h"
 #include "../Interfaces/AbstractAlgorithm.h"
+#include <algorithm>
 //#include "../Algorithms/StowageTester.cpp"
 #define LAST 1
 #define REGULAR 0
@@ -28,6 +31,11 @@ string AlgoName="StowageAlgo";
 //Stowage* curAlgo;
 string travel_path="",algorithm_path="",output="";
 queue<string> algoQueue;
+//aubaida 
+queue<string> travelQueue;
+std::map<string,std::vector<int>> resMap;
+
+int travelNum=0;
 /*---------------FUNC DEC-------------*/
 void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 /*------------------DEBUGGING METHODS-------------------*/
@@ -48,6 +56,41 @@ void printContainerArray(Container* arr,char* fileName){
 	}
 	
 }
+//aubaida 
+void parseResults (std::pair<string,std::vector<int>> const &pair, bool isFirstLine){
+	//static int sum;
+cout<<"222222222222222222"<<endl;
+
+	if(!fd_results.is_open()&& isFirstLine){
+cout<<"222222222222222222222"<<endl;
+
+		fd_results.open(output+"/"+"simulation.results");
+		fd_results<<"RESULTS,	";
+cout<<"222222222222222222222"<<endl;
+
+		while(!travelQueue.empty()){
+cout<<"222222222222222222222"<<endl;
+
+		fd_results<<travelQueue.front()<<",	";
+		travelQueue.pop();
+		}
+		fd_results<<"Sum,	"<<"NumErrors"<<endl;
+	}
+	if(!isFirstLine){
+cout<<"333333333333333333333"<<endl;
+
+		fd_results<<pair.first<<",	";
+		auto v=pair.second;
+		for(int i=0;i<travelNum;i++){
+			fd_results<<v[i+2]<<",		";
+		}
+		fd_results<<v[0]<<",		";
+		fd_results<<v[1]<<endl;
+
+
+	}
+	
+}
 
 /*-------------------------------------------------------------------------------------------------------------*/
 
@@ -55,7 +98,6 @@ void printContainerArray(Container* arr,char* fileName){
 	int isRejected(node currentContainer, Ship *ship,Port* route, int routeIndex) {
 		int error = 0;
 		error+=StowageTester::isInRoute(currentContainer.container->destPort.toString(),route,routeIndex);	// is the container's destination NOT port in route?
-		std::cout << "\n \n \n \n is in route \n \n \n \n \n " << error;
 		error+=CraneTester::isValidId(currentContainer.container->uniqueId);						// is the container's unique ID invalid?
 		error+=CraneTester::isDuplicateIdOnShip(ship->planMap,currentContainer.container->uniqueId);				// is the container's unique ID already on the ship?
 		error+=CraneTester::isLegalWeight(currentContainer.container->weight);						// is the container's weight illegal?
@@ -72,8 +114,8 @@ int validateAlgorithm(std::string **currentInstructions, int numOfInstructions, 
 		if(currentInstructions[i][0] == "U" && currentInstructions[i][0] == "R" && currentInstructions[i][0] == "L"){
 return -1;}	
 		cout<< "the instruction :" <<currentInstructions[i][0]<<","<<currentInstructions[i][1]<<","<<currentInstructions[i][2]
-<<","<<currentInstructions[i][2]
 <<","<<currentInstructions[i][3]
+<<","<<currentInstructions[i][4]
 <<endl;
 		*currentContainer.container = Container(0,port,currentInstructions[i][1]);
 		row = std::stoi(currentInstructions[i][2]);
@@ -118,7 +160,7 @@ return -1;}
 			}	
 		}
 		// Is the command unload?
-		if(currentInstructions[i][0] == "U"){
+		if(currentInstructions[i][1] == "U"){
 			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
 			error+=CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]);
 			// Can we unload legally?
@@ -196,6 +238,7 @@ int insertInstructionToMap(string** algoInstructions,map<string,vector<string>>&
 				 return ERROR;
 			}
 		}
+		
 		index++;
 	}
 	cout<<endl<<"done inserting algo instructions" <<endl;
@@ -222,13 +265,6 @@ void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDIC
 string** ReadExpectedInstructions(string cargoFileName){
 	ifstream fd_info;
 	string** expectedInstructions;
-	/*char* expectedPath=new char[strlen(travelPath)+strlen(EXPECTED_OUTPUT)+strlen(cargoFileName)+15];
- 	strcpy(expectedPath,travelPath);
-	strcat(expectedPath,EXPECTED_OUTPUT);
-	strcat(expectedPath,"/");
-	strcat(expectedPath,cargoFileName);
-	strcat(expectedPath,".expected");
-	string expectedPath=travelPath+EXPECTED_OUTPUT+"/"+ cargoFileName+".expected";*/
 
 	fd_info.open(cargoFileName,ios_base::in);//open the file
 	//checking the access to the file
@@ -327,7 +363,7 @@ void simulateTravel(){
 	Port* ports = getPortsFromRoute(route);
 	cout << "*end_ports"<<endl;
 
-	parseResults (AlgoName ,travelName ,0 ,0);
+	//parseResults (AlgoName ,travelName ,0 ,0);
 
 //new implemntation using algo regestrar
 	int flag=0;
@@ -346,13 +382,13 @@ void simulateTravel(){
 		if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 			string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
 			if(algoName.compare("/")!=0){
-				cout << "the algoritim is : "<< algoName <<endl;
+//cout << "the algoritim is : "<< algoName <<endl;
 				algoQueue.push(algoName);
 				if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
 	        			std::cerr << error << '\n'; 
             				return ;
         			}
-				cout << "*good_regestration"<<endl;
+//cout << "*good_regestration"<<endl;
 				flag=1;
 
 			}
@@ -363,10 +399,13 @@ void simulateTravel(){
 	closedir(fd_Algo);
     	}
 	if(flag){
+	travelQueue.push(travelName);
 	cout<<"******starting the loop over the algos **********"<<endl;
+	cout << endl<<endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<<"#==#==#==#==#==#==#==#"<<endl<<endl;
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
 		string algoName=algoQueue.front();
 		algoQueue.pop();
+	cout << endl<<endl<<"##################### Algo = "<<algoName<<"##################"<<endl<<endl;
 		auto algo = (*algo_iter)();
 		int errShipPlanAlgo=algo->readShipPlan(shipPlanName);
 		int errRouteAlgo=algo->readShipRoute(routeName);
@@ -382,7 +421,7 @@ void simulateTravel(){
 		std::cout << "ERROR[3][1]- can't make dir with name : "<<makeDir<<std::endl; 
 		}
 		cout<<"******starting the loop over the ports **********"<<endl;
-
+		int firstTiem=1;
 		for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
 		cout<<"******port number = "<<routeIndex<<" **********"<<endl;
 
@@ -396,7 +435,7 @@ void simulateTravel(){
 		
 		if(it!=emptyPorts.end()){
 			for(it=emptyPorts.begin() ;it!=emptyPorts.end();it++){
-			cout<< string(*it);
+			//cout<< string(*it);
 			}
 			//cout<<"is empty ??? : "<<it <endl;
 			string makeDirc="emptyFiles";
@@ -429,9 +468,55 @@ void simulateTravel(){
 
 		int numOfInstructions=getNumOfLines(fd_info);//get container size
 		cout<<"validation "<<endl;
-		int validation = validateAlgorithm(instructions, numOfInstructions, ports[routeIndex], ship, ports, routeIndex);
-		cout<<"VALIDATION==========================="<<validation<<endl;
+		int validation=0;//= validateAlgorithm(instructions, numOfInstructions, ports[routeIndex], ship, ports, routeIndex);
+		//cout<<"VALIDATION==========================="<<validation<<endl;
+		
 
+		//results parsing 
+		cout<<"its time to play"<<endl;
+		auto isThere=resMap.find(algoName);
+//cout<<"111111111111111111111"<<endl;
+
+		if(isThere==resMap.end()){
+		//add algo to the map
+//cout<<"1111111111111111.000"<<endl;
+
+		std::vector<int> v=vector<int>();
+//cout<<"1111111111111111.000"<<endl;
+		v.push_back(0);
+		v.push_back(0);
+//cout<<"111111111111111...111  "<<v[0]<< endl;
+		resMap[algoName]=v;
+//cout<<"111111111111111...222"<<endl;
+		
+		}
+//cout<<"22222222222222222"<<endl;
+
+		//if(error){numOfInstructions=-1;}
+		if(firstTiem==1){
+//cout<< "@@@@@@@@@@@@@@@ capicity = "<<(isThere->second).capacity()<<"  ";
+		isThere=resMap.find(algoName);
+		(isThere->second).resize(travelNum+3);
+		//cout<<"newcapacity="<<(isThere->second).capacity()<<endl;
+
+		(isThere->second).push_back(0);
+		firstTiem=0;}
+//cout<<"@@@@@@@@@ algoName " <<algoName<<"    routeInd="<<routeIndex <<"    (isThere->second)[travelNum+2]="<<(isThere->second)[travelNum+2]<<"+="<<numOfInstructions;
+//cout<< "@@@@@@@@the vector : ";
+//for(auto it=(isThere->second).begin();it!=(isThere->second).end();it++){
+	//cout<<*it<< ",";
+//}
+cout<<endl;
+		if(validation!=0 || (isThere->second)[travelNum+2]<0){
+			(isThere->second)[travelNum+2]=-1;
+		}else{
+		(isThere->second)[travelNum+2]+=numOfInstructions;
+		}
+
+//cout << "---->"<<	(isThere->second)[travelNum+2]<<endl;	
+		
+//cout<<"2333333333333333333"<<endl;
+		
 		/*if(check==SUCCESS){
 			parseResults (algoName,travelName,numInstructions,routeIndex+1);
 		}else{
@@ -441,8 +526,10 @@ void simulateTravel(){
 
 
 		
-	}	
+		}	
 	}
+	
+	travelNum++;
 }
 
 //[2] called in [1]
@@ -526,8 +613,66 @@ int main(int argc, char *argv[]) {
 	}
 	
 	closedir(fd_path);	
+	//printing the results
+	cout<<"results prints"<<endl;
+	for(auto it=resMap.begin();it!=resMap.end();it++){
+	cout << it->first <<"<";
+	for(auto it2=(it->second).begin();it2!=(it->second).end();it2++){	
+	cout << *it2<<",";
+	}
+	cout<<endl;
+	}
+	bool isFirstLine=true;
+	std::pair<string,std::vector<int>> x=pair<string,std::vector<int>>();
+cout<<"111111111111111111111"<<endl;
+
+	parseResults (x,isFirstLine);
+cout<<"111111111111111111111"<<endl;
+
+	std::vector<std::pair<string,std::vector<int>>> vec;
+	std::copy(resMap.begin(),resMap.end(),std::back_inserter<std::vector<pair<string,std::vector<int>>>>(vec));
+cout<<"111111111111111111111"<<endl;
+
+	//update error num and sum
+	for (auto &pair: vec) {
+		int errNum=0;
+		int Sum=0;	
+		auto vector1=pair.second;
+		for(auto& n : vector1){
+			Sum+=n;
+			if(n<0){
+				errNum+=1;
+			}
+		}
+		cout<<"sum="<<Sum <<endl;
+		pair.second[0]=Sum;
+		pair.second[1]=errNum;
+	}
+	//sort
+	std::sort(vec.begin(), vec.end(),
+			[](pair<string,std::vector<int>>& l, pair<string,std::vector<int>>& r) {
+				if(l.second[1]<r.second[1]){
+					return l.second > r.second;
+				}
+				if(l.second[1]>r.second[1]){
+					return l.second < r.second;
+				}
+				//equals
+				if(l.second[0]<r.second[0]){
+					return l.second > r.second;
+	
+				}
+					return l.second < r.second;
 	
 
+
+			});
+
+	for (auto pair: vec) {
+		
+		parseResults (pair,!isFirstLine);
+	}
+	
 	cout << "Done!"<<endl;
 	return 0;
 }

@@ -10,7 +10,7 @@ public:
 	int shipWidth;
 	int shipLength;
 	int shipHeight;
-	std::map<std::string,int*> *planMap;		// key = container, value = [row,column] of the container
+	std::map<std::string,int*> *planMap;		// key = container, value = [row,column,height] of the container
 	cellLinkedList **planLinkedList;
 
 	Ship(int shipWidth, int shipLength, int shipHeight) {
@@ -37,7 +37,7 @@ public:
 	}
 
 	void setHeight(int row, int column, int maxHeight){
-		this->planLinkedList[row][column].maxHeight=maxHeight;
+		this->planLinkedList[row][column].size=shipHeight-maxHeight;
 	}
 	/*~Ship(){
 		for(int i=0;i<shipWidth;i++){

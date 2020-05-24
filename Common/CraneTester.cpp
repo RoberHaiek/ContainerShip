@@ -46,9 +46,8 @@ public:
 	}
 
 	static int isValidLoad(int row, int column, int floor, int shipWidth, int shipLength, int cellHeight, std::map<std::string,int*>* planMap, std::string uniqueId){
-		std::cout << "LOADING: " << "row " << row << " column " << column << " shipWidth " << shipWidth << " shipLength " << shipLength;
 		if(floor>=cellHeight || floor<0){
-			return 0;
+			return 1;
 		}
 		if(row>=shipWidth || row<0 || column>=shipLength || column<0){
 			return 1;
@@ -61,7 +60,6 @@ public:
 
 	static int isValidUnload(int row, int column, int shipWidth, int shipLength){
 		if(row != shipWidth || column!=shipLength){
-			std::cout << "UNLOADING: " << "row " << row << " column " << column << " shipWidth " << shipWidth << " shipLength " << shipLength;
 			return -1;
 		}
 		return 0;

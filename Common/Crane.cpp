@@ -26,17 +26,16 @@ public:
 		}
 			ship->planMap->erase(container.uniqueId);
 			ship->planLinkedList[row][column].size--;
-		if(floor){}
 		return temp;
 	}
 
 	// load a single container to a specific location
 	void load(Container* container,int row, int column, int floor) {
-		std::cout << "loading " << container->uniqueId << " to " << row << ", " << column << "/n";
 		int* rowColumn = new int[3];
 		rowColumn[0] = row;
 		rowColumn[1] = column;
 		rowColumn[2] = floor;
+cout<<"		+-+-+- loading in "<<floor<< ","<<row<<","<<column<<endl; 
 		ship->planMap->insert(std::pair<std::string, int*>(container->uniqueId,rowColumn));	// Adding container to the map
 		struct node *temp, *newNode;
 		newNode =new node();
@@ -50,8 +49,8 @@ public:
 		if(temp==NULL){
 			ship->planLinkedList[row][column].linkedList=newNode;
 		}
-		else if(temp->container->uniqueId.compare("TESTING")==0){
-	//	temp->container=newNode->container;
+		else if(temp->container->uniqueId.compare("Floor")==0){
+	//	temp->container->next=newNode->container;
 		ship->planLinkedList[row][column].linkedList=newNode;//
 		}else{
 			temp->next=newNode;
