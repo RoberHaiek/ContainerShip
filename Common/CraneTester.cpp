@@ -20,14 +20,39 @@ public:
 			return 0;
 		return 0;
 	}
+	
+	static int charToIntISO(char c, int index){
+		int erase =0;
+		if(c=='a' || c=='A'){
+			erase=55;
+		}else if((int)c>=int('B') && (int)c<=int('K') ||(int)c>=int('b') && (int)c<=int('k')){
+			erase=54;	
+		}else if((int)c>=int('L') && (int)c<=int('U')||(int)c>=int('l') && (int)c<=int('u')){
+			erase=53;
+		}else if((int)c>=int('V') && (int)c<=int('Z')||(int)c>=int('v') && (int)c<=int('z')){
+			erase=52;
+		}
 
+		if(index<4){
+				if((int)c>=int('A') && (int)c<=int('Z')){
+					return ((int)c-erase)*pow(2,index);
+				}else{
+					return ((int)c-erase-32)*pow(2,index);
+
+				}
+		
+		}else{
+			return ((int)c-48)*pow(2,index);
+		}
+	
+	}
 	// checks if the unique id of a container is valid
 	static int isValidId(std::string uniqueId){
 		if(uniqueId.length()!=11)
 			return 15;
-		for(int i=0;i<11;i++){
+		for(int i=0;i<10;i++){
 			if(i<3){
-				if(!((int)uniqueId[i]>=65 && (int)uniqueId[i]<=90)||((int)uniqueId[i]>=97 && (int)uniqueId[i]<=122)){
+				if(!(((int)uniqueId[i]>=65 && (int)uniqueId[i]<=90)|| ((int)uniqueId[i]>=97 && (int)uniqueId[i]<=122))){
 					return 15;
 				}
 			}
@@ -42,7 +67,18 @@ public:
 				}
 			}
 		}
-		return 0;
+		int sum=0;
+		for(int i=0;i<10;i++){
+		sum+=charToIntISO(uniqueId[i], i);
+		}
+		
+		int checkNumber= sum - int(sum/11) * 11;
+	//	cout << "the sum is "<<sum <<" and the checknum ="<<checkNumber<<" and the char is "<< (int)uniqueId[10]-48<<endl;
+	//	exit(1);
+		if(checkNumber==(int)uniqueId[10]-48){
+			return 0;
+		}
+		return 15;
 	}
 
 	static int isValidLoad(int row, int column, int floor, int shipWidth, int shipLength, int cellHeight, std::map<std::string,int*>* planMap, std::string uniqueId){
