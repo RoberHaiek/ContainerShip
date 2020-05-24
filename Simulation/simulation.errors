@@ -1,3 +1,17 @@
------------------Simulator--------1---------------------
-	* missing carfo files / there is additional cargo files
+-----------------Simulator-----------------------------
+	* missing cargo files / there is additional cargo files
 -------------------------------------------------------------------
+-----------------_123456789_b/TLV_TRAVEL-----------------------------
+	-2^15 - containers at port: illegal ID check ISO 6346 (ID rejected) 
+------------------------------------------------------------------
+-----------------_123456789_b/TLV_TRAVEL-----------------------------
+	-2^15 - containers at port: illegal ID check ISO 6346 (ID rejected) 
+	-2^17 - containers at port: last port has waiting containers (ignored)
+------------------------------------------------------------------
+-----------------_123456789_a/TLV_TRAVEL-----------------------------
+	-2^15 - containers at port: illegal ID check ISO 6346 (ID rejected) 
+------------------------------------------------------------------
+-----------------_123456789_a/TLV_TRAVEL-----------------------------
+	-2^15 - containers at port: illegal ID check ISO 6346 (ID rejected) 
+	-2^17 - containers at port: last port has waiting containers (ignored)
+------------------------------------------------------------------

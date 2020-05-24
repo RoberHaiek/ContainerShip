@@ -62,14 +62,14 @@ void parseResults (std::pair<string,std::vector<int>> const &pair, bool isFirstL
 cout<<"222222222222222222"<<endl;
 
 	if(!fd_results.is_open()&& isFirstLine){
-cout<<"222222222222222222222"<<endl;
+//cout<<"222222222222222222222"<<endl;
 
 		fd_results.open(output+"/"+"simulation.results");
 		fd_results<<"RESULTS,	";
-cout<<"222222222222222222222"<<endl;
+//cout<<"222222222222222222222"<<endl;
 
 		while(!travelQueue.empty()){
-cout<<"222222222222222222222"<<endl;
+//cout<<"222222222222222222222"<<endl;
 
 		fd_results<<travelQueue.front()<<",	";
 		travelQueue.pop();
@@ -77,7 +77,7 @@ cout<<"222222222222222222222"<<endl;
 		fd_results<<"Sum,	"<<"NumErrors"<<endl;
 	}
 	if(!isFirstLine){
-cout<<"333333333333333333333"<<endl;
+//cout<<"333333333333333333333"<<endl;
 
 		fd_results<<pair.first<<",	";
 		auto v=pair.second;
@@ -325,7 +325,7 @@ int checkInstructionPerPort(int portIndex,string** algoInstructions){
 
 
 //[3] called in [2]
-void simulateTravel(){
+int simulateTravel(){
 	  //intiate the ship and get the route
 	ErrorCode errCode;
 
@@ -333,31 +333,55 @@ void simulateTravel(){
 	string shipPlanName;
 	string routeName;
 	int err=getTheFileNameFromTheTravel(travelPath,"ship_plan",shipPlanName);
-	if(err!=0 && err!=-1){
-		handleError(output,"Simulator",err);
+	if(err!=0){
+		if(err==-1){
+			return 1;
+		}
+		status isIgnore =handleError(output,"Simulator",err);
+		if(isIgnore!=status::Ignore){
+			return 1;
+		}
 	}
 	err=getTheFileNameFromTheTravel(travelPath,"route",routeName);
-	/*if(err!=0 && err!=-1){
-		handleError(output,"Simulator",err);
-	}*/
+	if(err!=0){
+		if(err==-1){
+			return 1;
+		}
+		status isIgnore =handleError(output,"Simulator",err);
+		if(isIgnore!=status::Ignore){
+			return 1;
+		}
+	}
 	cout<<"********************the ship plane :"<<travelPath+"/"+shipPlanName<<"/n******************and the route : "<<travelPath+"/"+routeName<<endl;
 	shipPlanName=travelPath+"/"+shipPlanName+".ship_plan";
 	routeName=travelPath+"/"+routeName+".route";
 	err=initShipPlan(ship,shipPlanName);
-	if(err!=0 && err!=-1){
-		handleError(output,"Simulator",err);
+	if(err!=0){
+		if(err==-1){
+			return 1;
+		}
+		status isIgnore =handleError(output,"Simulator",err);
+		if(isIgnore!=status::Ignore){
+			return 1;
+		}
 	}
 	cout << "*initRoute"<<endl;
 	err=initRoute(route,routeName);
 	cout << "init route error is "<< err <<endl<<endl;
-	if(err!=0 && err!=-1){
-		handleError(output,"Simulator",err);
+	if(err!=0){
+		status isIgnore =handleError(output,"Simulator",err);
+		if(isIgnore!=status::Ignore){
+			return 1;}
 	}
+
 	cout << "*end_initRoute"<<endl;
 	
 	err=checkCargoFiles(travelPath);
-	if(err!=0 || err!=-1){
-		handleError(output,"Simulator","missing carfo files / there is additional cargo files");
+	if(err!=0){
+		if(err==1){
+			return 1;
+		}
+		handleError(output,"Simulator","missing cargo files / there is additional cargo files");
 	}
 	cout << "*end_checkCargoFiles"<<endl;
 	Port* ports = getPortsFromRoute(route);
@@ -373,8 +397,9 @@ void simulateTravel(){
 		const char *cstr = algorithm_path.c_str();
 		  DIR* fd_Algo=opendir(cstr);
 		  if(fd_Algo==NULL){
-			  std::cout << "ERROR[3][1]- can't open "<<algorithm_path<<std::endl; 
-				return;
+			 	
+				handleError(output,"Simulator","ERROR[3][1]- can't open "+algorithm_path);
+				return -1;
 			}
 
 		struct dirent *entry;
@@ -383,11 +408,13 @@ void simulateTravel(){
 			string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
 			if(algoName.compare("/")!=0){
 //cout << "the algoritim is : "<< algoName <<endl;
-				algoQueue.push(algoName);
+				
 				if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
-	        			std::cerr << error << '\n'; 
-            				return ;
+	        			std::cerr << error << '\n';
+					 handleError(output,"Simulator",algoName +" : bad with error : "+error);
+            				continue;
         			}
+				algoQueue.push(algoName);
 //cout << "*good_regestration"<<endl;
 				flag=1;
 
@@ -407,12 +434,23 @@ void simulateTravel(){
 		algoQueue.pop();
 	cout << endl<<endl<<"##################### Algo = "<<algoName<<"##################"<<endl<<endl;
 		auto algo = (*algo_iter)();
-		int errShipPlanAlgo=algo->readShipPlan(shipPlanName);
-		int errRouteAlgo=algo->readShipRoute(routeName);
-		if(errShipPlanAlgo || errRouteAlgo){
-			cout<< "??????????????error in shipPlan or in route??????????????" << endl;
-			break;
-		}
+		err=algo->readShipPlan(shipPlanName);
+		if(err!=0){
+		status isIgnore =handleError(output,algoName+"/"+travelName,err);
+		if(isIgnore!=status::Ignore){
+			return 1;}
+			}
+
+		err=algo->readShipRoute(routeName);
+		if(err!=0){
+		status isIgnore =handleError(output,algoName+"/"+travelName,err);
+		if(isIgnore!=status::Ignore){
+			return 1;}
+			}
+		//whightBalance
+		WeightBalanceCalculator calculator;
+		algo->setWeightBalanceCalculator( calculator);
+
 		//make directory
 		string makeDir=algoName+"_"+travelName+"_crane_instructions";
 		const char *cstr = makeDir.c_str();
@@ -448,13 +486,17 @@ void simulateTravel(){
 		string input;
 		if(isEmpty){
 		input="emptyFiles/"+FileNameCarge;
+		handleError(output,"Simulator","missing cargo files :"+FileNameCarge +"sending empty file");
 		}else{
 		input=travelPath+"/"+FileNameCarge;
 		}
-		int errGetCargo=algo->getInstructionsForCargo(input, output+"/"+makeDir+"/"+FileNameInstruction);
-		if(errGetCargo!=0){
-			cout<<"errror in get cargo for instruction  " << errGetCargo<<endl;
-		}
+		err=algo->getInstructionsForCargo(input, output+"/"+makeDir+"/"+FileNameInstruction);
+		if(err!=0){
+		status isIgnore =handleError(output,algoName+"/"+travelName,err);
+		if(isIgnore!=status::Ignore){
+			return 1;}
+			}
+
 		
 		//validate 
 		cout<<"instructions "<<endl;

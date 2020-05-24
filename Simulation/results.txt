@@ -1,3 +1,0 @@
-********Travel name= TLV_TRAVEL
-	Algorithem name=StowageAlgo
-	

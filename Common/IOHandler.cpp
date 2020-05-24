@@ -408,8 +408,8 @@ int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNe
 	const char *cstr = travelPath.c_str();
 	DIR* fd_travel=opendir(cstr);
 	if(fd_travel==NULL){
-		//string errorMsg="ERROR[22][1]- can't open "+travelPath+" (exiting the travel)";
-		//handleError(errorOutputPath,"Simulator",errorMsg);
+		string errorMsg="ERROR[22][1]- can't open "+travelPath+" (exiting the travel)";
+		handleError(errorOutputPath,"Simulator",errorMsg);
 		return -1;
 	}
 	int numOfFilesWithTheExtention=0;
@@ -421,8 +421,8 @@ int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNe
 		if(currFile.compare("/")!=0){
 //cout<<"-*-*-*-*-*-"<<entry->d_name<<endl;
 			if(numOfFilesWithTheExtention>0){
-				//string errorMsg="***ERROR[22][2]: too many "+extention+" files (exiting the travel)";
-				//handleError(errorOutputPath,errorMsg);
+				string errorMsg="***ERROR[22][2]: too many "+extention+" files (exiting the travel)";
+				handleError(errorOutputPath,"Simulator",errorMsg);
 				return (extention.compare("route") ? (int)ErrorID::TravelRouteEmptyOrCantReadFile : (int)ErrorID::ShipPlanBadFirstLine);
 			}
 			theNeededFile=currFile;
@@ -431,8 +431,8 @@ int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNe
 			
 	}
 	if(numOfFilesWithTheExtention==0){
-		//string errorMsg="***ERROR[22][3]: no "+extention+" file (exiting the travel)";
-		//handleError(errorOutputPath,errorMsg);
+		string errorMsg="***ERROR[22][3]: no "+extention+" file in <<travelPath<<(exiting the travel)";
+		handleError(errorOutputPath,"Simulator",errorMsg);
 		return (extention.compare("route")==0 ? (int)ErrorID::TravelRouteEmptyOrCantReadFile : (int)ErrorID::ShipPlanBadFirstLine);
 
 	}
@@ -445,7 +445,9 @@ int checkCargoFiles(string travelPath){
 	const char *cstr = travelPath.c_str();
 	DIR* fd_travel=opendir(cstr);
 	if(fd_travel==NULL){
-		return -1;
+		string errorMsg="***ERROR: can't open "+travelPath;
+		handleError(errorOutputPath,"Simulator",errorMsg);
+		return ERROR;
 	}
 	struct dirent *entry;
     	while ((entry = readdir(fd_travel)))
@@ -487,7 +489,7 @@ int checkCargoFiles(string travelPath){
 	}
 //cout<<"end loop"<<endl;
 	if(numOfCargoFiles!=0){
-		return ERROR;
+		return -1;
 	}
 	return SUCCESS;
 	
