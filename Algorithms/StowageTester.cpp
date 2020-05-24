@@ -10,22 +10,18 @@ public:
 	}
 
 	// checks if a container's destination port is in route
-	static bool isInRoute(std::string destPort, Port* route,int routeIndex){
+	static int isInRoute(std::string destPort, Port* route,int routeIndex){
 		int sizeArray=sizeOfArray(route);
 		//std::cout<<"isInRoute size= "<< sizeArray<<" dst: "<<destPort <<" route[1] :"<<route[1].toString()<<std::endl;
 		if(routeIndex==sizeArray-1){
-			return false;
+			return -1;
 		}
-		if(destPort.compare(route[routeIndex].toString())==0){
-				return false;
-			}
-		
 		for(int i=routeIndex+1;i<sizeArray;i++){
 			if(destPort.compare(route[i].toString())==0){
-				return true;
+				return 0;
 			}
 		}
-		return false;
+		return -1;
 	}
 
 };

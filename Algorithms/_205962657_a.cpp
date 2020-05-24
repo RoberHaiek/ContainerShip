@@ -96,18 +96,18 @@ public:
 		string fileName=getTheFileName(input_full_path_and_file_name);
 		cout<<"111111111111 "<<input_full_path_and_file_name <<"  and the filename is : "<<fileName<<endl;
 		
-		
+		int error = 0;
 		getRouteIndex(routeIndex,fileName);
 		cout<<"222222222222"<<endl;
 		cout<<"the index in get inst ="<<routeIndex<<endl;
 		Container* containers=parseCargoFile(input_full_path_and_file_name);
 		cout<<"the first container is :"<<containers[0].uniqueId<<endl;
-		unloadingAlgo(routeIndex);
-		loadingAlgo(containers, weightBalance);
+		error = error | unloadingAlgo(routeIndex);
+		error = error | loadingAlgo(containers, weightBalance);
 		fillInstructions(Action::REJECT, "last", "last", "last", "last");
 		instructionsOut(currentInstructions,output_full_path_and_file_name);
 		this->instNum = 0;
-		return 0;
+		return error;
 	}
 
 	void fillInstructions(Action LUR, std::string uniqueId, std::string height, std::string row,
@@ -121,7 +121,8 @@ public:
 		instNum = instNum + 1;
 	}
 	// the logic for unloading the containers to a port
-	void unloadingAlgo(int i) {
+	int unloadingAlgo(int i) {
+		int error = 0;
 		bool popAllAbove; // true if we're popping a container from a stack and we need to pop all above it
 		struct node *currentContainer;
 		std::string* indxes;
@@ -137,8 +138,9 @@ public:
 				while(currentContainer !=NULL) {		// starting from the bottom !!!
 					if (currentContainer->container->destPort.toString() == route[i].toString()) {// does ship container belong to ship port?
 						int *dimensions = ship->planMap->find(currentContainer->container->uniqueId)->second;
-							if (CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]) == 0) {
-									node *temp = crane.unload(*(currentContainer->container),row, column,this->ship->planLinkedList[row][column].size);
+						error = error | CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]);
+						if (error == 0) {
+							node *temp = crane.unload(*(currentContainer->container),row, column,this->ship->planLinkedList[row][column].size);
 							currentContainer = temp->next;
 							tempContainers.push_front(temp);
 							indxes=new std::string[3];
@@ -148,7 +150,8 @@ public:
 					} else {	// ship container does NOT belong to ship port
 						if (popAllAbove) {	// but should I put it in temp?
 							int *dimensions = ship->planMap->find(currentContainer->container->uniqueId)->second;
-							if (CraneTester::isValidUnload(row, column, dimensions[0], dimensions[1]) == 0) {
+							error = error | CraneTester::isValidUnload(row, column, dimensions[0], dimensions[1]);
+							if (error == 0) {
 								node *temp = crane.unload(*(currentContainer->container),row,column,this->ship->planLinkedList[row][column].size);
 								currentContainer = temp->next;
 								tempContainers.push_front(temp);
@@ -195,20 +198,24 @@ public:
 
 			}
 		}
+		return error;
 	}
 
 // the logic for loading the containers from a port
-	void loadingAlgo(Container *PortInstructions, bool (*weightBalance)()) {
+	int loadingAlgo(Container *PortInstructions, bool (*weightBalance)()) {
+		int error = 0;
 		bool breakIt = false;		// move to the next container from the port instructions list
 		struct node currentContainer;
 		Crane crane = Crane(this->ship);
 		for (int p = 0; p < sizeOfArray(PortInstructions); p++) {	// for each container in the instructions
 			currentContainer.container = &(PortInstructions[p]);
-			if (!isRejected(currentContainer)) {	// if its not rejected
+			error = error | isRejected(currentContainer);
+			if (error == 0) {	// if its not rejected
 				for (int row = 0; row < ship->shipWidth; row++) {	// for each row
 					for (int column = 0; column < ship->shipLength; column++) {	// for each column
 						if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
-							if (CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId) == 0) {
+							error = error | CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId);
+							if (error == 0) {
 								crane.load(currentContainer.container, row,column,this->ship->planLinkedList[row][column].size);	// load it
 								fillInstructions(Action::LOAD, currentContainer.container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size-1)), std::to_string(row), std::to_string(column));	// edit instructions
 								breakIt = true;
@@ -223,6 +230,7 @@ public:
 				}
 			}
 		}
+		return error;
 	}
 
 /*test result print */
@@ -238,16 +246,18 @@ void printTestResults(node  currentContainer){
 
 
 // rejection test
-	bool isRejected(node currentContainer) {
+	int isRejected(node currentContainer) {
 		printTestResults(currentContainer);
-		if (StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex) == 0	// is the container's destination NOT port in route?
-				|| CraneTester::isFull(this->ship) != 0																// is the ship full?
-					|| CraneTester::isValidId(currentContainer.container->uniqueId) != 0							// is the container's unique ID invalid?
-						|| CraneTester::isLegalWeight(currentContainer.container->weight) != 0	) {					// is the container's weight illegal?
+		int error = 0;
+		error = error | StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex);
+		error = error | CraneTester::isFull(this->ship);
+		error = error | CraneTester::isValidId(currentContainer.container->uniqueId);
+		error = error | CraneTester::isLegalWeight(currentContainer.container->weight);
+		if(error != 0){
 			fillInstructions(Action::REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");
-			return true;
+			return error;
 		}
-		return false;
+		return 0;
 	}
 
 	/*/

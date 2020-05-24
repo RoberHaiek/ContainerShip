@@ -1,4 +1,5 @@
 #include "Ship.cpp"
+#include <math.h>
 
 class CraneTester{
 public:
@@ -11,7 +12,7 @@ public:
 				}
 			}
 		}
-		return 17;
+		return pow(2,17);
 	}
 
 	// checks if the container weight is legal
@@ -49,47 +50,50 @@ public:
 	// checks if the unique id of a container is valid
 	static int isValidId(std::string uniqueId){
 		if(uniqueId.length()!=11)
-			return 15;
+			return pow(2,15);
 		for(int i=0;i<10;i++){
 			if(i<3){
 				if(!(((int)uniqueId[i]>=65 && (int)uniqueId[i]<=90)|| ((int)uniqueId[i]>=97 && (int)uniqueId[i]<=122))){
-					return 15;
+					cout <<" and the char is "<< (int)uniqueId[10]-48<<endl;
+					return pow(2,15);
 				}
 			}
 			if(i==3){
 				if(!((int)uniqueId[i]==74 || (int)uniqueId[i]==85 || (int)uniqueId[i]==90 || (int)uniqueId[i]==106 || (int)uniqueId[i]==117 || (int)uniqueId[i]==122)){
-					return 15;
+					cout <<" and the char is "<< (int)uniqueId[10]-48<<endl;
+					return pow(2,15);
 				}
 			}
 			if(i>3){
 				if(!((int)uniqueId[i]>=48 && (int)uniqueId[i]<=57)){
-					return 15;
+					cout <<" the char is "<< (int)uniqueId[10]-48<<endl;
+					return pow(2,15);
 				}
 			}
 		}
 		int sum=0;
 		for(int i=0;i<10;i++){
 		sum+=charToIntISO(uniqueId[i], i);
+		cout <<" and the char is "<< (int)uniqueId[10]-48<<endl;
 		}
 		
 		int checkNumber= sum - int(sum/11) * 11;
-	//	cout << "the sum is "<<sum <<" and the checknum ="<<checkNumber<<" and the char is "<< (int)uniqueId[10]-48<<endl;
 	//	exit(1);
 		if(checkNumber==(int)uniqueId[10]-48){
 			return 0;
 		}
-		return 15;
+		return pow(2,15);
 	}
 
 	static int isValidLoad(int row, int column, int floor, int shipWidth, int shipLength, int cellHeight, std::map<std::string,int*>* planMap, std::string uniqueId){
 		if(floor>=cellHeight || floor<0){
-			return 1;
+			return pow(2,1);
 		}
 		if(row>=shipWidth || row<0 || column>=shipLength || column<0){
-			return 1;
+			return pow(2,1);
 		}
 		if(planMap->find(uniqueId) != planMap->end()){
-			return 11;
+			return pow(2,11);
 		}
 		return 0;
 	}
@@ -110,13 +114,13 @@ public:
 	
 	static int isDuplicateIdOnShip(std::map<std::string,int*>* planMap, std::string uniqueId){
 		if(planMap->find(uniqueId) != planMap->end()){
-			return 10;
+			return pow(2,10);
 		}
 		return 0;
 	}
 	static int lastPortHasContainers(int size){
 		if(size != 0 ){
-			return 18;
+			return pow(2,18);
 		}
 		return 0;
 	}

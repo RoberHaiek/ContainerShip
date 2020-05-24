@@ -97,10 +97,10 @@ cout<<"222222222222222222"<<endl;
 // rejection test
 	int isRejected(node currentContainer, Ship *ship,Port* route, int routeIndex) {
 		int error = 0;
-		error+=StowageTester::isInRoute(currentContainer.container->destPort.toString(),route,routeIndex);	// is the container's destination NOT port in route?
-		error+=CraneTester::isValidId(currentContainer.container->uniqueId);						// is the container's unique ID invalid?
-		error+=CraneTester::isDuplicateIdOnShip(ship->planMap,currentContainer.container->uniqueId);				// is the container's unique ID already on the ship?
-		error+=CraneTester::isLegalWeight(currentContainer.container->weight);						// is the container's weight illegal?
+		error = error | StowageTester::isInRoute(currentContainer.container->destPort.toString(),route,routeIndex);	// is the container's destination NOT port in route?
+		error = error | CraneTester::isValidId(currentContainer.container->uniqueId);						// is the container's unique ID invalid?
+		error = error | CraneTester::isDuplicateIdOnShip(ship->planMap,currentContainer.container->uniqueId);				// is the container's unique ID already on the ship?
+		error = error | CraneTester::isLegalWeight(currentContainer.container->weight);						// is the container's weight illegal?
 		return error;
 	}
 
@@ -122,7 +122,7 @@ return -1;}
 		column = std::stoi(currentInstructions[i][3]);
 		// Is the command load/reject?
 		if(currentInstructions[i][0] == "L" || currentInstructions[i][0] == "R"){
-			error+=isRejected(currentContainer,ship,route,routeIndex);
+			error = error | isRejected(currentContainer,ship,route,routeIndex);
 			// Should the container be rejected according to the algorithm?
 			if(currentInstructions[i][0] == "R"){
 				// Was it really rejected?
@@ -141,7 +141,7 @@ return -1;}
 				std::cout << "Illegal algorithm command: Container " << currentContainer.container->uniqueId << " should have been rejected \n";
 				return -1;
 			}
-			error+=CraneTester::isValidLoad(row, column, ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId);
+			error = error | CraneTester::isValidLoad(row, column, ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId);
 			// Does the container exceed ship height limit?
 			if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight) {
 				// Was the load valid?
@@ -162,7 +162,7 @@ return -1;}
 		// Is the command unload?
 		if(currentInstructions[i][1] == "U"){
 			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
-			error+=CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]);
+			error = error | CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]);
 			// Can we unload legally?
 			if (error == 0) {
 				node *temp = crane.unload(*(currentContainer.container),row, column,ship->planLinkedList[row][column].size);
@@ -491,6 +491,7 @@ int simulateTravel(){
 		input=travelPath+"/"+FileNameCarge;
 		}
 		err=algo->getInstructionsForCargo(input, output+"/"+makeDir+"/"+FileNameInstruction);
+		std::cout << "\n \n \n Error number: " << err << "\n \n \n";
 		if(err!=0){
 		status isIgnore =handleError(output,algoName+"/"+travelName,err);
 		if(isIgnore!=status::Ignore){
