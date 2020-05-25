@@ -114,7 +114,7 @@ int getNumOfInstructions(string** instructions){
 	
 }
 int isItFineInstructions(string** instructions,string file_name , int routeIndex){
-
+cout << "file_name is "<<file_name<<endl;
 	Container* containers=parseCargoFile(file_name);
 
 	int sizeArray=sizeOfArray(containers);
@@ -133,18 +133,18 @@ int isItFineInstructions(string** instructions,string file_name , int routeIndex
 		}
 
 		if(last_port){
-			if(array[0]!="U" && array[0]!="M"){//no R/L actions in the last Port 
+			if(array[0]=="L" || array[0]=="M"){//no R/L actions in the last Port 
 					return ERROR;
 			}
 		}
 
 		if(!last_port){
-			if(array[0]=="U" && flag_load){ return ERROR;}
+			if(array[0]=="U" && flag_load){return ERROR;}
 		}
 				
 	}
 		
-	
+	if(!last_port){
 	for(int index=0;containers[index].uniqueId!="last";index++){
 		for(int i=0;instructions[i][0]!="last";i++){
 			string * array=instructions[i];
@@ -160,10 +160,9 @@ int isItFineInstructions(string** instructions,string file_name , int routeIndex
 		cout << endl<< "SUCCESS"<<endl;
 		return SUCCESS;	
 	}
-	//cout << "88888888888888888888888888888" <<endl;
-	//exit(1);
-
 	return ERROR;
+}
+return SUCCESS;
 }
 
 // rejection test
@@ -479,6 +478,8 @@ int checkInstructionPerPort(int portIndex,string** algoInstructions){
 int simulateTravel(){
 	  //intiate the ship and get the route
 	ErrorCode errCode;
+cout<< endl << "DELETING THE EMPTY FILES" << endl<< endl<< endl;
+emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 
 	cout << "*initShipPlan"<<endl;
 	string shipPlanName;
@@ -578,6 +579,7 @@ int simulateTravel(){
     	}
 	if(flag){
 	travelQueue.push(travelName);
+	travelNum++;
 	cout<<"******starting the loop over the algos **********"<<endl;
 	cout << endl<<endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<<"#==#==#==#==#==#==#==#"<<endl<<endl;
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
@@ -589,14 +591,14 @@ int simulateTravel(){
 		if(err!=0){
 		status isIgnore =handleError(output,algoName+"/"+travelName,err);
 		if(isIgnore!=status::Ignore){
-			return 1;}
+			 continue;}
 			}
 
 		err=algo->readShipRoute(routeName);
 		if(err!=0){
 		status isIgnore =handleError(output,algoName+"/"+travelName,err);
 		if(isIgnore!=status::Ignore){
-			return 1;}
+			continue;}
 			}
 		//whightBalance
 		WeightBalanceCalculator calculator;
@@ -646,7 +648,7 @@ int simulateTravel(){
 		if(err!=0){
 		status isIgnore =handleError(output,algoName+"/"+travelName,err);
 		if(isIgnore!=status::Ignore){
-			return 1;}
+			continue;}
 			}
 
 		
@@ -664,7 +666,7 @@ cout<<"11111111111111111 "<<endl;
 		if(instructions!=NULL){
 cout<<"isItFineInstructions starts--------------"<<endl;
 			err=isItFineInstructions(instructions,input,routeIndex);
-cout<<"isItFineInstructions ends ----------"<<endl;
+cout<<endl<<"isItFineInstructions ends ---with err= "<< err<<"-------"<<endl<<endl;
 			if(err!=ERROR){
 				numOfInstructions=getNumOfLines(fd_info);//get container size
 				cout<<"validation "<<endl;
@@ -688,29 +690,29 @@ cout<<"isItFineInstructions ends ----------"<<endl;
 			resMap[algoName]=v;
 		
 		}
-	numOfInstructions=getNumOfInstructions(instructions);
+			numOfInstructions=getNumOfInstructions(instructions);
 
-		//if(err){numOfInstructions=-1;}//new
-		if(firstTiem==1){
-			isThere=resMap.find(algoName);
-			(isThere->second).resize(travelNum+3);
+			if(firstTiem==1){
+				isThere=resMap.find(algoName);
+				(isThere->second).resize(travelNum+2);
 
-			(isThere->second).push_back(0);
-			firstTiem=0;}
-			if(err!=0 || (isThere->second)[travelNum+2]<0){
-				(isThere->second)[travelNum+2]=-1;
-				}else{
-					(isThere->second)[travelNum+2]+=numOfInstructions;
-				}
+				(isThere->second).push_back(0);
+				firstTiem=0;
+			}
+			if(err!=0 || (isThere->second)[travelNum+1]<0){
+				(isThere->second)[travelNum+1]=-1;
+			}else{
+					(isThere->second)[travelNum+1]+=numOfInstructions;
+			}
 		
 			}
-
+			
 
 		
 		}	
 	}
 	
-	travelNum++;
+	
 }
 
 //[2] called in [1]

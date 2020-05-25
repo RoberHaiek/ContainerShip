@@ -1,0 +1,8 @@
+#<floors>,<length-x>,<width-y>
+6,2,2
+#actual floor number
+0,0,2
+1,1,1
+1,0,5
+0,0,3
+0,1,3

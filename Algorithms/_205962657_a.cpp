@@ -125,10 +125,14 @@ public:
 cout<<"finish unloading ?>?>?>?>"<<endl;
 		int sizeArray=sizeOfArray(containers);
 		//is it the last route
-		if(routeIndex==sizeArray-1 && notBadPort){
+cout<<"last Port ????????? routeIndex="<<routeIndex<<"==routeSize-1="<<(routeSize-1)<<"?????????????"<<endl;
+
+		if((routeIndex==routeSize-1) && notBadPort){
 			//is it have cargo on it
+cout<<"last Port have containers ?????????"<<(containers[0].uniqueId.compare("last")!=0)<<"?????????????"<<endl;
 			if(containers[0].uniqueId.compare("last")!=0){
-			error|=(int)pow(2,17);}
+			error|=(int)pow(2,17);
+cout<<"last Port have containers ??????????err="<<error<<"??????????????????"<<endl;}
 			notBadPort=0;
 		}
 		if(notBadPort){
@@ -252,6 +256,10 @@ void loadAgain(node *temp){
 						indexies.push_back(indx);
 					}
 				}
+}
+}
+				node *popedElem;//
+				std::string *indx;
 				while (!loadBackContainers.empty()) {
 					popedElem = loadBackContainers.back();
 					indx=indexies.back();
@@ -268,8 +276,8 @@ void loadAgain(node *temp){
 
 				}
 
-			}
-		}
+		//	}
+	//	}
 
 		return error;
 	}
