@@ -136,6 +136,10 @@ string getCargoFileName(int portIndex,bool cargoData){
 	//checking the access to the file
 	if(!fd_info){
 		std::cout << "ERROR[8][1]- can't open "<< filePath<< std::endl;
+		containers=new Container[1];
+		containers[containerNum]=Container(0,Port(""),"last");
+		return containers;
+
 	}
 	
 	containerNum=getNumOfLines(fd_info);//get container size

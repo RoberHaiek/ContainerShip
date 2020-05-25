@@ -1,6 +1,6 @@
 #include "../Interfaces/AbstractAlgorithm.h"
 #include "../Interfaces/AlgorithmRegistration.h"
-#include "../Interfaces/IOHandler.h"
+#include "../Common/IOHandler.cpp"
 #include <cctype>
 #include <iostream>
 #include <queue>
@@ -117,7 +117,6 @@ public:
 		if(!fd_info){
 		notBadPort=0;
 		error|=(int)pow(2,16);
-		exit(1);
 		}
 
 		Container* containers=parseCargoFile(input_full_path_and_file_name);
@@ -240,12 +239,18 @@ public:
 		struct node currentContainer;
 		Crane crane = Crane(this->ship);
 		for (int p = 0; p < sizeOfArray(PortInstructions); p++) {	// for each container in the instructions
+	
 			currentContainer.container = &(PortInstructions[p]);
-			is_regected=error | isRejected(currentContainer);
-			if(is_regected!=-1){
-				error|=is_regected;
+			cout<<endl<<endl<<currentContainer.container->uniqueId<<endl<<endl;
+			is_regected=isRejected(currentContainer);
+			if(is_regected!=0 && is_regected==-1){
+				if(is_regected==-1){
+				}else{
+				error|=is_regected;}
+				cout<<"***** rejected"<<endl;	
 			}
 			if (is_regected== 0) {	// if its not rejected
+				cout<<"***** NOT ! rejected"<<endl;
 				for (int row = 0; row < ship->shipWidth; row++) {	// for each row
 					for (int column = 0; column < ship->shipLength; column++) {	// for each column
 						if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
@@ -292,7 +297,8 @@ void printTestResults(node  currentContainer){
 		int tmpError=0;
 		tmpError=StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex);
 		if(tmpError!=0){
-			rejectFlag=1;
+			rejectFlag=-1;
+			error = -1;
 		}
 		tmpError=CraneTester::isFull(this->ship);
 		if(tmpError!=0){

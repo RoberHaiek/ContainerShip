@@ -93,6 +93,68 @@ cout<<"222222222222222222"<<endl;
 }
 
 /*-------------------------------------------------------------------------------------------------------------*/
+int sizeOfArray(Container *array) {
+		int c = 0;
+		while (true) {
+			if (array[c].uniqueId == "last")
+				return c;
+			c++;
+		}
+		return 0;
+	}
+
+int isItFineInstructions(string** instructions,string file_name , int routeIndex){
+cout<<"1111111111111"<<endl;
+	Container* containers=parseCargoFile(file_name);
+cout<<"22222222222222222"<<endl;
+	int sizeArray=sizeOfArray(containers);
+	int flag_load=0;
+	std::set<int> indexes;
+	int last_port=0;
+cout<<"33333333333333333333"<<endl;
+
+	if(routeSize-1==routeIndex){
+		last_port=1;
+	}
+	int numOfInstructins_reject_load=0;
+	for(int i=0;instructions[i][0]!="last";i++){
+cout<<"44444444444 the i="<<i<<endl;
+		string * array=instructions[i];
+		if(array[0]=="L"){
+			flag_load=1;
+		}
+
+		if(last_port){
+			if(array[0]!="L" || array[0]!="M"){//no R/U actions in the last Port 
+				return ERROR;
+			}
+		}
+
+		if(!last_port){
+			if(array[0]=="U" && flag_load){ return ERROR;}
+			if(array[0]=="L" || array[0]=="R"){
+				numOfInstructins_reject_load++;
+				for(int index=0;containers[index].uniqueId!="last";index++){
+cout<<"55555555555555 the index="<<index<<endl;
+cout<<"66666666666666 array[i]="<<array[1]<<", with, containers[index].uniqueId="<<containers[index].uniqueId<<endl;
+					if(array[1]==containers[index].uniqueId && (array[0]=="L" || array[0]=="R")){
+						if(indexes.count(index)!=0){
+							return ERROR;
+						}
+						indexes.insert(index);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	if(numOfInstructins_reject_load==indexes.size()){
+		cout << endl<< "SUCCESS"<<endl;
+		return SUCCESS;	
+	}
+	return ERROR;
+}
 
 // rejection test
 	int isRejected(node currentContainer, Ship *ship,Port* route, int routeIndex) {
@@ -306,7 +368,7 @@ int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICA
 				}else{
 					err =getElem(line,seek,',');fivedArray[4]=string(parse_out);
 					if(err!=SUCCESS){
-						return err;
+						return ERROR;
 					}
 					err=getElem(line,seek,',');
 					if(err!=ERROR || seek<=(int)line.length()){
@@ -555,7 +617,7 @@ int simulateTravel(){
 			//cout<< string(*it);
 			}
 			//cout<<"is empty ??? : "<<it <endl;
-			string makeDirc="emptyFiles";
+			string makeDirc=output+"/"+"emptyFiles";
 			const char *cstr = makeDirc.c_str();
 			mkdir (cstr,0777);
 			ofstream fd;
@@ -581,70 +643,56 @@ int simulateTravel(){
 		//validate 
 		cout<<"instructions "<<endl;
 		string **instructions=ReadExpectedInstructions( output+"/"+makeDir+"/"+FileNameInstruction);
+cout<<"11111111111111111 "<<endl;
 		ifstream fd_info;
 		fd_info.open( output+"/"+makeDir+"/"+FileNameInstruction,ios_base::in);//open the file
 		//checking the access to the file
-		if(!fd_info){
-		std::cout << "ERROR[8][1]- can't open "<< output+"/"+makeDir+"/"+FileNameInstruction<< std::endl;
+			if(!fd_info){
+			std::cout << "ERROR[8][1]- can't open "<< output+"/"+makeDir+"/"+FileNameInstruction<< std::endl;
+			}
+			int numOfInstructions;
+		if(instructions!=NULL){
+cout<<"isItFineInstructions starts--------------"<<endl;
+			err=isItFineInstructions(instructions,input,routeIndex);
+cout<<"isItFineInstructions ends ----------"<<endl;
+			if(err!=ERROR){
+				numOfInstructions=getNumOfLines(fd_info);//get container size
+				cout<<"validation "<<endl;
+				 err=0;//= validateAlgorithm(instructions, numOfInstructions, ports[routeIndex], ship, ports, routeIndex);
+				//cout<<"VALIDATION==========================="<<validation<<endl;
+			}
+		}else{
+			err=ERROR;
 		}
 
-		int numOfInstructions=getNumOfLines(fd_info);//get container size
-		cout<<"validation "<<endl;
-		int validation=0;//= validateAlgorithm(instructions, numOfInstructions, ports[routeIndex], ship, ports, routeIndex);
-		//cout<<"VALIDATION==========================="<<validation<<endl;
-		
+			//results parsing 
+			cout<<"its time to play"<<endl;
+			auto isThere=resMap.find(algoName);
 
-		//results parsing 
-		cout<<"its time to play"<<endl;
-		auto isThere=resMap.find(algoName);
-//cout<<"111111111111111111111"<<endl;
+			if(isThere==resMap.end()){
+			//add algo to the map
 
-		if(isThere==resMap.end()){
-		//add algo to the map
-//cout<<"1111111111111111.000"<<endl;
-
-		std::vector<int> v=vector<int>();
-//cout<<"1111111111111111.000"<<endl;
-		v.push_back(0);
-		v.push_back(0);
-//cout<<"111111111111111...111  "<<v[0]<< endl;
-		resMap[algoName]=v;
-//cout<<"111111111111111...222"<<endl;
+			std::vector<int> v=vector<int>();
+			v.push_back(0);
+			v.push_back(0);
+			resMap[algoName]=v;
 		
 		}
-//cout<<"22222222222222222"<<endl;
 
-		//if(error){numOfInstructions=-1;}
+		//if(err){numOfInstructions=-1;}//new
 		if(firstTiem==1){
-//cout<< "@@@@@@@@@@@@@@@ capicity = "<<(isThere->second).capacity()<<"  ";
-		isThere=resMap.find(algoName);
-		(isThere->second).resize(travelNum+3);
-		//cout<<"newcapacity="<<(isThere->second).capacity()<<endl;
+			isThere=resMap.find(algoName);
+			(isThere->second).resize(travelNum+3);
 
-		(isThere->second).push_back(0);
-		firstTiem=0;}
-//cout<<"@@@@@@@@@ algoName " <<algoName<<"    routeInd="<<routeIndex <<"    (isThere->second)[travelNum+2]="<<(isThere->second)[travelNum+2]<<"+="<<numOfInstructions;
-//cout<< "@@@@@@@@the vector : ";
-//for(auto it=(isThere->second).begin();it!=(isThere->second).end();it++){
-	//cout<<*it<< ",";
-//}
-cout<<endl;
-		if(validation!=0 || (isThere->second)[travelNum+2]<0){
-			(isThere->second)[travelNum+2]=-1;
-		}else{
-		(isThere->second)[travelNum+2]+=numOfInstructions;
-		}
-
-//cout << "---->"<<	(isThere->second)[travelNum+2]<<endl;	
+			(isThere->second).push_back(0);
+			firstTiem=0;}
+			if(err!=0 || (isThere->second)[travelNum+2]<0){
+				(isThere->second)[travelNum+2]=-1;
+				}else{
+					(isThere->second)[travelNum+2]+=numOfInstructions;
+				}
 		
-//cout<<"2333333333333333333"<<endl;
-		
-		/*if(check==SUCCESS){
-			parseResults (algoName,travelName,numInstructions,routeIndex+1);
-		}else{
-			parseResults (algoName,travelName,numInstructions,0-(routeIndex+1));
-		}*/
-	}
+			}
 
 
 		
