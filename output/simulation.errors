@@ -1,0 +1,22 @@
+-----------------Simulator-----------------------------
+	* missing cargo files / there is additional cargo files
+-------------------------------------------------------------------
+-----------------_205962657_a/TLV_TRAVEL-----------------------------
+	-2^15 - containers at port: illegal ID check ISO 6346 (ID rejected) 
+------------------------------------------------------------------
+-----------------_205962657_a/TLV_TRAVEL-----------------------------
+	-2^17 - containers at port: last port has waiting containers (ignored)
+------------------------------------------------------------------
+-----------------_209469691_a /TLV_TRAVEL-----------------------------
+	-2^0 - ship plan: a position has an equal number of floors, or more, than the number of floors provided in the first line (ignored) 
+------------------------------------------------------------------
+-----------------_209469691_a /TLV_TRAVEL-----------------------------
+	-2^1 - ship plan: a given position exceeds the X/Y ship limits (ignored) 
+	-2^6 - travel route: bad port symbol format (ignored)
+------------------------------------------------------------------
+-----------------_209469691_a /TLV_TRAVEL-----------------------------
+	-2^15 - containers at port: illegal ID check ISO 6346 (ID rejected) 
+------------------------------------------------------------------
+-----------------_209469691_a /TLV_TRAVEL-----------------------------
+	-2^17 - containers at port: last port has waiting containers (ignored)
+------------------------------------------------------------------

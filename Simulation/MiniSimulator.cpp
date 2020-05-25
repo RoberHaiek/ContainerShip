@@ -272,6 +272,8 @@ string** ReadExpectedInstructions(string cargoFileName){
 		std::cout << "ERROR[13][1]- can't open "<< cargoFileName<< std::endl;
 		return NULL;
 	}
+cout << "getting num of lines ******"<<endl; 
+
 	int lineNum = getNumOfLines(fd_info);
 	expectedInstructions = new string*[lineNum+1];//the +1 used as indicator of the last container
 	for(int i = 0;i < lineNum+1;i++){
@@ -282,8 +284,9 @@ string** ReadExpectedInstructions(string cargoFileName){
 	int instructionIndex=0;
 	string line;
 	int seek; 
+cout << "reading expected ******"<<endl; 
 	while(getline(fd_info,line)){
-		if(line.at(0)=='#'){
+		if(line=="" || line.at(0)=='#'){
 			continue;
 		}else{
 			seek=0;
@@ -301,6 +304,8 @@ string** ReadExpectedInstructions(string cargoFileName){
 	if(fd_info.is_open()){
 		fd_info.close();
 	}
+cout << "finish expected ******"<<endl; 
+
 	return expectedInstructions;
 }
 //[12]
@@ -452,7 +457,7 @@ int simulateTravel(){
 		algo->setWeightBalanceCalculator( calculator);
 
 		//make directory
-		string makeDir=algoName+"_"+travelName+"_crane_instructions";
+		string makeDir=output+"/"+algoName+"_"+travelName+"_crane_instructions";
 		const char *cstr = makeDir.c_str();
 		int err= mkdir (cstr,0777);
 		if(err){	
@@ -480,17 +485,17 @@ int simulateTravel(){
 			const char *cstr = makeDirc.c_str();
 			mkdir (cstr,0777);
 			ofstream fd;
-			fd.open("emptyFiles/"+FileNameCarge);
+			fd.open(output+"/"+"emptyFiles/"+FileNameCarge);
 			isEmpty=1;
 		}
 		string input;
 		if(isEmpty){
-		input="emptyFiles/"+FileNameCarge;
+		input=output+"/"+"emptyFiles/"+FileNameCarge;
 		handleError(output,"Simulator","missing cargo files :"+FileNameCarge +"sending empty file");
 		}else{
 		input=travelPath+"/"+FileNameCarge;
 		}
-		err=algo->getInstructionsForCargo(input, output+"/"+makeDir+"/"+FileNameInstruction);
+		err=algo->getInstructionsForCargo(input,makeDir+"/"+FileNameInstruction);
 		std::cout << "\n \n \n Error number: " << err << "\n \n \n";
 		if(err!=0){
 		status isIgnore =handleError(output,algoName+"/"+travelName,err);

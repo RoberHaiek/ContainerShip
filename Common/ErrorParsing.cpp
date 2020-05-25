@@ -64,9 +64,35 @@ void getInfo(int errorId,string& msg,status& currentStatus){
 	}
 
 }
+status giveMeErrorStatus(int errorCode){
+	status currentStatus = Ignore;
+	string msg;
+	if(errorCode==0){
+		return currentStatus ;
+	}
+	int fatal_flag=0;
+	for (int index=0 ;index<19 ; index++) {
+		auto it =(ErrorID)index;
+		if (((int)(pow(2,(int)it)) & errorCode) == (int)(pow(2,(int)it))){
+			getInfo((int)(pow(2,(int)it)),msg,currentStatus);
+			if(currentStatus!=Ignore){
+				fatal_flag=1;
+			}
+		}
+	}
+	if(fatal_flag){
+		currentStatus=FatalError;
+	}
+
+	return currentStatus;
+}	
+	
+	
+	
 
 status documentErrors(ofstream& fd_errors,int errorCode){
 	status currentStatus = Ignore;
+	int fatal_flag=0;
 	if(errorCode==0){
 		return currentStatus ;
 	}
@@ -75,10 +101,16 @@ status documentErrors(ofstream& fd_errors,int errorCode){
 			if (((int)(pow(2,(int)it)) & errorCode) == (int)(pow(2,(int)it))){
 				string msg;
 				getInfo((int)(pow(2,(int)it)),msg,currentStatus);
+				if(currentStatus!=Ignore){
+					fatal_flag=1;
+				}
 				fd_errors<<"\t"<<msg<<"\n";
 
 			}
 		}
+	if(fatal_flag){
+		currentStatus=FatalError;
+	}
 
 	return currentStatus;
 }

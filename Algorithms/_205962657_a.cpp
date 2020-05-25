@@ -69,21 +69,31 @@ public:
 
 	int readShipPlan(const std::string& full_path_and_file_name){
 		// read the ship plan from a file
-		cout << "*initShipPlan "<<name<<endl;
-	  	initShipPlan(ship,full_path_and_file_name);
+		int error = 0;
+		
+		this->instNum = 0;	// The instruction number of the returned instruction
+		this->routeIndex=0;
 
-		return 0; // success
+		cout << "*initShipPlan "<<name<<endl;
+	  	error |=initShipPlan(ship,full_path_and_file_name);
+		return error ; // success
 	}
 
 	int readShipRoute(const std::string& full_path_and_file_name){
 		// read ship route from file
+		int error = 0;
 		cout << "*initRoute from stowage"<<endl;
 		char** routeArray;
-	  	initRoute(routeArray,full_path_and_file_name);
+	  	error |=initRoute(routeArray,full_path_and_file_name);
+		status isFatalError=giveMeErrorStatus(error);{
+			if(isFatalError!=status::Ignore){
+				return error;
+			}
+		}
 		route= getPortsFromRoute(routeArray);
 		cout<<"* finish route from stowage"<<endl;
 
-		return 0; // success
+		return error ; // success
 	}
 
 	int setWeightBalanceCalculator(WeightBalanceCalculator& calculator){
@@ -93,20 +103,41 @@ public:
 
 	int getInstructionsForCargo(const std::string& input_full_path_and_file_name, const std::string& output_full_path_and_file_name){
 		// read from input, write to output - PARSING
-		string fileName=getTheFileName(input_full_path_and_file_name);
-		cout<<"111111111111 "<<input_full_path_and_file_name <<"  and the filename is : "<<fileName<<endl;
+		//string fileName=getTheFileName(input_full_path_and_file_name);
+		//cout<<"111111111111 "<<input_full_path_and_file_name <<"  and the filename is : "<<fileName<<endl;
 		
 		int error = 0;
-		getRouteIndex(routeIndex,fileName);
+		//getRouteIndex(routeIndex,fileName);
 		cout<<"222222222222"<<endl;
 		cout<<"the index in get inst ="<<routeIndex<<endl;
+		ifstream fd_info;
+		fd_info.open(input_full_path_and_file_name,ios_base::in);//open the file
+		//checking the access to the file
+		int notBadPort=1;
+		if(!fd_info){
+		notBadPort=0;
+		error|=(int)pow(2,16);
+		exit(1);
+		}
+
 		Container* containers=parseCargoFile(input_full_path_and_file_name);
 		cout<<"the first container is :"<<containers[0].uniqueId<<endl;
 		error = error | unloadingAlgo(routeIndex);
+		int sizeArray=sizeOfArray(containers);
+		//is it the last route
+		if(routeIndex==sizeArray-1 && notBadPort){
+			//is it have cargo on it
+			if(containers[0].uniqueId.compare("last")!=0){
+			error|=(int)pow(2,17);}
+			notBadPort=0;
+		}
+		if(notBadPort){
 		error = error | loadingAlgo(containers, weightBalance);
+		}
 		fillInstructions(Action::REJECT, "last", "last", "last", "last");
 		instructionsOut(currentInstructions,output_full_path_and_file_name);
 		this->instNum = 0;
+		this->routeIndex++;
 		return error;
 	}
 
@@ -138,8 +169,8 @@ public:
 				while(currentContainer !=NULL) {		// starting from the bottom !!!
 					if (currentContainer->container->destPort.toString() == route[i].toString()) {// does ship container belong to ship port?
 						int *dimensions = ship->planMap->find(currentContainer->container->uniqueId)->second;
-						error = error | CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]);
-						if (error == 0) {
+						int flag =  CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]);
+						if (flag == 0) {
 							node *temp = crane.unload(*(currentContainer->container),row, column,this->ship->planLinkedList[row][column].size);
 							currentContainer = temp->next;
 							tempContainers.push_front(temp);
@@ -204,13 +235,17 @@ public:
 // the logic for loading the containers from a port
 	int loadingAlgo(Container *PortInstructions, bool (*weightBalance)()) {
 		int error = 0;
+		int is_regected=0;
 		bool breakIt = false;		// move to the next container from the port instructions list
 		struct node currentContainer;
 		Crane crane = Crane(this->ship);
 		for (int p = 0; p < sizeOfArray(PortInstructions); p++) {	// for each container in the instructions
 			currentContainer.container = &(PortInstructions[p]);
-			error = error | isRejected(currentContainer);
-			if (error == 0) {	// if its not rejected
+			is_regected=error | isRejected(currentContainer);
+			if(is_regected!=-1){
+				error|=is_regected;
+			}
+			if (is_regected== 0) {	// if its not rejected
 				for (int row = 0; row < ship->shipWidth; row++) {	// for each row
 					for (int column = 0; column < ship->shipLength; column++) {	// for each column
 						if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
@@ -220,6 +255,10 @@ public:
 								fillInstructions(Action::LOAD, currentContainer.container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size-1)), std::to_string(row), std::to_string(column));	// edit instructions
 								breakIt = true;
 								break;
+							}else{
+			
+							fillInstructions(Action::REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");
+
 							}
 						}
 					}
@@ -249,11 +288,28 @@ void printTestResults(node  currentContainer){
 	int isRejected(node currentContainer) {
 		printTestResults(currentContainer);
 		int error = 0;
-		error = error | StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex);
-		error = error | CraneTester::isFull(this->ship);
-		error = error | CraneTester::isValidId(currentContainer.container->uniqueId);
-		error = error | CraneTester::isLegalWeight(currentContainer.container->weight);
-		if(error != 0){
+		int rejectFlag=0;
+		int tmpError=0;
+		tmpError=StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex);
+		if(tmpError!=0){
+			rejectFlag=1;
+		}
+		tmpError=CraneTester::isFull(this->ship);
+		if(tmpError!=0){
+			error|=tmpError;
+			rejectFlag=1;
+		}
+		tmpError=CraneTester::isValidId(currentContainer.container->uniqueId);
+		if(tmpError!=0){
+			error|=tmpError;
+			rejectFlag=1;
+		}
+		tmpError=CraneTester::isLegalWeight(currentContainer.container->weight);
+		if(tmpError!=0){
+			error|=tmpError;
+			rejectFlag=1;
+		}
+		if(rejectFlag!=0){
 			fillInstructions(Action::REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");
 			return error;
 		}
@@ -268,19 +324,10 @@ void printTestResults(node  currentContainer){
 	 //	returns a list of instructions as following:
 	 //	{"load/unload/reject", a container's unique id, height, row, column}
 	 /*/
-
-	_205962657_a(int i, Ship *ship, Port *route, Container *instructions):ship(ship) {
-		this->instNum = 0;	// The instruction number of the returned instruction
-		this->currentInstructions = new std::string*[100];
-		this->route = route;
-		routeIndex=i;
-		unloadingAlgo(i);
-		loadingAlgo(instructions, weightBalance);
-		fillInstructions(Action::REJECT, "last", "last", "last", "last");
-	}
 	_205962657_a(){
 	this->instNum = 0;	// The instruction number of the returned instruction
 	this->currentInstructions = new std::string*[150];
+	this->routeIndex=0;
 
 	}
 }

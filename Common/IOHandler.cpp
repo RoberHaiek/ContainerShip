@@ -149,7 +149,7 @@ string getCargoFileName(int portIndex,bool cargoData){
 	int containerWeight;
 	while(getline(fd_info,line)){
 		cout<<"line :  "<<line<<endl;
-		if(line.at(0)=='#'){
+		if(line=="" || line.at(0)=='#'){
 			continue;
 			}
 			seek=0;
@@ -202,7 +202,7 @@ int getNumOfLines(ifstream& fd){
 	string line;
 	int numOfLines=0;
 	while(getline(fd,line)){
-		if(line.at(0)=='#'){
+		if(line=="" || line.at(0)=='#'){
 			continue;
 			}
 		numOfLines++;
@@ -237,7 +237,7 @@ int initRoute(char** &currRoute,string travelPath){
 	int numOfValids=0;
 	string currPort;
 	while(getline(fd_info,line)){
-		if(line.at(0)=='#'){
+		if(line=="" || line.at(0)=='#'){
 			continue;
 			}
 			seek=0;
@@ -328,7 +328,7 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 	bool firstLine=true;
 	int flag=0;
 	while(getline(fd_info,line)){
-		if(line.at(0)=='#'){
+		if(line=="" ||line.at(0)=='#'){
 			continue;
 			}
 

@@ -12,14 +12,14 @@ public:
 				}
 			}
 		}
-		return pow(2,17);
+		return pow(2,18);
 	}
 
 	// checks if the container weight is legal
 	static int isLegalWeight(int containerWeight){
 		if(containerWeight>=0)
 			return 0;
-		return 0;
+		return pow(2,12);
 	}
 	
 	static int charToIntISO(char c, int index){
@@ -54,13 +54,13 @@ public:
 		for(int i=0;i<10;i++){
 			if(i<3){
 				if(!(((int)uniqueId[i]>=65 && (int)uniqueId[i]<=90)|| ((int)uniqueId[i]>=97 && (int)uniqueId[i]<=122))){
-					cout <<" and the char is "<< (int)uniqueId[10]-48<<endl;
+					//cout <<" and the char is "<< (int)uniqueId[10]-48<<endl;
 					return pow(2,15);
 				}
 			}
 			if(i==3){
 				if(!((int)uniqueId[i]==74 || (int)uniqueId[i]==85 || (int)uniqueId[i]==90 || (int)uniqueId[i]==106 || (int)uniqueId[i]==117 || (int)uniqueId[i]==122)){
-					cout <<" and the char is "<< (int)uniqueId[10]-48<<endl;
+					//cout <<" and the char is "<< (int)uniqueId[10]-48<<endl;
 					return pow(2,15);
 				}
 			}
@@ -74,11 +74,10 @@ public:
 		int sum=0;
 		for(int i=0;i<10;i++){
 		sum+=charToIntISO(uniqueId[i], i);
-		cout <<" and the char is "<< (int)uniqueId[10]-48<<endl;
+		//cout <<" and the char is "<< (int)uniqueId[10]-48<<endl;
 		}
 		
 		int checkNumber= sum - int(sum/11) * 11;
-	//	exit(1);
 		if(checkNumber==(int)uniqueId[10]-48){
 			return 0;
 		}
