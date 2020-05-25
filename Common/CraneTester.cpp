@@ -15,6 +15,7 @@ public:
 		return pow(2,18);
 	}
 
+
 	// checks if the container weight is legal
 	static int isLegalWeight(int containerWeight){
 		if(containerWeight>=0)

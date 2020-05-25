@@ -122,6 +122,7 @@ public:
 		Container* containers=parseCargoFile(input_full_path_and_file_name);
 		cout<<"the first container is :"<<containers[0].uniqueId<<endl;
 		error = error | unloadingAlgo(routeIndex);
+cout<<"finish unloading ?>?>?>?>"<<endl;
 		int sizeArray=sizeOfArray(containers);
 		//is it the last route
 		if(routeIndex==sizeArray-1 && notBadPort){
@@ -150,15 +151,41 @@ public:
 		currentInstructions[instNum][4] = column;
 		instNum = instNum + 1;
 	}
+
+//loading for sure 
+void loadAgain(node *temp){
+	int error=0;
+	Crane crane = Crane(this->ship);
+	for (int row = 0; row < ship->shipWidth; row++) {	// for each row
+		for (int column = 0; column < ship->shipLength; column++) {	// for each column
+			if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
+					error = error | CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,temp->container->uniqueId);
+						if (error == 0) {
+							crane.load(temp->container, row,column,this->ship->planLinkedList[row][column].size);	// load it
+							fillInstructions(Action::LOAD, temp->container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size-1)), std::to_string(row), std::to_string(column));	// edit instructions
+							}
+					}
+				}
+			}
+		}
+
+
+
+
+
+
+
 	// the logic for unloading the containers to a port
 	int unloadingAlgo(int i) {
 		int error = 0;
 		bool popAllAbove; // true if we're popping a container from a stack and we need to pop all above it
 		struct node *currentContainer;
 		std::string* indxes;
+		int totalPoped=0;
 		Crane crane = Crane(this->ship);
 		for (int row = 0; row < ship->shipWidth; row++) {
 			for (int column = 0; column < ship->shipLength; column++) {
+			totalPoped=0;
 				if (this->ship->planLinkedList[row][column].size == 0) {
 					continue;
 				}
@@ -174,27 +201,36 @@ public:
 							currentContainer = temp->next;
 							tempContainers.push_front(temp);
 							indxes=new std::string[3];
-							indxes[0]=std::to_string(row);indxes[1]=std::to_string(column);indxes[2]=std::to_string(this->ship->planLinkedList[row][column].size);							indexies.push_front(indxes);
+							indxes[0]=std::to_string(row);indxes[1]=std::to_string(column);indxes[2]=std::to_string(dimensions[2]);	
+							indexies.push_front(indxes);
+							cout<<"	*)"<<temp->container->uniqueId<< " // poped with indexes "<<  indxes[2]<<","<<  indxes[0]<<","<<  indxes[1]<<endl;
 							popAllAbove = true;
+							totalPoped++;
 						}
 					} else {	// ship container does NOT belong to ship port
 						if (popAllAbove) {	// but should I put it in temp?
 							int *dimensions = ship->planMap->find(currentContainer->container->uniqueId)->second;
 							error = error | CraneTester::isValidUnload(row, column, dimensions[0], dimensions[1]);
 							if (error == 0) {
+								int *dimensions = ship->planMap->find(currentContainer->container->uniqueId)->second;
+
 								node *temp = crane.unload(*(currentContainer->container),row,column,this->ship->planLinkedList[row][column].size);
 								currentContainer = temp->next;
 								tempContainers.push_front(temp);
 								indxes=new std::string[3];
-								indxes[0]=std::to_string(row);indxes[1]=std::to_string(column);indxes[2]=std::to_string(this->ship->planLinkedList[row][column].size);
+								indxes[0]=std::to_string(row);indxes[1]=std::to_string(column);indxes[2]=std::to_string(dimensions[2]);
 								indexies.push_front(indxes);
+								totalPoped++;
+								cout<<"	*)"<<temp->container->uniqueId<< " // poped with indexes "<<  indxes[2]<<","<<  indxes[0]<<","<<  indxes[1]<<endl;
+
 							}
 						}
 					}
 					if(!popAllAbove && currentContainer!=NULL){
 					currentContainer =currentContainer->next;}
 				}
-				
+
+				this->ship->planLinkedList[row][column].size-=totalPoped;
 				// loading containers from temp back to ship
 				node *popedElem;
 				std::string *indx;
@@ -204,11 +240,14 @@ public:
 					indexies.pop_front();
 					tempContainers.pop_front();
 					std::string dstPort = popedElem->container->destPort.toString();
+		cout<<"		-*-*-*unloading "<<popedElem->container->uniqueId<<endl;
 					fillInstructions(Action::UNLOAD, popedElem->container->uniqueId, indx[2], indx[0], indx[1]);
 					if (dstPort.compare(route[i].toString()) == 0) {
 						delete popedElem;
 						delete[] indx;
 					} else {
+		cout<<"		-*-*-*to load back  "<<popedElem->container->uniqueId<<endl;
+
 						loadBackContainers.push_front(popedElem);
 						indexies.push_back(indx);
 					}
@@ -218,18 +257,23 @@ public:
 					indx=indexies.back();
 					indexies.pop_back();
 					loadBackContainers.pop_back();
-					fillInstructions(Action::LOAD,popedElem->container->uniqueId, indx[2],indx[0], indx[1]);
-					crane.load(popedElem->container, row, column,this->ship->planLinkedList[row][column].size);
+					cout<<"		-*-*-*loading back ??????"<<endl;
+					loadAgain(popedElem);
+					/*fillInstructions(Action::LOAD,popedElem->container->uniqueId, indx[2],indx[0], indx[1]);
+		cout<<"		-*-*-*loading back "<<popedElem->container->uniqueId << ","<<indx[2]<<","<<indx[0]<<"," <<indx[1]<<endl;
+					crane.load(popedElem->container, row, column,this->ship->planLinkedList[row][column].size);*/
 					delete popedElem;
-					delete indx;
+					delete[] indx;
 
 
 				}
 
 			}
 		}
+
 		return error;
 	}
+
 
 // the logic for loading the containers from a port
 	int loadingAlgo(Container *PortInstructions, bool (*weightBalance)()) {
@@ -305,11 +349,11 @@ void printTestResults(node  currentContainer){
 			error|=tmpError;
 			rejectFlag=1;
 		}
-		tmpError=CraneTester::isValidId(currentContainer.container->uniqueId);
+	/*	tmpError=CraneTester::isValidId(currentContainer.container->uniqueId);
 		if(tmpError!=0){
 			error|=tmpError;
 			rejectFlag=1;
-		}
+		}*/
 		tmpError=CraneTester::isLegalWeight(currentContainer.container->weight);
 		if(tmpError!=0){
 			error|=tmpError;

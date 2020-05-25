@@ -102,57 +102,67 @@ int sizeOfArray(Container *array) {
 		}
 		return 0;
 	}
-
+int getNumOfInstructions(string** instructions){
+	int opreations=0;
+	for(int i=0;instructions[i][0]!="last";i++){
+		string * array=instructions[i];
+		if(array[0]!="R"){
+			opreations++;
+		}
+	}
+	return opreations;
+	
+}
 int isItFineInstructions(string** instructions,string file_name , int routeIndex){
-cout<<"1111111111111"<<endl;
+
 	Container* containers=parseCargoFile(file_name);
-cout<<"22222222222222222"<<endl;
+
 	int sizeArray=sizeOfArray(containers);
 	int flag_load=0;
 	std::set<int> indexes;
 	int last_port=0;
-cout<<"33333333333333333333"<<endl;
+
 
 	if(routeSize-1==routeIndex){
 		last_port=1;
 	}
-	int numOfInstructins_reject_load=0;
 	for(int i=0;instructions[i][0]!="last";i++){
-cout<<"44444444444 the i="<<i<<endl;
 		string * array=instructions[i];
 		if(array[0]=="L"){
 			flag_load=1;
 		}
 
 		if(last_port){
-			if(array[0]!="L" || array[0]!="M"){//no R/U actions in the last Port 
-				return ERROR;
+			if(array[0]!="U" && array[0]!="M"){//no R/L actions in the last Port 
+					return ERROR;
 			}
 		}
 
 		if(!last_port){
 			if(array[0]=="U" && flag_load){ return ERROR;}
-			if(array[0]=="L" || array[0]=="R"){
-				numOfInstructins_reject_load++;
-				for(int index=0;containers[index].uniqueId!="last";index++){
-cout<<"55555555555555 the index="<<index<<endl;
-cout<<"66666666666666 array[i]="<<array[1]<<", with, containers[index].uniqueId="<<containers[index].uniqueId<<endl;
-					if(array[1]==containers[index].uniqueId && (array[0]=="L" || array[0]=="R")){
-						if(indexes.count(index)!=0){
-							return ERROR;
-						}
-						indexes.insert(index);
-						break;
-					}
+		}
+				
+	}
+		
+	
+	for(int index=0;containers[index].uniqueId!="last";index++){
+		for(int i=0;instructions[i][0]!="last";i++){
+			string * array=instructions[i];
+
+			cout<<"66666666666666 array[i]="<<array[1]<<":"<<array[0]<<" , with, containers[index].uniqueId="<<containers[index].uniqueId<<":"<<endl;
+			if(array[1]==containers[index].uniqueId && (array[0]=="L" || array[0]=="R") && indexes.count(i)==0){
+				indexes.insert(i);
+				break;
 				}
 			}
 		}
-	}
-
-	if(numOfInstructins_reject_load==indexes.size()){
+	if(sizeArray==indexes.size()){
 		cout << endl<< "SUCCESS"<<endl;
 		return SUCCESS;	
 	}
+	//cout << "88888888888888888888888888888" <<endl;
+	//exit(1);
+
 	return ERROR;
 }
 
@@ -678,6 +688,7 @@ cout<<"isItFineInstructions ends ----------"<<endl;
 			resMap[algoName]=v;
 		
 		}
+	numOfInstructions=getNumOfInstructions(instructions);
 
 		//if(err){numOfInstructions=-1;}//new
 		if(firstTiem==1){
@@ -852,3 +863,4 @@ cout<<"111111111111111111111"<<endl;
 	cout << "Done!"<<endl;
 	return 0;
 }
+
