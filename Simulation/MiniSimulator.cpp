@@ -37,7 +37,7 @@ std::map<string,std::vector<int>> resMap;
 
 int travelNum=0;
 /*---------------FUNC DEC-------------*/
-void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
+int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 /*------------------DEBUGGING METHODS-------------------*/
 void printFiles(DIR* fd){
 	struct dirent *entry;
@@ -245,20 +245,84 @@ int insertInstructionToMap(string** algoInstructions,map<string,vector<string>>&
 	return SUCCESS;
 }
 //[14]
-void getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR){
+int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR){
 	switch(INDICATOR){
-		case LAST :{fivedArray[0]="last";fivedArray[1]="";fivedArray[2]="";fivedArray[3]="";fivedArray[4]="";
+		case LAST :{fivedArray[0]="last";fivedArray[1]="";fivedArray[2]="";fivedArray[3]="";fivedArray[4]="";fivedArray[5]="";fivedArray[6]="";fivedArray[7]="";
+				return 0;
 				break;
 				}
-		case REGULAR:{	getElem(line,seek,',');fivedArray[0]=string(parse_out);
-				getElem(line,seek,',');fivedArray[1]=string(parse_out);
-				getElem(line,seek,',');fivedArray[2]=string(parse_out);
-				getElem(line,seek,',');fivedArray[3]=string(parse_out);
-				getElem(line,seek,',');fivedArray[4]=string(parse_out);
+		case REGULAR:{
+				try{
+				int moveFlag=0;
+				int err=0;
+				getElem(line,seek,',');fivedArray[0]=string(parse_out);
+				if(fivedArray[0].compare("M")==0){
+					moveFlag=1;
+				}
+				if(err!=SUCCESS|| seek==(int)line.length() || parse_out==""){
+					return ERROR;
+				}
+				
+				err=getElem(line,seek,',');fivedArray[1]=string(parse_out);
+				if(err!=SUCCESS||seek==(int)line.length() || parse_out==""){
+					return ERROR;
+				}
+				err=getElem(line,seek,',');fivedArray[2]=string(parse_out);
+				if(err!=SUCCESS|| seek==(int)line.length() || parse_out==""){
+					return ERROR;
+				}
+				err=getElem(line,seek,',');fivedArray[3]=string(parse_out);
+				if(err!=SUCCESS|| seek==(int)line.length() || parse_out==""){
+					return ERROR;
+				}
+				if(moveFlag){
+					err=getElem(line,seek,'[');fivedArray[4]=string(parse_out);
+					if(err!=SUCCESS || seek==(int)line.length() || parse_out==""){
+						return ERROR;
+					}
+					err=getElem(line,seek,',');
+					if(seek==(int)line.length() || parse_out.compare("")!=0){
+						return ERROR;
+					}
+					err=getElem(line,seek,',');fivedArray[5]=string(parse_out);
+					if(err!=SUCCESS || seek==(int)line.length() || parse_out==""){
+						return ERROR;
+					}
+					err=getElem(line,seek,',');fivedArray[6]=string(parse_out);
+					if(err!=SUCCESS || seek==(int)line.length() || parse_out==""){
+						return ERROR;
+					}
+					cout << "the parse out is :"<<parse_out << endl;
+					err=getElem(line,seek,']');fivedArray[7]=string(parse_out);
+					if(err!=SUCCESS || parse_out.compare("")==0 || (seek<=(int)line.length()&& line.at(seek-1)!=']')){
+						return ERROR;
+					}
+					cout << "the parse out is :"<<parse_out << endl;
+					err=getElem(line,seek,',');
+					if(err!=ERROR || seek<=(int)line.length()){
+						return ERROR;
+					}
+					
+				}else{
+					err =getElem(line,seek,',');fivedArray[4]=string(parse_out);
+					if(err!=SUCCESS){
+						return err;
+					}
+					err=getElem(line,seek,',');
+					if(err!=ERROR || seek<=(int)line.length()){
+						return ERROR;
+					}
+				}
+				return 0;
+				}catch(...){
+					cout << "catched!!!" << endl;
+					return ERROR;
+				}
 				break;
 				}	
 		default : std::cout<<"ERROR[14][1] : Unknown indicator in getFiveElementsIntoArray"<<std::endl;
 			}
+	return ERROR;
 }
 
 //[13]
@@ -277,24 +341,34 @@ cout << "getting num of lines ******"<<endl;
 	int lineNum = getNumOfLines(fd_info);
 	expectedInstructions = new string*[lineNum+1];//the +1 used as indicator of the last container
 	for(int i = 0;i < lineNum+1;i++){
-		expectedInstructions[i]=new string[5];
+		expectedInstructions[i]=new string[8];
 	
 	}
 	//start reading from file
 	int instructionIndex=0;
 	string line;
 	int seek; 
+	int err=0;
 cout << "reading expected ******"<<endl; 
 	while(getline(fd_info,line)){
 		if(line=="" || line.at(0)=='#'){
 			continue;
 		}else{
 			seek=0;
-			getFiveElementsIntoArray(line,seek,expectedInstructions[instructionIndex],REGULAR);
+			err=getFiveElementsIntoArray(line,seek,expectedInstructions[instructionIndex],REGULAR);
+			if(err==ERROR){
+				cout << "ERRORRRRR :("<< endl;
+				return NULL;
+			}
 			instructionIndex++;
 		}
 	}
-	getFiveElementsIntoArray("",seek,expectedInstructions[instructionIndex],LAST);
+
+	err=getFiveElementsIntoArray("",seek,expectedInstructions[instructionIndex],LAST);
+	if(err==ERROR){
+		cout << "ERRORRRRR :("<< endl;
+		return NULL;
+	}
 	
 	int index=0;
 	while((expectedInstructions[index][0]).compare("last")!=0){
@@ -720,6 +794,12 @@ cout<<"111111111111111111111"<<endl;
 		
 		parseResults (pair,!isFirstLine);
 	}
+	/*string **instructions=ReadExpectedInstructions( "/specific/a/home/cc/students/cs/aubaidaasad/ex2_c++/may15/git/ContainerShip/output/AAAAA_1.crane_instructions");
+	for(int i=0;instructions[i][0]!="last";i++){
+		string * array=instructions[i];
+		cout<<array[0]<<","<<array[1]<<","<<array[2]<<","<<array[3]<<","<<array[4]<<"[,"<<array[5]<<","<<array[6]<<","<<array[7]<<"]"<<endl;
+	}*/
+
 	
 	cout << "Done!"<<endl;
 	return 0;

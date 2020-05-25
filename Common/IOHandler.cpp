@@ -45,9 +45,10 @@ int getElem(string s , int& seek,char delmiter){
 		}
 		parse_out=parse_out+s.at(seek++);
 	}
-	if(delmiter==','){
+	
+	//if(delmiter==','){
 	parse_out.erase(std::remove_if(parse_out.begin(), parse_out.end(), ::isspace), parse_out.end());
-	}
+	//}
 	if(parse_out.compare("")==0){
 		seek++;
 		return ERROR;
