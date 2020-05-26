@@ -160,7 +160,7 @@ cout << "file_name is "<<file_name<<endl;
 				}
 			}
 		}
-	if(sizeArray==indexes.size()){
+	if(sizeArray==(int)indexes.size()){
 		cout << endl<< "SUCCESS"<<endl;
 		return SUCCESS;	
 	}
@@ -181,6 +181,7 @@ return SUCCESS;
 	}
 
 //[??]
+/*
 int validateAlgorithm(std::string **currentInstructions, int numOfInstructions, Port port, Ship *ship,Port* route, int routeIndex ){
 	int error = 0;
 	struct node currentContainer;
@@ -250,7 +251,7 @@ return -1;}
 		}
 	}
 	return 0;
-}
+}*/
 
 //[16]
 int checkMapIfAsExpected(string** expectedInstructions,map<string,vector<string>>& InstructionsMap){
@@ -542,7 +543,6 @@ handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 		handleError(output,"Simulator","missing cargo files / there is additional cargo files");
 	}
 	cout << "*end_checkCargoFiles"<<endl;
-	Port* ports = getPortsFromRoute(route);
 	cout << "*end_ports"<<endl;
 
 	//parseResults (AlgoName ,travelName ,0 ,0);
@@ -745,7 +745,7 @@ cout<<endl<<"isItFineInstructions ends ---with err= "<< err<<"-------"<<endl<<en
 		
 		}	
 	}
-	
+	return SUCCESS;
 	
 }
 
@@ -784,6 +784,7 @@ int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorit
 		}else if(string(argv[i]).compare("-output")==0 && output.compare("")==0){
 			output=string(argv[i+1]);
 		}else{
+			output=".";
 			return ERROR;
 		}
 	}
@@ -803,6 +804,7 @@ int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorit
 //[1]
 int main(int argc, char *argv[]) {
 DIR *fd_path;
+int flag=0;
 try{
 	if(argc!=3 && argc!=5 && argc!=7){
 		std::cout << "ERROR[1][1]- Wrong Number of Parameters!" << std::endl;
@@ -813,7 +815,9 @@ try{
 		std::cout << "ERROR[1][2]- Wrong Parameters foramt! or A missing -travel_path argument" << std::endl;
 		std::cout << "did you mean : simulator [-travel_path <path>] [-algorithm_path <algorithm path>] [-output <output path>]" << std::endl;
 		handleError(output,"Simulator","ERROR- Wrong Parameters foramt! or A missing -travel_path argument");
+		cout<<output<<endl;
 		throw 1;
+		flag=1;
 		return ERROR;
 	}
 	//getting the path
@@ -824,6 +828,7 @@ try{
 	fd_path=opendir(cstr);
 	if(fd_path==NULL){
 		handleError(output,"Simulator","ERROR :: can't open the travel path :"+travel_path);
+		flag=1;
 		throw 1;
 	}
 	//get the travels
@@ -834,8 +839,9 @@ try{
 	if(fd_errors.is_open()){
 		fd_errors.close();	
 	}
-	
-	closedir(fd_path);	
+	if(flag){
+		return -1;
+	}
 	//printing the results
 	cout<<"results prints"<<endl;
 	for(auto it=resMap.begin();it!=resMap.end();it++){
@@ -895,12 +901,6 @@ cout<<"111111111111111111111"<<endl;
 		
 		parseResults (pair,!isFirstLine);
 	}
-	/*string **instructions=ReadExpectedInstructions( "/specific/a/home/cc/students/cs/aubaidaasad/ex2_c++/may15/git/ContainerShip/output/AAAAA_1.crane_instructions");
-	for(int i=0;instructions[i][0]!="last";i++){
-		string * array=instructions[i];
-		cout<<array[0]<<","<<array[1]<<","<<array[2]<<","<<array[3]<<","<<array[4]<<"[,"<<array[5]<<","<<array[6]<<","<<array[7]<<"]"<<endl;
-	}*/
-
 	
 	cout << "Done!"<<endl;
 	return 0;

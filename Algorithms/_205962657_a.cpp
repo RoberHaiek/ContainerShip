@@ -16,6 +16,7 @@ public:
 	std::deque<node*> loadBackContainers;
 	std::deque<std::string*> indexies;
 	int routeIndex;
+	WeightBalanceCalculator* calc;
 	string name="in algo A";
 	/*
 	 *
@@ -54,7 +55,6 @@ public:
 	static bool weightBalance() {
 		return true;	// we have a magical ship
 	}
-
 	int sizeOfArray(Container *array) {
 		int c = 0;
 		while (true) {
@@ -74,7 +74,7 @@ public:
 		this->instNum = 0;	// The instruction number of the returned instruction
 		this->routeIndex=0;
 
-		cout << "*initShipPlan "<<name<<endl;
+	//	cout << "*initShipPlan "<<name<<endl;
 	  	error |=initShipPlan(ship,full_path_and_file_name);
 		return error ; // success
 	}
@@ -82,7 +82,7 @@ public:
 	int readShipRoute(const std::string& full_path_and_file_name){
 		// read ship route from file
 		int error = 0;
-		cout << "*initRoute from stowage"<<endl;
+		//cout << "*initRoute from stowage"<<endl;
 		char** routeArray;
 	  	error |=initRoute(routeArray,full_path_and_file_name);
 		status isFatalError=giveMeErrorStatus(error);{
@@ -91,13 +91,13 @@ public:
 			}
 		}
 		route= getPortsFromRoute(routeArray);
-		cout<<"* finish route from stowage"<<endl;
+		//cout<<"* finish route from stowage"<<endl;
 
 		return error ; // success
 	}
 
 	int setWeightBalanceCalculator(WeightBalanceCalculator& calculator){
-		// what???
+		calc=&(calculator);
 		return 0;
 	}
 
@@ -108,8 +108,8 @@ public:
 		
 		int error = 0;
 		//getRouteIndex(routeIndex,fileName);
-		cout<<"222222222222"<<endl;
-		cout<<"the index in get inst ="<<routeIndex<<endl;
+
+		//cout<<"the index in get inst ="<<routeIndex<<endl;
 		ifstream fd_info;
 		fd_info.open(input_full_path_and_file_name,ios_base::in);//open the file
 		//checking the access to the file
@@ -118,10 +118,10 @@ public:
 		notBadPort=0;
 		error|=(int)pow(2,16);
 		}
-cout<<"333333333333333"<<endl;
+
 		Container* containers=parseCargoFile(input_full_path_and_file_name);
 		int containerIndex=0;
-cout<<"333333333333333"<<endl;
+
 		while(true){
 			if(containers[containerIndex].uniqueId=="last"){
 				error|=containers[containerIndex].weight;			
@@ -129,20 +129,16 @@ cout<<"333333333333333"<<endl;
 			}
 		containerIndex++;
 		}
-cout<<"555555555555555555555"<<endl;
 		
-		cout<<"the first container is :"<<containers[0].uniqueId<<endl;
+		//cout<<"the first container is :"<<containers[0].uniqueId<<endl;
 		error = error | unloadingAlgo(routeIndex);
-cout<<"finish unloading ?>?>?>?>"<<endl;
-		int sizeArray=sizeOfArray(containers);
+
+		//int sizeArray=sizeOfArray(containers);
 		//is it the last route
-cout<<"last Port ????????? routeIndex="<<routeIndex<<"==routeSize-1="<<(routeSize-1)<<"?????????????"<<endl;
 		if((routeIndex==routeSize-1) && notBadPort){
 			//is it have cargo on it
-cout<<"last Port have containers ?????????"<<(containers[0].uniqueId.compare("last")!=0)<<"?????????????"<<endl;
 			if(containers[0].uniqueId.compare("last")!=0){
-			error|=(int)pow(2,17);
-cout<<"last Port have containers ??????????err="<<error<<"??????????????????"<<endl;}
+			error|=(int)pow(2,17);}
 			notBadPort=0;
 		}
 		if(notBadPort){
@@ -217,7 +213,7 @@ void loadAgain(node *temp){
 							indxes=new std::string[3];
 							indxes[0]=std::to_string(row);indxes[1]=std::to_string(column);indxes[2]=std::to_string(dimensions[2]);	
 							indexies.push_front(indxes);
-							cout<<"	*)"<<temp->container->uniqueId<< " // poped with indexes "<<  indxes[2]<<","<<  indxes[0]<<","<<  indxes[1]<<endl;
+						//	cout<<"	*)"<<temp->container->uniqueId<< " // poped with indexes "<<  indxes[2]<<","<<  indxes[0]<<","<<  indxes[1]<<endl;
 							popAllAbove = true;
 							totalPoped++;
 						}
@@ -235,7 +231,7 @@ void loadAgain(node *temp){
 								indxes[0]=std::to_string(row);indxes[1]=std::to_string(column);indxes[2]=std::to_string(dimensions[2]);
 								indexies.push_front(indxes);
 								totalPoped++;
-								cout<<"	*)"<<temp->container->uniqueId<< " // poped with indexes "<<  indxes[2]<<","<<  indxes[0]<<","<<  indxes[1]<<endl;
+								//cout<<"	*)"<<temp->container->uniqueId<< " // poped with indexes "<<  indxes[2]<<","<<  indxes[0]<<","<<  indxes[1]<<endl;
 
 							}
 						}
@@ -254,13 +250,13 @@ void loadAgain(node *temp){
 					indexies.pop_front();
 					tempContainers.pop_front();
 					std::string dstPort = popedElem->container->destPort.toString();
-		cout<<"		-*-*-*unloading "<<popedElem->container->uniqueId<<endl;
+		//cout<<"		-*-*-*unloading "<<popedElem->container->uniqueId<<endl;
 					fillInstructions(Action::UNLOAD, popedElem->container->uniqueId, indx[2], indx[0], indx[1]);
 					if (dstPort.compare(route[i].toString()) == 0) {
 						delete popedElem;
 						delete[] indx;
 					} else {
-		cout<<"		-*-*-*to load back  "<<popedElem->container->uniqueId<<endl;
+		//cout<<"		-*-*-*to load back  "<<popedElem->container->uniqueId<<endl;
 
 						loadBackContainers.push_front(popedElem);
 						indexies.push_back(indx);
@@ -275,10 +271,10 @@ void loadAgain(node *temp){
 					indx=indexies.back();
 					indexies.pop_back();
 					loadBackContainers.pop_back();
-					cout<<"		-*-*-*loading back ??????"<<endl;
+					//cout<<"		-*-*-*loading back ??????"<<endl;
 					loadAgain(popedElem);
 					/*fillInstructions(Action::LOAD,popedElem->container->uniqueId, indx[2],indx[0], indx[1]);
-		cout<<"		-*-*-*loading back "<<popedElem->container->uniqueId << ","<<indx[2]<<","<<indx[0]<<"," <<indx[1]<<endl;
+		//cout<<"		-*-*-*loading back "<<popedElem->container->uniqueId << ","<<indx[2]<<","<<indx[0]<<"," <<indx[1]<<endl;
 					crane.load(popedElem->container, row, column,this->ship->planLinkedList[row][column].size);*/
 					delete popedElem;
 					delete[] indx;
@@ -308,16 +304,16 @@ void loadAgain(node *temp){
 				fillInstructions(Action::REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");
 				continue;
 			}
-			cout<<endl<<endl<<currentContainer.container->uniqueId<<endl<<endl;
+			//cout<<endl<<endl<<currentContainer.container->uniqueId<<endl<<endl;
 			is_regected=isRejected(currentContainer);
 			if(is_regected!=0 && is_regected==-1){
 				if(is_regected==-1){
 				}else{
 				error|=is_regected;}
-				cout<<"***** rejected"<<endl;	
+				//cout<<"***** rejected"<<endl;	
 			}
 			if (is_regected== 0) {	// if its not rejected
-				cout<<"***** NOT ! rejected"<<endl;
+				//cout<<"***** NOT ! rejected"<<endl;
 				for (int row = 0; row < ship->shipWidth; row++) {	// for each row
 					for (int column = 0; column < ship->shipLength; column++) {	// for each column
 						if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
@@ -358,7 +354,7 @@ void printTestResults(node  currentContainer){
 
 // rejection test
 	int isRejected(node currentContainer) {
-		printTestResults(currentContainer);
+	//	printTestResults(currentContainer);
 		int error = 0;
 		int rejectFlag=0;
 		int tmpError=0;
@@ -372,11 +368,11 @@ void printTestResults(node  currentContainer){
 			error|=tmpError;
 			rejectFlag=1;
 		}
-	/*	tmpError=CraneTester::isValidId(currentContainer.container->uniqueId);
+		tmpError=CraneTester::isValidId(currentContainer.container->uniqueId);
 		if(tmpError!=0){
 			error|=tmpError;
 			rejectFlag=1;
-		}*/
+		}
 		tmpError=CraneTester::isLegalWeight(currentContainer.container->weight);
 		if(tmpError!=0){
 			error|=tmpError;

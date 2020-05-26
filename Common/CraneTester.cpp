@@ -27,11 +27,11 @@ public:
 		int erase =0;
 		if(c=='a' || c=='A'){
 			erase=55;
-		}else if((int)c>=int('B') && (int)c<=int('K') ||(int)c>=int('b') && (int)c<=int('k')){
+		}else if(((int)c>=int('B') && (int)c<=int('K')) ||((int)c>=int('b') && (int)c<=int('k'))){
 			erase=54;	
-		}else if((int)c>=int('L') && (int)c<=int('U')||(int)c>=int('l') && (int)c<=int('u')){
+		}else if(((int)c>=int('L') && (int)c<=int('U'))||((int)c>=int('l') && (int)c<=int('u'))){
 			erase=53;
-		}else if((int)c>=int('V') && (int)c<=int('Z')||(int)c>=int('v') && (int)c<=int('z')){
+		}else if(((int)c>=int('V') && (int)c<=int('Z'))||((int)c>=int('v') && (int)c<=int('z'))){
 			erase=52;
 		}
 
@@ -67,7 +67,7 @@ public:
 			}
 			if(i>3){
 				if(!((int)uniqueId[i]>=48 && (int)uniqueId[i]<=57)){
-					cout <<" the char is "<< (int)uniqueId[10]-48<<endl;
+					//cout <<" the char is "<< (int)uniqueId[10]-48<<endl;
 					return pow(2,15);
 				}
 			}
@@ -124,18 +124,18 @@ public:
 		}
 		return 0;
 	}
-	static int priority(Container *PortInstructions, int numOfInstructions, int shipMaxCapacity, int shipSize){
+/*	static int priority(Container *PortInstructions, int numOfInstructions, int shipMaxCapacity, int shipSize){
 		int shipCapacityStatus = shipSize/shipMaxCapacity;
 		if(numOfInstructions > shipCapacityStatus){
 			for(int i=0;i<numOfInstructions;i++){
-				/*
-				binarySort( destPort's index );
-				reject the rest;
-				*/
+				
+				//binarySort( destPort's index );
+				//reject the rest;
+				
 			}
 			//std::sort(arr, numOfInstructions);
 		}
 		return 0;
-	}
+	}*/
 
 };

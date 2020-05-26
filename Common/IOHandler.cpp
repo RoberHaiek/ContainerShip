@@ -77,31 +77,28 @@ Port* getPortsFromRoute(char** &currRoute){
 int instructionsOut(string** instructions,string outName){
 	//open output file to write the instruction to output dir ??????????????????????? we must open a output dir to every algo????
 	ofstream fd_info;
-	cout << "in out" <<endl;
+//	cout << "in out" <<endl;
 	numInstructions=0;
 	string filePath=outName;
-	cout << filePath <<endl;
+//	cout << filePath <<endl;
 	fd_info.open(filePath,ios_base::out);//open the file to out
 	if(!fd_info){
-		std::cout << "ERROR[10][1]- can't open "<< filePath<< std::endl;
+	//	std::cout << "ERROR[10][1]- can't open "<< filePath<< std::endl;
 	}
 	int instIndex=0;
-//cout<<"11111111111111"<<endl;
+
 
 	while(instructions[instIndex][2].compare("last")!=0){
 		//uid,L/R/U,row,column,height
-//cout<<"222222222222222222222 ";
-		cout<<"the instruction : "<<instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4]<<endl;
+		//cout<<"the instruction : "<<instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4]<<endl;
 		fd_info<< instructions[instIndex][1]<<","<<instructions[instIndex][0]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4];
 		instIndex++;
-//cout<<"33333333333333333333"<<endl;
+
 		if(instructions[instIndex][2].compare("last")!=0){
-//cout<<"44444444444444444444   "<<instIndex<<endl;
 
 			fd_info<<endl;
 		}
 	} 
-//cout<<"555555555555555   "<<instIndex<<endl;
 	if(fd_info.is_open()){
 	fd_info.close();
 	}
@@ -128,15 +125,15 @@ string getCargoFileName(int portIndex,bool cargoData){
 //[8]
     Container* parseCargoFile(string fileName){
 	ifstream fd_info;
-	cout << "in parseCargoFile"<<endl;
+	//cout << "in parseCargoFile"<<endl;
 	int is_err=SUCCESS;
 	Container* containers;
-	int containerNum;
+	int containerNum=0;
 	string filePath=fileName;
 	fd_info.open(filePath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
-		std::cout << "ERROR[8][1]- can't open "<< filePath<< std::endl;
+		//std::cout << "ERROR[8][1]- can't open "<< filePath<< std::endl;
 		containers=new Container[1];
 		containers[containerNum]=Container(0,Port(""),"last");
 		return containers;
@@ -144,7 +141,7 @@ string getCargoFileName(int portIndex,bool cargoData){
 	}
 	
 	containerNum=getNumOfLines(fd_info);//get container size
-	cout<<"in parseCargoFile with lines "<<containerNum<<endl;
+	//cout<<"in parseCargoFile with lines "<<containerNum<<endl;
 	containers=new Container[containerNum+1];
 	string line;
 	int containerIndex=0;
@@ -153,7 +150,7 @@ string getCargoFileName(int portIndex,bool cargoData){
 	string containerDstPort;
 	int containerWeight;
 	while(getline(fd_info,line)){
-		cout<<"line :  "<<line<<endl;
+	//	cout<<"line :  "<<line<<endl;
 		if(line=="" || line.at(0)=='#'){
 			continue;
 			}
@@ -194,14 +191,14 @@ string getCargoFileName(int portIndex,bool cargoData){
 				containerIndex++;
 				}
 				is_err|=e;
-				cout << " got catched :((((("<<endl;			
+			//	cout << " got catched :((((("<<endl;			
 			}
 	}
 	if(fd_info.is_open()){
 	fd_info.close();
 	}
 	containers[containerNum]=Container(is_err,Port(""),"last");//to know we reached the last container
-	cout<<"exit  :  "<<parseCargoFile<<endl;
+	//cout<<"exit  :  "<<parseCargoFile<<endl;
 
 	return containers;
 }
@@ -263,7 +260,7 @@ int initRoute(char** &currRoute,string travelPath){
 	string line;
 	int portIndex=0;
 	int seek;
-	int numOfValids=0;
+	//int numOfValids=0;
 	string currPort;
 	while(getline(fd_info,line)){
 		if(line=="" || line.at(0)=='#'){
@@ -273,21 +270,19 @@ int initRoute(char** &currRoute,string travelPath){
 			getElem(line,seek);
 			is_err=checkPortName(parse_out);
 			if(is_err==ERROR){
-				std::cout << "ERROR[5][2]- wrong port name "<< parse_out<< std::endl;
+			//	std::cout << "ERROR[5][2]- wrong port name "<< parse_out<< std::endl;
 				err|=(int)ErrorID::TravelRouteBadPortSymbol;
-//cout<< "1111111111111111111111  err="<<err<<endl;
 				routeSize--;
 				continue;
 			}
 			if(is_err!=ERROR){
 				if(parse_out.compare(currPort)==0){
 					err|=(int)ErrorID::TravelRoutePortAppearsTwice;
-//cout<< "22222222222222222222222222222  err="<<err<<endl;
 					routeSize--;
 					continue;
 				}
 				strcpy(currRoute[portIndex],parse_out.c_str());
-				cout<<currRoute[portIndex]<<endl;
+				//cout<<currRoute[portIndex]<<endl;
 				currPort=parse_out;
 				portIndex++;
 			}
@@ -303,7 +298,6 @@ int initRoute(char** &currRoute,string travelPath){
 	if(routeSize==0){
 		return err|=(int)ErrorID::TravelRouteEmptyOrCantReadFile;
 	}
-//cout<< "333333333333333333333333333333  err="<<err << "with size :"<< routeSize<<endl;;
 
 	
 	return err;
@@ -332,7 +326,7 @@ int getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& third
 	}				
 
 	}catch(...){
-		cout << "error catched"<<endl;
+		//cout << "error catched"<<endl;
 
 		return ERROR;
 	}
@@ -340,7 +334,7 @@ int getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& third
 		return ERROR;
 
 	}
-	cout << firstElem <<","<<secElem<<","<<thirdElem<<endl;
+	//cout << firstElem <<","<<secElem<<","<<thirdElem<<endl;
 	return SUCCESS;
 }
 //[4] called in [3]
@@ -367,7 +361,7 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 			}
 
 	int seek =0;
-	cout << "the parsing line : " <<line<<endl;
+	//cout << "the parsing line : " <<line<<endl;
 	if(firstLine){
 		isErr=getTripleElem(line,seek,maxHeight,width,length);//each seprated with coma
 		
@@ -380,9 +374,9 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 		 intiate the ship
 		*/
 		//maxHeight=maxHeight-1;
-		cout<<"initiate the ship :"<<width<<", "<<length<<", "<<maxHeight<<endl;
+		//cout<<"initiate the ship :"<<width<<", "<<length<<", "<<maxHeight<<endl;
 		currShip=new Ship(width,length,maxHeight);
-		cout << "ship done init"<<endl;
+		//cout << "ship done init"<<endl;
 
 		firstLine=!firstLine;
 		}else{
@@ -394,7 +388,7 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 		flag=1;
 		}
 		if(flag!=1){
-			cout<< "the floors "<<floors << " and the max height  "<<maxHeight<<endl; 
+			//cout<< "the floors "<<floors << " and the max height  "<<maxHeight<<endl; 
 			if(floors>=maxHeight){
 //cout <<"hereeeeeeeeeee 3333333333333333"<<endl;
 				err|=(int)ErrorID::ShipPlanWrongFloors;
@@ -413,7 +407,7 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 			/*
 			update ship plan
 			*/
-			cout << "the max floor :"<<(*currShip).planLinkedList[x][y].maxHeight << " and floors is :"<<floors <<" and maxH :"<<maxHeight<<endl;
+		//	cout << "the max floor :"<<(*currShip).planLinkedList[x][y].maxHeight << " and floors is :"<<floors <<" and maxH :"<<maxHeight<<endl;
 			if((*currShip).planLinkedList[x][y].maxHeight-(*currShip).planLinkedList[x][y].size!=maxHeight && (*currShip).planLinkedList[x][y].maxHeight-(*currShip).planLinkedList[x][y].size!=floors){
 //cout <<"hereeeeeeeeeee 11111111111111111"<<endl;
 					return err|(int)ErrorID::ShipPlanDuplicateXY;				}
@@ -425,8 +419,8 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 				}
 			
 			(*currShip).setHeight(x,y,floors);
-			cout<<"------------------------------------------------------------------------"<<endl;
-			cout<< "	*in X,Y the maxHeight is :"<<(*currShip).planLinkedList[x][y].maxHeight<< "  and the size is :"<<(*currShip).planLinkedList[x][y].size<<endl;
+		//	cout<<"------------------------------------------------------------------------"<<endl;
+		//	cout<< "	*in X,Y the maxHeight is :"<<(*currShip).planLinkedList[x][y].maxHeight<< "  and the size is :"<<(*currShip).planLinkedList[x][y].size<<endl;
 			}
 		}
 		flag=0;
@@ -475,7 +469,7 @@ int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNe
 }
 /**********implement some funcs*********/
 int checkCargoFiles(string travelPath){
-	int err=0;
+	//int err=0;
 	const char *cstr = travelPath.c_str();
 	DIR* fd_travel=opendir(cstr);
 	if(fd_travel==NULL){
@@ -580,7 +574,7 @@ string getNameWithoutExtinsion(string fileName,char delemiter,string extension){
 	}
 //cout<<"extension comparing start"<<endl;
 	if(fileName.compare(extension)==0){
-		cout<<"ERROR[20][1]: "<<fileName<<" is the same as the extension"<<endl;
+		//cout<<"ERROR[20][1]: "<<fileName<<" is the same as the extension"<<endl;
 
 		return "/";
 
@@ -591,7 +585,7 @@ string getNameWithoutExtinsion(string fileName,char delemiter,string extension){
 	}
 //cout<<"getNameWithoutExtinsion end  while"<<endl;
 	if(extension.compare(parse_out)==0){
-		cout<<"+++int get Name without : "<<parse_out.substr(0,parse_out.find(string(1,delemiter)+extension))<<endl;
+		//cout<<"+++int get Name without : "<<parse_out.substr(0,parse_out.find(string(1,delemiter)+extension))<<endl;
 		return fileName.substr(0,fileName.find(string(1,delemiter)+extension));
 	}
 	
