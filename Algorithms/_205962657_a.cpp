@@ -15,7 +15,10 @@ public:
 	std::deque<node*> tempContainers;
 	std::deque<node*> loadBackContainers;
 	std::deque<std::string*> indexies;
+	vector<Container> rejectedNotInRoute;
 	int routeIndex;
+	int shipCapacity;
+	char** routeArr;
 	WeightBalanceCalculator* calc;
 	string name="in algo A";
 	/*
@@ -90,6 +93,7 @@ public:
 				return error;
 			}
 		}
+		this->routeArr=routeArray;
 		route= getPortsFromRoute(routeArray);
 		//cout<<"* finish route from stowage"<<endl;
 
@@ -133,7 +137,7 @@ public:
 		//cout<<"the first container is :"<<containers[0].uniqueId<<endl;
 		error = error | unloadingAlgo(routeIndex);
 
-		//int sizeArray=sizeOfArray(containers);
+		int sizeArray=sizeOfArray(containers);
 		//is it the last route
 		if((routeIndex==routeSize-1) && notBadPort){
 			//is it have cargo on it
@@ -142,7 +146,13 @@ public:
 			notBadPort=0;
 		}
 		if(notBadPort){
-		error = error | loadingAlgo(containers, weightBalance);
+		shipCapacity=CraneTester::getCapacity(this->ship);
+		Container * sortedInst=CraneTester::priority(containers,routeArr,routeIndex ,sizeArray,routeSize,rejectedNotInRoute);
+		cout<<"before loading error was :"<<error;
+		error |= loadingAlgo(sortedInst, weightBalance);
+		cout<<"after loading error become :"<<error;
+
+		rejectWhatLeft();
 		}
 		fillInstructions(Action::REJECT, "last", "last", "last", "last");
 		instructionsOut(currentInstructions,output_full_path_and_file_name);
@@ -151,6 +161,7 @@ public:
 		return error;
 	}
 
+	
 	void fillInstructions(Action LUR, std::string uniqueId, std::string height, std::string row,
 			std::string column) {
 		currentInstructions[instNum] = new std::string[5];
@@ -161,7 +172,13 @@ public:
 		currentInstructions[instNum][4] = column;
 		instNum = instNum + 1;
 	}
-
+	void rejectWhatLeft(){
+		for(auto it=rejectedNotInRoute.begin();it!=rejectedNotInRoute.end();it++){
+			fillInstructions(Action::REJECT, it->uniqueId,"-1", "-1", "-1");
+			
+		}
+	
+	}
 //loading for sure 
 void loadAgain(node *temp){
 	int error=0;
@@ -306,26 +323,28 @@ void loadAgain(node *temp){
 			}
 			//cout<<endl<<endl<<currentContainer.container->uniqueId<<endl<<endl;
 			is_regected=isRejected(currentContainer);
-			if(is_regected!=0 && is_regected==-1){
+			if(is_regected!=0){
 				if(is_regected==-1){
 				}else{
 				error|=is_regected;}
-				//cout<<"***** rejected"<<endl;	
+				cout<<"***** rejected error="<<error<<endl;	
 			}
 			if (is_regected== 0) {	// if its not rejected
 				//cout<<"***** NOT ! rejected"<<endl;
 				for (int row = 0; row < ship->shipWidth; row++) {	// for each row
 					for (int column = 0; column < ship->shipLength; column++) {	// for each column
 						if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
-							error = error | CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId);
-							if (error == 0) {
+							is_regected=CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId);
+							if (is_regected== 0) {
 								crane.load(currentContainer.container, row,column,this->ship->planLinkedList[row][column].size);	// load it
 								fillInstructions(Action::LOAD, currentContainer.container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size-1)), std::to_string(row), std::to_string(column));	// edit instructions
+								shipCapacity--;
 								breakIt = true;
 								break;
 							}else{
 			
 							fillInstructions(Action::REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");
+							error|=is_regected;
 
 							}
 						}
@@ -354,28 +373,34 @@ void printTestResults(node  currentContainer){
 
 // rejection test
 	int isRejected(node currentContainer) {
-	//	printTestResults(currentContainer);
+		printTestResults(currentContainer);
 		int error = 0;
 		int rejectFlag=0;
 		int tmpError=0;
+		
 		tmpError=StowageTester::isInRoute(currentContainer.container->destPort.toString(), this->route,routeIndex);
 		if(tmpError!=0){
 			rejectFlag=-1;
 			error = -1;
+		}
+	/*	tmpError=CraneTester::isValidId(currentContainer.container->uniqueId);
+		if(tmpError!=0){
+			error|=tmpError;
+			rejectFlag=1;
+		}*/
+		tmpError=CraneTester::isLegalWeight(currentContainer.container->weight);
+		if(tmpError!=0){
+			error|=tmpError;
+			rejectFlag=1;
 		}
 		tmpError=CraneTester::isFull(this->ship);
 		if(tmpError!=0){
 			error|=tmpError;
 			rejectFlag=1;
 		}
-		tmpError=CraneTester::isValidId(currentContainer.container->uniqueId);
-		if(tmpError!=0){
-			error|=tmpError;
-			rejectFlag=1;
-		}
-		tmpError=CraneTester::isLegalWeight(currentContainer.container->weight);
-		if(tmpError!=0){
-			error|=tmpError;
+cout<<shipCapacity<< "= shipCapacity"<<endl;
+		if(shipCapacity==0){
+			error|=(int)pow(2,18);
 			rejectFlag=1;
 		}
 		if(rejectFlag!=0){

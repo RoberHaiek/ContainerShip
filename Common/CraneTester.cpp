@@ -124,18 +124,73 @@ public:
 		}
 		return 0;
 	}
-/*	static int priority(Container *PortInstructions, int numOfInstructions, int shipMaxCapacity, int shipSize){
-		int shipCapacityStatus = shipSize/shipMaxCapacity;
-		if(numOfInstructions > shipCapacityStatus){
-			for(int i=0;i<numOfInstructions;i++){
-				
-				//binarySort( destPort's index );
-				//reject the rest;
-				
-			}
-			//std::sort(arr, numOfInstructions);
+
+
+	static int getCapacity(Ship* ship){
+	int capacity=0;
+	for(int i=0;i<ship->shipWidth;i++){
+			for(int j=0;j<ship->shipLength;j++){
+				capacity+=ship->planLinkedList[i][j].maxHeight-ship->planLinkedList[i][j].size;
+
+				}
 		}
-		return 0;
-	}*/
+cout<< "ship capacity is :: "<<capacity<<endl;
+	return capacity;
+	
+	}
+
+	static Container* priority(Container *PortInstructions,char** routeArray,int routeIndx ,int numOfInstruction,int routeSize,vector<Container>& rejectedNotInRoute){
+		set<string> ports;
+		set<int> indexes;
+		for(int i=routeIndx+1;i<routeSize;i++){
+		cout << "init the set if ? "<<routeArray[i];
+			if(!ports.count(string(routeArray[i]))){
+				cout << "  accepted";
+				ports.insert(string(routeArray[i]));
+			}
+		cout << endl;
+		}
+		if(routeIndx==routeSize-1){//last Port
+		Container* sortedContainers=new Container[1];
+		sortedContainers[0]=Container(0,Port("last"),"last");
+		for(int inst=0;inst<=numOfInstruction;inst++){
+			cout<< "in last port we must reject "<<PortInstructions[inst].uniqueId<<endl;
+			rejectedNotInRoute.push_back(PortInstructions[inst]);
+
+		}
+		return sortedContainers;
+		
+		}
+		Container* sortedContainers=new Container[numOfInstruction+1];
+		int containerIndx=0;
+		for(auto curr=ports.begin();curr!=ports.end(); curr++){
+			for(int inst=0;inst<=numOfInstruction;inst++){
+			cout<< "the port is :: "<<*curr <<" , and the container is ::"<<PortInstructions[inst].uniqueId<<endl;
+				if(PortInstructions[inst].uniqueId =="last"){
+					break;
+				}else if(PortInstructions[inst].destPort.port=="reject" && !indexes.count(inst)){
+			cout << "	*)'reject'"<<endl;
+					indexes.insert(inst);
+					rejectedNotInRoute.push_back(PortInstructions[inst]);	
+				}
+				else if(PortInstructions[inst].destPort.port==*curr && !indexes.count(inst)){
+			cout << "	*)taken"<<endl;
+					indexes.insert(inst);
+					sortedContainers[containerIndx]=Container(PortInstructions[inst].weight,PortInstructions[inst].destPort,PortInstructions[inst].uniqueId);
+					containerIndx++;
+				}
+			}
+		}
+		for(int inst=0;inst<=numOfInstruction;inst++){
+			if(PortInstructions[inst].uniqueId =="last"){
+					break;
+				}
+			if(!indexes.count(inst)){
+			rejectedNotInRoute.push_back(PortInstructions[inst]);
+			}
+		}
+		sortedContainers[containerIndx]=Container(0,Port("last"),"last");
+		return sortedContainers;
+	}
 
 };
