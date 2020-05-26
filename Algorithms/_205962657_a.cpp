@@ -20,40 +20,7 @@ public:
 	int shipCapacity;
 	char** routeArr;
 	WeightBalanceCalculator* calc;
-	string name="in algo A";
-	/*
-	 *
-	 *added
-	 *
-	 */
-	//decleration
-	//void unloadingAlgo(int i);
 
-	/*
-	void printContainersZeroZero(){
-		node* temp=ship->planLinkedList[0][0].linkedList;
-		cout<< "--------------------[0][0]---------------------------------"<<endl;
-		while(temp!=NULL){
-			cout<< temp->container->uniqueId <<" --> ";
-			temp=temp->next;
-		}
-		cout<<" NULL "<<endl;
-		cout<< "--------------------[0][0] END---------------------------------"<<endl;
-	}
-	//printing
-	void printContainers(Container *array) {
-		Container *p = array;
-		int index = 0;
-		std::cout
-				<< "--------------------CONTAINERS---------------------------------"
-				<< endl;
-		while (p->uniqueId.compare("last") != 0) {
-			std::cout << "on index " << index << " ID: " << p->uniqueId << endl;
-		}
-		std::cout
-				<< "------------------------END CONTAINERS-----------------------------"
-				<< endl;
-	}*/
 
 	static bool weightBalance() {
 		return true;	// we have a magical ship
@@ -68,7 +35,6 @@ public:
 		return 0;
 	}
 	
-	// ask Aubaida:
 
 	int readShipPlan(const std::string& full_path_and_file_name){
 		// read the ship plan from a file
@@ -77,10 +43,10 @@ public:
 		this->instNum = 0;	// The instruction number of the returned instruction
 		this->routeIndex=0;
 
-	//	cout << "*initShipPlan "<<name<<endl;
-	  	error |=initShipPlan(ship,full_path_and_file_name);
+		  	error |=initShipPlan(ship,full_path_and_file_name);
 		return error ; // success
 	}
+
 
 	int readShipRoute(const std::string& full_path_and_file_name){
 		// read ship route from file
@@ -148,9 +114,9 @@ public:
 		if(notBadPort){
 		shipCapacity=CraneTester::getCapacity(this->ship);
 		Container * sortedInst=CraneTester::priority(containers,routeArr,routeIndex ,sizeArray,routeSize,rejectedNotInRoute);
-		cout<<"before loading error was :"<<error;
+		//cout<<"before loading error was :"<<error;
 		error |= loadingAlgo(sortedInst, weightBalance);
-		cout<<"after loading error become :"<<error;
+		//cout<<"after loading error become :"<<error;
 
 		rejectWhatLeft();
 		}
@@ -327,7 +293,7 @@ void loadAgain(node *temp){
 				if(is_regected==-1){
 				}else{
 				error|=is_regected;}
-				cout<<"***** rejected error="<<error<<endl;	
+				//cout<<"***** rejected error="<<error<<endl;	
 			}
 			if (is_regected== 0) {	// if its not rejected
 				//cout<<"***** NOT ! rejected"<<endl;
@@ -373,7 +339,7 @@ void printTestResults(node  currentContainer){
 
 // rejection test
 	int isRejected(node currentContainer) {
-		printTestResults(currentContainer);
+		//printTestResults(currentContainer);
 		int error = 0;
 		int rejectFlag=0;
 		int tmpError=0;
@@ -398,7 +364,6 @@ void printTestResults(node  currentContainer){
 			error|=tmpError;
 			rejectFlag=1;
 		}
-cout<<shipCapacity<< "= shipCapacity"<<endl;
 		if(shipCapacity==0){
 			error|=(int)pow(2,18);
 			rejectFlag=1;

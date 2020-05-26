@@ -1,5 +1,6 @@
 #include "Ship.cpp"
 #include <math.h>
+#include <set>
 
 class CraneTester{
 public:
@@ -134,7 +135,7 @@ public:
 
 				}
 		}
-cout<< "ship capacity is :: "<<capacity<<endl;
+//cout<< "ship capacity is :: "<<capacity<<endl;
 	return capacity;
 	
 	}
@@ -143,18 +144,18 @@ cout<< "ship capacity is :: "<<capacity<<endl;
 		set<string> ports;
 		set<int> indexes;
 		for(int i=routeIndx+1;i<routeSize;i++){
-		cout << "init the set if ? "<<routeArray[i];
+		//cout << "init the set if ? "<<routeArray[i];
 			if(!ports.count(string(routeArray[i]))){
-				cout << "  accepted";
+				//cout << "  accepted";
 				ports.insert(string(routeArray[i]));
 			}
-		cout << endl;
+		//cout << endl;
 		}
 		if(routeIndx==routeSize-1){//last Port
 		Container* sortedContainers=new Container[1];
 		sortedContainers[0]=Container(0,Port("last"),"last");
 		for(int inst=0;inst<=numOfInstruction;inst++){
-			cout<< "in last port we must reject "<<PortInstructions[inst].uniqueId<<endl;
+			//cout<< "in last port we must reject "<<PortInstructions[inst].uniqueId<<endl;
 			rejectedNotInRoute.push_back(PortInstructions[inst]);
 
 		}
@@ -165,16 +166,16 @@ cout<< "ship capacity is :: "<<capacity<<endl;
 		int containerIndx=0;
 		for(auto curr=ports.begin();curr!=ports.end(); curr++){
 			for(int inst=0;inst<=numOfInstruction;inst++){
-			cout<< "the port is :: "<<*curr <<" , and the container is ::"<<PortInstructions[inst].uniqueId<<endl;
+			//cout<< "the port is :: "<<*curr <<" , and the container is ::"<<PortInstructions[inst].uniqueId<<endl;
 				if(PortInstructions[inst].uniqueId =="last"){
 					break;
 				}else if(PortInstructions[inst].destPort.port=="reject" && !indexes.count(inst)){
-			cout << "	*)'reject'"<<endl;
+			//cout << "	*)'reject'"<<endl;
 					indexes.insert(inst);
 					rejectedNotInRoute.push_back(PortInstructions[inst]);	
 				}
 				else if(PortInstructions[inst].destPort.port==*curr && !indexes.count(inst)){
-			cout << "	*)taken"<<endl;
+			//cout << "	*)taken"<<endl;
 					indexes.insert(inst);
 					sortedContainers[containerIndx]=Container(PortInstructions[inst].weight,PortInstructions[inst].destPort,PortInstructions[inst].uniqueId);
 					containerIndx++;
