@@ -34,7 +34,7 @@ Port* getPortsFromRoute(char** &currRoute);
 int instructionsOut(string** instructions,string outName);
 string getCargoFileName(int portIndex,bool cargoData);
 Container* parseCargoFile(string fileName);
-int checkPortName(string name);
+int checkPortName(string& name);
 int getNumOfLines(ifstream& fd);
 int initRoute(char** &currRoute,string travelPath);
 int getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem);

@@ -1,2 +1,2 @@
-RESULTS,	complex,	ignore_bad_ship_plan_lines,	ahmad_castro,	no_cargo,	missing_last_cargo,	ship_plan_dublicate_same_data,	simple,	too_much_cargo,	Sum,	NumErrors
-_205962657_a,	24,		8,		16,		0,		8,		8,		56,		8,		128,		0
+RESULTS,	ahmad_castro,	simple,	too_much_cargo,	missing_last_cargo,	no_cargo,	ignore_bad_ship_plan_lines,	ship_plan_dublicate_same_data,	complex,	bad_cargo_data,	Sum,	NumErrors
+_205962657_a,	16,		56,		8,		8,		0,		8,		8,		24,		6,		134,		0

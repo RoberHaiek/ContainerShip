@@ -30,6 +30,7 @@ const char* OUTPUT="/output";
 int numInstructions=0;
 Ship* ship;
 Stowage* curAlgo;*/
+int checkPortName(string& name);
 
 /*--------------------------PARSING METHODS--------------------------*/
 int getElem(string s , int& seek,char delmiter){
@@ -128,7 +129,7 @@ string getCargoFileName(int portIndex,bool cargoData){
     Container* parseCargoFile(string fileName){
 	ifstream fd_info;
 	cout << "in parseCargoFile"<<endl;
-	int is_err=SUCCESS;//must change this.........................................
+	int is_err=SUCCESS;
 	Container* containers;
 	int containerNum;
 	string filePath=fileName;
@@ -145,7 +146,6 @@ string getCargoFileName(int portIndex,bool cargoData){
 	containerNum=getNumOfLines(fd_info);//get container size
 	cout<<"in parseCargoFile with lines "<<containerNum<<endl;
 	containers=new Container[containerNum+1];
-	containers[containerNum]=Container(0,Port(""),"last");//to know we reached the last container
 	string line;
 	int containerIndex=0;
 	int seek;
@@ -158,32 +158,56 @@ string getCargoFileName(int portIndex,bool cargoData){
 			continue;
 			}
 			seek=0;
+			try{
 			getElem(line,seek,',');
+			if(parse_out==""){
+				throw((int)ErrorID::ContainersIDCannotBeRead);
+			}
 			containerUID=string(parse_out);
+			if(parse_out==""){
+				throw((int)ErrorID::ContainersIDCannotBeRead);
+			}
 			getElem(line,seek,',');
 			containerWeight=std::stoi(parse_out); // get length
+			if(parse_out=="" || containerWeight<0){
+				throw ((int)ErrorID::ContainersMissingOrBadWeight);
+			}
+
 			getElem(line,seek,',');
+			if(parse_out=="" || containerWeight<0 || seek <(int)line.length()){
+				throw ((int)ErrorID::ContainersMissingOrBadPortDest);
+			}
 			containerDstPort=string(parse_out);
-			/*is_err=checkUid(containerUID);*/
-			if(is_err==ERROR){
-				std::cout << "ERROR[8][1]- wrong container uid format  "<< containerUID<< std::endl;
+			int isErrName=checkPortName(containerDstPort);
+			if(isErrName!=SUCCESS){
+				throw ((int)ErrorID::ContainersMissingOrBadPortDest);
 			}
-			else{
-				Port dstPort(containerDstPort);
-				containers[containerIndex]=Container(containerWeight,dstPort,containerUID);
-			}
+
+			Port dstPort(containerDstPort);
+			containers[containerIndex]=Container(containerWeight,dstPort,containerUID);
 			containerIndex++;
+			}catch(int e){
+				if(e==(int)ErrorID::ContainersIDCannotBeRead){
+					containerNum--;
+				}else{
+				containers[containerIndex]=Container(-1,Port("reject"),containerUID);
+				containerIndex++;
+				}
+				is_err|=e;
+				cout << " got catched :((((("<<endl;			
+			}
 	}
 	if(fd_info.is_open()){
 	fd_info.close();
 	}
+	containers[containerNum]=Container(is_err,Port(""),"last");//to know we reached the last container
 	cout<<"exit  :  "<<parseCargoFile<<endl;
 
 	return containers;
 }
 
 //[7] called in [5]
-int checkPortName(string name){
+int checkPortName(string& name){
 	if(name.length()!=5){
 		return ERROR;
 	}
@@ -302,6 +326,11 @@ int getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& third
 	if(err!=SUCCESS || thirdElem<0){
 		return err;
 	}
+	err=getElem(line,seek,',');
+	if(err!=ERROR || seek<=(int)line.length()){
+		return ERROR;
+	}				
+
 	}catch(...){
 		cout << "error catched"<<endl;
 

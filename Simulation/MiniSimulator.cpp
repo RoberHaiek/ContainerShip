@@ -134,12 +134,16 @@ cout << "file_name is "<<file_name<<endl;
 
 		if(last_port){
 			if(array[0]=="L" || array[0]=="M"){//no R/L actions in the last Port 
+				handleError(output,"Simulator","ERROR : algorithm set LOAD instructions to the last port ");
 					return ERROR;
 			}
 		}
 
 		if(!last_port){
-			if(array[0]=="U" && flag_load){return ERROR;}
+			if(array[0]=="U" && flag_load){
+				handleError(output,"Simulator","ERROR : algorithm sets UNLOAD instruction after LOAD ");
+				return ERROR;
+			}
 		}
 				
 	}
@@ -149,7 +153,7 @@ cout << "file_name is "<<file_name<<endl;
 		for(int i=0;instructions[i][0]!="last";i++){
 			string * array=instructions[i];
 
-			cout<<"66666666666666 array[i]="<<array[1]<<":"<<array[0]<<" , with, containers[index].uniqueId="<<containers[index].uniqueId<<":"<<endl;
+			//cout<<"66666666666666 array[i]="<<array[1]<<":"<<array[0]<<" , with, containers[index].uniqueId="<<containers[index].uniqueId<<":"<<endl;
 			if(array[1]==containers[index].uniqueId && (array[0]=="L" || array[0]=="R") && indexes.count(i)==0){
 				indexes.insert(i);
 				break;
@@ -160,6 +164,7 @@ cout << "file_name is "<<file_name<<endl;
 		cout << endl<< "SUCCESS"<<endl;
 		return SUCCESS;	
 	}
+	handleError(output,"Simulator","ERROR : algorithm must contain a LOAD/REJECT instruction for each awaiting cargo at the port(not encluding the last port)");
 	return ERROR;
 }
 return SUCCESS;
@@ -428,7 +433,7 @@ cout << "reading expected ******"<<endl;
 			seek=0;
 			err=getFiveElementsIntoArray(line,seek,expectedInstructions[instructionIndex],REGULAR);
 			if(err==ERROR){
-				cout << "ERRORRRRR :("<< endl;
+				handleError(output,"Simulator","ERROR : algorithm have a bad format cargo instructions.");
 				return NULL;
 			}
 			instructionIndex++;
@@ -437,7 +442,6 @@ cout << "reading expected ******"<<endl;
 
 	err=getFiveElementsIntoArray("",seek,expectedInstructions[instructionIndex],LAST);
 	if(err==ERROR){
-		cout << "ERRORRRRR :("<< endl;
 		return NULL;
 	}
 	
@@ -449,7 +453,7 @@ cout << "reading expected ******"<<endl;
 	if(fd_info.is_open()){
 		fd_info.close();
 	}
-cout << "finish expected ******"<<endl; 
+cout << "finish expected ******"<<endl;
 
 	return expectedInstructions;
 }
@@ -480,6 +484,8 @@ int simulateTravel(){
 	ErrorCode errCode;
 cout<< endl << "DELETING THE EMPTY FILES" << endl<< endl<< endl;
 emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
+handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
+
 
 	cout << "*initShipPlan"<<endl;
 	string shipPlanName;
@@ -582,19 +588,30 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 	travelNum++;
 	cout<<"******starting the loop over the algos **********"<<endl;
 	cout << endl<<endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<<"#==#==#==#==#==#==#==#"<<endl<<endl;
+	
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
 		string algoName=algoQueue.front();
 		algoQueue.pop();
 	cout << endl<<endl<<"##################### Algo = "<<algoName<<"##################"<<endl<<endl;
 		auto algo = (*algo_iter)();
+		try{
 		err=algo->readShipPlan(shipPlanName);
+		}catch(...){
+			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling readShipPlan (stop the simulation on this algorithm/travel pair)");
+			throw 1;
+		}
 		if(err!=0){
 		status isIgnore =handleError(output,algoName+"/"+travelName,err);
 		if(isIgnore!=status::Ignore){
 			 continue;}
 			}
-
+		try{
 		err=algo->readShipRoute(routeName);
+		}catch(...){
+			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling readShipRoute(stop the simulation on this algorithm/travel pair)");
+			throw 1;
+		}
+
 		if(err!=0){
 		status isIgnore =handleError(output,algoName+"/"+travelName,err);
 		if(isIgnore!=status::Ignore){
@@ -602,7 +619,12 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 			}
 		//whightBalance
 		WeightBalanceCalculator calculator;
+		try{
 		algo->setWeightBalanceCalculator( calculator);
+		}catch(...){
+			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling setWeightBalanceCalculator(stop the simulation on this algorithm/travel pair)");
+			throw 1;		
+		}
 
 		//make directory
 		string makeDir=output+"/"+algoName+"_"+travelName+"_crane_instructions";
@@ -643,7 +665,14 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 		}else{
 		input=travelPath+"/"+FileNameCarge;
 		}
+		try{
 		err=algo->getInstructionsForCargo(input,makeDir+"/"+FileNameInstruction);
+		}catch(...){
+			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling getInstructionsForCargo(stop the simulation on this algorithm/travel pair)");
+			continue;		
+		}
+
+		
 		std::cout << "\n \n \n Error number: " << err << "\n \n \n";
 		if(err!=0){
 		status isIgnore =handleError(output,algoName+"/"+travelName,err);
@@ -659,10 +688,13 @@ cout<<"11111111111111111 "<<endl;
 		ifstream fd_info;
 		fd_info.open( output+"/"+makeDir+"/"+FileNameInstruction,ios_base::in);//open the file
 		//checking the access to the file
+		int numOfInstructions=0;
+	try{
 			if(!fd_info){
-			std::cout << "ERROR[8][1]- can't open "<< output+"/"+makeDir+"/"+FileNameInstruction<< std::endl;
+			handleError(output,"Simulator","ERROR- can't open the algorithm instruction file :"+ output+"/"+makeDir+"/"+FileNameInstruction);
+			throw 1;
 			}
-			int numOfInstructions;
+			
 		if(instructions!=NULL){
 cout<<"isItFineInstructions starts--------------"<<endl;
 			err=isItFineInstructions(instructions,input,routeIndex);
@@ -676,7 +708,9 @@ cout<<endl<<"isItFineInstructions ends ---with err= "<< err<<"-------"<<endl<<en
 		}else{
 			err=ERROR;
 		}
-
+}catch(int e){
+	err=e;
+}
 			//results parsing 
 			cout<<"its time to play"<<endl;
 			auto isThere=resMap.find(algoName);
@@ -768,7 +802,8 @@ int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorit
 /* argv[1] will be the path of the workspace(IO-Files)*/
 //[1]
 int main(int argc, char *argv[]) {
-
+DIR *fd_path;
+try{
 	if(argc!=3 && argc!=5 && argc!=7){
 		std::cout << "ERROR[1][1]- Wrong Number of Parameters!" << std::endl;
 		return ERROR;
@@ -777,6 +812,8 @@ int main(int argc, char *argv[]) {
 	if (checkErr==ERROR){
 		std::cout << "ERROR[1][2]- Wrong Parameters foramt! or A missing -travel_path argument" << std::endl;
 		std::cout << "did you mean : simulator [-travel_path <path>] [-algorithm_path <algorithm path>] [-output <output path>]" << std::endl;
+		handleError(output,"Simulator","ERROR- Wrong Parameters foramt! or A missing -travel_path argument");
+		throw 1;
 		return ERROR;
 	}
 	//getting the path
@@ -784,13 +821,16 @@ int main(int argc, char *argv[]) {
 	errorOutputPath=output;
 	//checking the access to the DIR
 	const char *cstr = workPath.c_str();
-	DIR *fd_path=opendir(cstr);
+	fd_path=opendir(cstr);
 	if(fd_path==NULL){
-		std::cout << "ERROR[1][2]- can't open "<<workPath<<std::endl;
-		return ERROR;
+		handleError(output,"Simulator","ERROR :: can't open the travel path :"+travel_path);
+		throw 1;
 	}
 	//get the travels
 	simulate(fd_path);
+}catch(...){	
+	cout<< "catched xD"<<endl;
+}
 	if(fd_errors.is_open()){
 		fd_errors.close();	
 	}

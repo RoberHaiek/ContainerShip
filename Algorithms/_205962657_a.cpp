@@ -118,15 +118,25 @@ public:
 		notBadPort=0;
 		error|=(int)pow(2,16);
 		}
-
+cout<<"333333333333333"<<endl;
 		Container* containers=parseCargoFile(input_full_path_and_file_name);
+		int containerIndex=0;
+cout<<"333333333333333"<<endl;
+		while(true){
+			if(containers[containerIndex].uniqueId=="last"){
+				error|=containers[containerIndex].weight;			
+				break;
+			}
+		containerIndex++;
+		}
+cout<<"555555555555555555555"<<endl;
+		
 		cout<<"the first container is :"<<containers[0].uniqueId<<endl;
 		error = error | unloadingAlgo(routeIndex);
 cout<<"finish unloading ?>?>?>?>"<<endl;
 		int sizeArray=sizeOfArray(containers);
 		//is it the last route
 cout<<"last Port ????????? routeIndex="<<routeIndex<<"==routeSize-1="<<(routeSize-1)<<"?????????????"<<endl;
-
 		if((routeIndex==routeSize-1) && notBadPort){
 			//is it have cargo on it
 cout<<"last Port have containers ?????????"<<(containers[0].uniqueId.compare("last")!=0)<<"?????????????"<<endl;
@@ -293,6 +303,11 @@ void loadAgain(node *temp){
 		for (int p = 0; p < sizeOfArray(PortInstructions); p++) {	// for each container in the instructions
 	
 			currentContainer.container = &(PortInstructions[p]);
+//new
+			if(currentContainer.container->destPort.port=="reject"){
+				fillInstructions(Action::REJECT, currentContainer.container->uniqueId,"-1", "-1", "-1");
+				continue;
+			}
 			cout<<endl<<endl<<currentContainer.container->uniqueId<<endl<<endl;
 			is_regected=isRejected(currentContainer);
 			if(is_regected!=0 && is_regected==-1){
