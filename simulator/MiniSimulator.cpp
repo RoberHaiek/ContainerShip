@@ -838,6 +838,10 @@ cout<<endl<<"isItFineInstructions ends ---with err= "<< err<<"-------"<<endl<<en
 				err=0;
 				Port* ports=getPortsFromRoute(route);
 				 err= validateAlgorithm(instructions, ports[routeIndex], ship, ports, routeIndex);
+				if(err==0 && routeIndex ==routeSize-1 && !(ship->planMap->empty())){
+					//ship must be empty
+					err=-1;
+				}
 				//cout<<"VALIDATION==========================="<<validation<<endl;
 			}
 		}else{
