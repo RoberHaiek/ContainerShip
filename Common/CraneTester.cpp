@@ -171,10 +171,12 @@ public:
 	return capacity;
 	
 	}
-
+ 
+	/*sort the cargo containers by how much the port is far from the current port */
 	static Container* priority(Container *PortInstructions,char** routeArray,int routeIndx ,int numOfInstruction,int routeSize,vector<Container>& rejectedNotInRoute){
 		set<string> ports;
 		set<int> indexes;
+		//adds the next ports just once 
 		for(int i=routeIndx+1;i<routeSize;i++){
 		//cout << "init the set if ? "<<routeArray[i];
 			if(!ports.count(string(routeArray[i]))){
@@ -183,6 +185,7 @@ public:
 			}
 		//cout << endl;
 		}
+		//if its the last port then we reject all the containers
 		if(routeIndx==routeSize-1){//last Port
 		Container* sortedContainers=new Container[1];
 		sortedContainers[0]=Container(0,Port("last"),"last");
@@ -196,17 +199,19 @@ public:
 		}
 		Container* sortedContainers=new Container[numOfInstruction+1];
 		int containerIndx=0;
+
+		//for each port -- we find the relevant cargo and push it in the set one by one
 		for(auto curr=ports.begin();curr!=ports.end(); curr++){
 			for(int inst=0;inst<=numOfInstruction;inst++){
 			//cout<< "the port is :: "<<*curr <<" , and the container is ::"<<PortInstructions[inst].uniqueId<<endl;
 				if(PortInstructions[inst].uniqueId =="last"){
 					break;
-				}else if(PortInstructions[inst].destPort.port=="reject" && !indexes.count(inst)){
+				}else if(PortInstructions[inst].destPort.port=="reject" && !indexes.count(inst)){//this container have been rejected for bad weight/dst port format
 			//cout << "	*)'reject'"<<endl;
 					indexes.insert(inst);
 					rejectedNotInRoute.push_back(PortInstructions[inst]);	
 				}
-				else if(PortInstructions[inst].destPort.port==*curr && !indexes.count(inst)){
+				else if(PortInstructions[inst].destPort.port==*curr && !indexes.count(inst)){ //the port name matches
 			//cout << "	*)taken"<<endl;
 					indexes.insert(inst);
 					sortedContainers[containerIndx]=Container(PortInstructions[inst].weight,PortInstructions[inst].destPort,PortInstructions[inst].uniqueId);
@@ -214,6 +219,7 @@ public:
 				}
 			}
 		}
+		//for each other instructions ... add them to the reject (these are the containers that its destinations not in the route)
 		for(int inst=0;inst<=numOfInstruction;inst++){
 			if(PortInstructions[inst].uniqueId =="last"){
 					break;

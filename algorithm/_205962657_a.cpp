@@ -25,6 +25,7 @@ public:
 	static bool weightBalance() {
 		return true;	// we have a magical ship
 	}
+	
 	int sizeOfArray(Container *array) {
 		int c = 0;
 		while (true) {
@@ -73,8 +74,6 @@ public:
 
 	int getInstructionsForCargo(const std::string& input_full_path_and_file_name, const std::string& output_full_path_and_file_name){
 		// read from input, write to output - PARSING
-		//string fileName=getTheFileName(input_full_path_and_file_name);
-		//cout<<"111111111111 "<<input_full_path_and_file_name <<"  and the filename is : "<<fileName<<endl;
 		
 		int error = 0;
 		//getRouteIndex(routeIndex,fileName);
@@ -84,16 +83,18 @@ public:
 		fd_info.open(input_full_path_and_file_name,ios_base::in);//open the file
 		//checking the access to the file
 		int notBadPort=1;
+		//if its a currupted file .. consederet empty
 		if(!fd_info){
-		notBadPort=0;
-		error|=ErrorID::ContainersFileCannotBeRead;
+			notBadPort=0;
+			error|=ErrorID::ContainersFileCannotBeRead;
 		}
 
 		Container* containers=parseCargoFile(input_full_path_and_file_name);
 		int containerIndex=0;
-
+		
 		while(true){
 			if(containers[containerIndex].uniqueId=="last"){
+				//error from the parse cargo are in the last container weight xDn
 				error|=containers[containerIndex].weight;			
 				break;
 			}
@@ -240,13 +241,13 @@ void loadAgain(node *temp){
 						delete[] indx;
 					} else {
 		//cout<<"		-*-*-*to load back  "<<popedElem->container->uniqueId<<endl;
-
+						//add all the cargo that was temporary unloaded to the loadBackContainers queue
 						loadBackContainers.push_front(popedElem);
 						indexies.push_back(indx);
 					}
 				}
-}
-}
+	}
+}				/*here after done all the unload instructions ... we need to load back all the containers that was unloaded temporary*/
 				node *popedElem;//
 				std::string *indx;
 				while (!loadBackContainers.empty()) {
@@ -256,17 +257,16 @@ void loadAgain(node *temp){
 					loadBackContainers.pop_back();
 					//cout<<"		-*-*-*loading back ??????"<<endl;
 					loadAgain(popedElem);
-					/*fillInstructions(Action::LOAD,popedElem->container->uniqueId, indx[2],indx[0], indx[1]);
 		//cout<<"		-*-*-*loading back "<<popedElem->container->uniqueId << ","<<indx[2]<<","<<indx[0]<<"," <<indx[1]<<endl;
-					crane.load(popedElem->container, row, column,this->ship->planLinkedList[row][column].size);*/
+					/*crane.load(popedElem->container, row, column,this->ship->planLinkedList[row][column].size);*/
 					delete popedElem;
 					delete[] indx;
 
 
 				}
 
-		//	}
-	//	}
+		
+	
 
 		return error;
 	}

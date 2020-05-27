@@ -548,14 +548,18 @@ string** ReadExpectedInstructions(string cargoFileName){
 
 
 //[3] called in [2]
+/*here we simulate the  travel ......due to lack of time i didn't seperate this function and document it well .. 
+but if i had an one hour i'll do so xD
+*/
 int simulateTravel(){
 	  //intiate the ship and get the route
 	ErrorCode errCode;
 cout<< endl << "DELETING THE EMPTY FILES" << endl<< endl<< endl;
+//these are the emoty ports that was in the last travel .. se we clear it
 emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 //handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 
-
+/**********************in this section we check and initiate the route/ship plan and prepare the simulation********************/
 	cout << "*initShipPlan"<<endl;
 	string shipPlanName;
 	string routeName;
@@ -612,7 +616,9 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 	}
 	cout << "*end_checkCargoFiles"<<endl;
 	cout << "*end_ports"<<endl;
+/******************END initiation SECTION****************************/
 
+/******************START in this section we initiate the registrar and get the algorithms*********************/
 //new implemntation using algo regestrar
 	int flag=0;
 	auto& registrar = AlgorithmRegistrar::getInstance();
@@ -646,15 +652,17 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 			
 		}
 	cout << "*end_registration"<<endl;
+/******************END initiate the registrar and get the algorithms*********************/
 
 	closedir(fd_Algo);
     	}
 	if(flag){
+	//adding the travel to the queue
 	travelQueue.push(travelName);
 	travelNum++;
 	cout<<"******starting the loop over the algos **********"<<endl;
 	cout << endl<<endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<<"#==#==#==#==#==#==#==#"<<endl<<endl;
-	
+	//for each algorithm :
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
 		string algoName=algoQueue.front();
 		algoQueue.pop();
@@ -676,7 +684,9 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 		if(isIgnore!=status::Ignore){
 			 continue;}
 			}
+//readShipRoute
 		try{
+		
 		err=algo->readShipRoute(routeName);
 		}catch(...){
 			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling readShipRoute(stop the simulation on this algorithm/travel pair)");
@@ -690,6 +700,7 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 			}
 		//whightBalance
 		WeightBalanceCalculator calculator;
+//setWeightBalanceCalculator
 		try{
 		algo->setWeightBalanceCalculator( calculator);
 		}catch(...){
@@ -751,7 +762,7 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 			continue;}
 			}
 
-		
+		/********************Start in this section we validate the route*************/
 		//validate 
 		cout<<"instructions "<<endl;
 		string **instructions=ReadExpectedInstructions( output+"/"+makeDir+"/"+FileNameInstruction);
@@ -785,6 +796,11 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 }catch(int e){
 	err=e;
 }
+/********************END validaton the route*************/
+
+
+/********************Start in this section we preapare the results*************/
+
 			//results parsing 
 			cout<<"its time to play"<<endl;
 			auto isThere=resMap.find(algoName);
@@ -815,7 +831,7 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 		
 			}
 			
-
+/********************END preaparing the results*************/
 		
 		}	
 	}
