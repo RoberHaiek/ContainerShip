@@ -108,43 +108,41 @@ public:
 
 
 	static int isValidUnloadSimulation(int row, int column, int shipWidth, int shipLength,int containerFloor,Ship* ship,Container* container){
-cout << "==in isValidUnload"<<endl;
+//cout << "==in isValidUnload"<<endl;
 		if(row != shipWidth || column!=shipLength){
-cout << "exiting isValidUnload  111"<<endl;
+//cout << "exiting isValidUnload  111"<<endl;
 
 			return -1;
 		}
 		struct node *prev,*temp;
 		temp=ship->planLinkedList[row][column].linkedList;
 		if(temp==NULL || containerFloor>=ship->planLinkedList[row][column].maxHeight || containerFloor<0){
-	cout<< (temp==NULL) <<"  "<< (containerFloor>=ship->planLinkedList[row][column].maxHeight-1) <<"  "<<(containerFloor<0)<<endl;
-cout << "exiting isValidUnload 22"<<endl;
+	//cout<< (temp==NULL) <<"  "<< (containerFloor>=ship->planLinkedList[row][column].maxHeight-1) <<"  "<<(containerFloor<0)<<endl;
+//cout << "exiting isValidUnload 22"<<endl;
 			
 			return -1;
 		}
 		if(ship->planMap->find(container->uniqueId)==ship->planMap->end()){
-			cout << "exiting isValidUnload  not on the ship"<<endl;
+			//cout << "exiting isValidUnload  not on the ship"<<endl;
 			return -1;
 		}
 		prev=temp;
 		while(temp->container->uniqueId != container->uniqueId){
-		cout << "exiting isValidUnload  33 with floorIndex="<<" and containerFloor="<<containerFloor<<" on top :"<<prev->container->uniqueId <<endl;
+		//cout << "exiting isValidUnload  33 with floorIndex="<<" and containerFloor="<<containerFloor<<" on top :"<<prev->container->uniqueId <<endl;
 
 			
 			prev=temp;
 			temp=temp->next;
 			if(temp==NULL){
-			cout<<"exiting .. "<<endl;
-				exit(1);
 				return -1;
 			}
 		}
 		//is there somone above of him?
 		if(temp->next!=NULL){
-cout << "exiting isValidUnload 44 because :: "<<temp->next->container->uniqueId<<" above of him"<<endl;
+//cout << "exiting isValidUnload 44 because :: "<<temp->next->container->uniqueId<<" above of him"<<endl;
 			return -1;	
 		}
-cout << "exiting isValidUnload 55"<<endl;
+//cout << "exiting isValidUnload 55"<<endl;
 		return 0;
 	}
 

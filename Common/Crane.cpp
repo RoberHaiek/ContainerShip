@@ -62,16 +62,16 @@ public:
 		rowColumn[1] = column;
 		rowColumn[2] = floor;
 		int numOfemptyIndicator=0;
-cout<<"		+-+-+- loading "<<container->uniqueId << " in "<<floor<< ","<<row<<","<<column<<endl; 
+//cout<<"		+-+-+- loading "<<container->uniqueId << " in "<<floor<< ","<<row<<","<<column<<endl; 
 		ship->planMap->insert(std::pair<std::string, int*>(container->uniqueId,rowColumn));	// Adding container to the map
 		struct node *temp, *newNode;
 		newNode =new node();
-cout<<"1111111111111"<<endl;
+
 		Port port = Port(container->destPort.toString());
 		newNode->container=new Container(container->weight,port,container->uniqueId);
 		newNode->next=NULL;
 		temp=ship->planLinkedList[row][column].linkedList;
-cout<<"22222222222222222"<<endl;
+
 		while(temp!=NULL && temp->next!=NULL){
 			temp=temp->next;
 		}
@@ -80,7 +80,7 @@ cout<<"22222222222222222"<<endl;
 		}
 
 		else if(temp->container->uniqueId.compare("Floor")==0){
-cout<<"333333333333333333333"<<endl;
+
 			int size=ship->planLinkedList[row][column].size;
 			struct node *emptyNode=new node();
 			struct node *firstEmptyNode=emptyNode;
@@ -113,11 +113,7 @@ cout<<"333333333333333333333"<<endl;
 				temp->next=newNode;
 			
 		}
-cout<<"444444444444444444444"<<endl;
 		ship->planLinkedList[row][column].size+=1+numOfemptyIndicator;
-cout<<"55555555555555555555"<<endl;
-int *dimensions = ship->planMap->find(container->uniqueId)->second;
-cout<<"exiting loading crane with :"<<container->uniqueId <<","<<dimensions[0] <<","<<dimensions[1]<<","<<dimensions[2]  <<endl;
 	}
 
 };

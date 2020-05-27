@@ -3,7 +3,7 @@
 #define IOHANDLER_H_INCLUDED
 
 //includes and globals
-#include "../Algorithms/StowageTester.cpp"
+#include "../algorithm/StowageTester.cpp"
 #include <fstream>
 #define SUCCESS 0
 #define ERROR 1
