@@ -2,6 +2,7 @@
 #include "Ship.h"
 #include <stack>
 #include <map>
+#include <string>
 #include <iostream>
 
 class Ship {
@@ -11,6 +12,7 @@ public:
 	int shipLength;
 	int shipHeight;
 	std::map<std::string,int*> *planMap;		// key = container, value = [row,column,height] of the container
+	std::map<std::string,std::string> *contMap;
 	cellLinkedList **planLinkedList;
 
 	Ship(int shipWidth, int shipLength, int shipHeight) {
@@ -19,6 +21,8 @@ public:
 		this->shipLength = shipLength;
 		this->shipHeight = shipHeight;
 		this->planMap = new std::map<std::string,int*>();
+		this->contMap= new std::map<std::string,std::string>();
+
 		this->planLinkedList = new cellLinkedList*[shipWidth];
 		for(int i=0;i<shipWidth;i++){
 			this->planLinkedList[i] = new cellLinkedList[shipLength];

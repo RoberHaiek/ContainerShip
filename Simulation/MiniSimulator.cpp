@@ -113,6 +113,14 @@ int getNumOfInstructions(string** instructions){
 	return opreations;
 	
 }
+void fillShipMap(string input,Ship *ship){
+	Container* containers=parseCargoFile(input);
+	for(int i=0;containers[i].uniqueId!="last";i++){
+		ship->contMap->erase(containers[i].uniqueId);
+		ship->contMap->insert(std::pair<std::string,std::string>(containers[i].uniqueId,containers[i].destPort.toString()));
+	}
+
+}
 int isItFineInstructions(string** instructions,string file_name , int routeIndex){
 cout << "file_name is "<<file_name<<endl;
 	Container* containers=parseCargoFile(file_name);
@@ -174,11 +182,32 @@ return SUCCESS;
 	int isRejected(node currentContainer, Ship *ship,Port* route, int routeIndex) {
 		int error = 0;
 		error = error | StowageTester::isInRoute(currentContainer.container->destPort.toString(),route,routeIndex);	// is the container's destination NOT port in route?
-		error = error | CraneTester::isValidId(currentContainer.container->uniqueId);						// is the container's unique ID invalid?
+		cout<<"isInRoute="<<error <<"with :"<<currentContainer.container->destPort.toString()<<","<<routeIndex<<endl;
+		//error = error | CraneTester::isValidId(currentContainer.container->uniqueId);						// is the container's unique ID invalid?
+		//cout<<"isValidId="<<error<<endl;
 		error = error | CraneTester::isDuplicateIdOnShip(ship->planMap,currentContainer.container->uniqueId);				// is the container's unique ID already on the ship?
-		error = error | CraneTester::isLegalWeight(currentContainer.container->weight);						// is the container's weight illegal?
+		cout<<"isDuplicateIdOnShip="<<error<<endl;
+		error= error | CraneTester::isFull(ship);
+		cout<<"isFull="<<error<<endl;
+		error = error | CraneTester::isLegalWeight(currentContainer.container->weight);					// is the container's weight illegal?
+		cout<<"isLegalWeight="<<error<<endl;
 		return error;
 	}
+
+string getContainerPort(string name,Ship* ship){
+cout<<"here1"<<endl;
+	if(ship->contMap->empty()){
+cout<<"here1"<<endl;
+
+		return "";
+	}
+	std::map<std::string,std::string>::iterator it=ship->contMap->find(name);
+	if(it!=ship->contMap->end()){
+		return it->second;
+	}
+
+	return "";
+}
 
 //[??]
 
@@ -194,9 +223,11 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 
 		if(currentInstructions[i][0]=="M"){
 			MoveFlag=true;
+			
 		}
 		if(currentInstructions[i][0] != "U" && currentInstructions[i][0] != "R" && currentInstructions[i][0] != "L"  && currentInstructions[i][0] != "M"){
-return -1;}	
+			return -1;
+		}	
 		cout<< "+-+- VALIDATE the instruction :" <<currentInstructions[i][0]<<","<<currentInstructions[i][1]<<","<<currentInstructions[i][2]
 <<","<<currentInstructions[i][3]
 <<","<<currentInstructions[i][4];if(MoveFlag){cout<<"[,"<<currentInstructions[i][5]<<","<<currentInstructions[i][6]<<","<<currentInstructions[i][7]<<"]";}
@@ -205,7 +236,15 @@ cout<<endl;
 			rejectedElementsByAlgo.insert(currentInstructions[i]);
 			continue;
 		}
-		*currentContainer.container = Container(0,port,currentInstructions[i][1]);
+		
+
+
+
+		string containerPort=port.toString();
+		containerPort=getContainerPort(currentInstructions[i][1],ship);
+		*currentContainer.container = Container(0,Port(containerPort),currentInstructions[i][1]);
+cout<<"here4"<<endl;
+
 		try{//is it a number?
 			floor = std::stoi(currentInstructions[i][2]);
 			row = std::stoi(currentInstructions[i][3]);
@@ -213,6 +252,50 @@ cout<<endl;
 		}catch(...){
 			return -1;
 		}
+
+		if(currentInstructions[i][0]=="M"){
+			MoveFlag=true;
+			//unload then load;
+			if(ship->planMap->find(currentContainer.container->uniqueId)==ship->planMap->end()){
+				return -1;//the unloaded container not on the ship
+			}
+			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
+		
+			error =CraneTester::isValidUnloadSimulation(row, column,dimensions[0], dimensions[1],dimensions[2],ship,currentContainer.container);
+			// Can we unload legally?
+			if (error == 0) {
+				crane.unload(*(currentContainer.container),row, column,ship->planLinkedList[row][column].size);
+				ship->planLinkedList[row][column].size--;
+
+			}
+			else{
+				std::cout << "Illegal algorithm command: Could not unload container " << currentContainer.container->uniqueId << "\n";
+				return -1;
+			}
+			try{//is it a number?
+			floor = std::stoi(currentInstructions[i][5]);
+			row = std::stoi(currentInstructions[i][6]);
+			column = std::stoi(currentInstructions[i][7]);
+			}catch(...){
+				return -1;
+			}
+			if (ship->planLinkedList[row][column].size < ship->planLinkedList[row][column].maxHeight) {
+				// Was the load valid?
+				if(error == 0){
+					crane.load(currentContainer.container, row,column,ship->planLinkedList[row][column].size);
+				}
+				else{
+					std::cout << "Illegal algorithm command: Invalid load for container " << currentContainer.container->uniqueId << "\n";
+					return -1;
+
+				}
+			}
+		}
+
+
+
+			
+		
 
 		// Is the command load/reject?
 		if(currentInstructions[i][0] == "L"){
@@ -224,7 +307,7 @@ cout<<endl;
 			}
 
 			error=isRejected(currentContainer,ship,route,routeIndex);
-			error =0;//isRejected(currentContainer,ship,route,routeIndex);
+			//error =0;//isRejected(currentContainer,ship,route,routeIndex);
 			if(error != 0 ){
 				std::cout << "Illegal algorithm command: Container " << currentContainer.container->uniqueId << " should have been rejected \n";
 				return -1;
@@ -252,17 +335,16 @@ cout<<endl;
 		if(currentInstructions[i][0] == "U"){
 		cout<< "++ in Unload section with "<<currentContainer.container->uniqueId<<","<<floor<<","<<row<<","<<column<<endl;
 			for(auto it = ship->planMap->begin();
-    it != ship->planMap->end(); ++it){		std::cout << "{" << it->first << ": " << it->second[0]<<","<<it->second[1]<<","<<it->second[2]<< "}\n";
+   			 it != ship->planMap->end(); ++it){		std::cout << "{" << it->first << ": " << it->second[0]<<","<<it->second[1]<<","<<it->second[2]<< "}\n";
+			}
+			if(ship->planMap->find(currentContainer.container->uniqueId)==ship->planMap->end()){
+				return -1;//the unloaded container not on the ship
 			}
 			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
 		
-		cout<<"dimensions in the hand"<<endl;
-		cout<< " dimensions are : "<<dimensions[0]<<","<<dimensions[1]<<","<<dimensions[2]<<endl;
-	
-			error = error | CraneTester::isValidUnloadSimulation(row, column,dimensions[0], dimensions[1],dimensions[2],ship,currentContainer.container);
+			error =CraneTester::isValidUnloadSimulation(row, column,dimensions[0], dimensions[1],dimensions[2],ship,currentContainer.container);
 			// Can we unload legally?
 			if (error == 0) {
-				//node *temp = crane.unload(*(currentContainer.container),row, column,ship->planLinkedList[row][column].size);
 				crane.unload(*(currentContainer.container),row, column,ship->planLinkedList[row][column].size);
 				ship->planLinkedList[row][column].size--;
 
@@ -271,6 +353,14 @@ cout<<endl;
 				std::cout << "Illegal algorithm command: Could not unload container " << currentContainer.container->uniqueId << "\n";
 				return -1;
 			}
+		}
+	}
+	for(auto inst=rejectedElementsByAlgo.begin();inst!=rejectedElementsByAlgo.end();inst++){
+		string containerPort=getContainerPort((*inst)[1],ship);
+		*currentContainer.container = Container(0,Port(containerPort),(*inst)[1]);
+		error=isRejected(currentContainer,ship,route,routeIndex);
+		if(error==0){
+			return -1;//no need to reject
 		}
 	}
 	return 0;
@@ -705,6 +795,7 @@ cout << "22222222222"<<endl;
 		}else{
 		input=travelPath+"/"+FileNameCarge;
 		}
+		fillShipMap(input,ship);
 		try{
 cout << "==calling getInstructionsForCargo"<<endl;
 		err=algo->getInstructionsForCargo(input,makeDir+"/"+FileNameInstruction);
