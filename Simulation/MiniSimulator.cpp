@@ -181,46 +181,57 @@ return SUCCESS;
 	}
 
 //[??]
-/*
-int validateAlgorithm(std::string **currentInstructions, int numOfInstructions, Port port, Ship *ship,Port* route, int routeIndex ){
+
+int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,Port* route, int routeIndex ){
 	int error = 0;
 	struct node currentContainer;
-	int row, column;
+	int row, column,floor;
+	bool MoveFlag=false;
+	set<string *> rejectedElementsByAlgo; 
 	Crane crane = Crane(ship);
-	for(int i=0;i<numOfInstructions;i++){
-		if(currentInstructions[i][0] == "U" && currentInstructions[i][0] == "R" && currentInstructions[i][0] == "L"){
+	for(int i=0;currentInstructions[i][0]!="last";i++){
+		MoveFlag=false;
+
+		if(currentInstructions[i][0]=="M"){
+			MoveFlag=true;
+		}
+		if(currentInstructions[i][0] != "U" && currentInstructions[i][0] != "R" && currentInstructions[i][0] != "L"  && currentInstructions[i][0] != "M"){
 return -1;}	
-		cout<< "the instruction :" <<currentInstructions[i][0]<<","<<currentInstructions[i][1]<<","<<currentInstructions[i][2]
+		cout<< "+-+- VALIDATE the instruction :" <<currentInstructions[i][0]<<","<<currentInstructions[i][1]<<","<<currentInstructions[i][2]
 <<","<<currentInstructions[i][3]
-<<","<<currentInstructions[i][4]
-<<endl;
+<<","<<currentInstructions[i][4];if(MoveFlag){cout<<"[,"<<currentInstructions[i][5]<<","<<currentInstructions[i][6]<<","<<currentInstructions[i][7]<<"]";}
+cout<<endl;
+		if(currentInstructions[i][0] == "R"){
+			rejectedElementsByAlgo.insert(currentInstructions[i]);
+			continue;
+		}
 		*currentContainer.container = Container(0,port,currentInstructions[i][1]);
-		row = std::stoi(currentInstructions[i][2]);
-		column = std::stoi(currentInstructions[i][3]);
+		try{//is it a number?
+			floor = std::stoi(currentInstructions[i][2]);
+			row = std::stoi(currentInstructions[i][3]);
+			column = std::stoi(currentInstructions[i][4]);
+		}catch(...){
+			return -1;
+		}
+
 		// Is the command load/reject?
-		if(currentInstructions[i][0] == "L" || currentInstructions[i][0] == "R"){
-			error = error | isRejected(currentContainer,ship,route,routeIndex);
-			// Should the container be rejected according to the algorithm?
-			if(currentInstructions[i][0] == "R"){
-				// Was it really rejected?
-				if(error != 0){
-					error = 0;
-					continue;
-				}
-				// The algorithm rejected a container that should not have been rejected
-				else{
-					std::cout << "Illegal algorithm command: Container " << currentContainer.container->uniqueId << " should not be rejected \n";
-					return -1;
-				}
-			}
+		if(currentInstructions[i][0] == "L"){
+			//"L"
 			// Should the container be rejected but wasn't rejected by the algorithm?
+			cout<< " in load section with "<<currentContainer.container->uniqueId<<","<<floor<<","<<row<<","<<column<<endl;
+			for(auto it = ship->planMap->begin();
+    it != ship->planMap->end(); ++it){		std::cout << "{" << it->first << ": " << it->second[0]<<","<<it->second[1]<<","<<it->second[2]<< "}\n";
+			}
+
+			error=isRejected(currentContainer,ship,route,routeIndex);
+			error =0;//isRejected(currentContainer,ship,route,routeIndex);
 			if(error != 0 ){
 				std::cout << "Illegal algorithm command: Container " << currentContainer.container->uniqueId << " should have been rejected \n";
 				return -1;
 			}
-			error = error | CraneTester::isValidLoad(row, column, ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId);
+			//error =CraneTester::isValidLoad(row, column, floor, ship->shipWidth, ship->shipLength, ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId);
 			// Does the container exceed ship height limit?
-			if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight) {
+			if (ship->planLinkedList[row][column].size < ship->planLinkedList[row][column].maxHeight) {
 				// Was the load valid?
 				if(error == 0){
 					crane.load(currentContainer.container, row,column,ship->planLinkedList[row][column].size);
@@ -231,18 +242,30 @@ return -1;}
 
 				}
 			}
-			else{
+			else{	
+				cout<<"size=="<< ship->planLinkedList[row][column].size << " , maxHeight="<<ship->planLinkedList[row][column].maxHeight<<endl;
 				std::cout << "Illegal algorithm command: Exceeded ship height limit while loading container " << currentContainer.container->uniqueId << " to " << row << ", " << column << "\n";
 				return -1;
 			}	
 		}
 		// Is the command unload?
-		if(currentInstructions[i][1] == "U"){
+		if(currentInstructions[i][0] == "U"){
+		cout<< "++ in Unload section with "<<currentContainer.container->uniqueId<<","<<floor<<","<<row<<","<<column<<endl;
+			for(auto it = ship->planMap->begin();
+    it != ship->planMap->end(); ++it){		std::cout << "{" << it->first << ": " << it->second[0]<<","<<it->second[1]<<","<<it->second[2]<< "}\n";
+			}
 			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
-			error = error | CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]);
+		
+		cout<<"dimensions in the hand"<<endl;
+		cout<< " dimensions are : "<<dimensions[0]<<","<<dimensions[1]<<","<<dimensions[2]<<endl;
+	
+			error = error | CraneTester::isValidUnloadSimulation(row, column,dimensions[0], dimensions[1],dimensions[2],ship,currentContainer.container);
 			// Can we unload legally?
 			if (error == 0) {
-				node *temp = crane.unload(*(currentContainer.container),row, column,ship->planLinkedList[row][column].size);
+				//node *temp = crane.unload(*(currentContainer.container),row, column,ship->planLinkedList[row][column].size);
+				crane.unload(*(currentContainer.container),row, column,ship->planLinkedList[row][column].size);
+				ship->planLinkedList[row][column].size--;
+
 			}
 			else{
 				std::cout << "Illegal algorithm command: Could not unload container " << currentContainer.container->uniqueId << "\n";
@@ -251,7 +274,7 @@ return -1;}
 		}
 	}
 	return 0;
-}*/
+}
 
 //[16]
 int checkMapIfAsExpected(string** expectedInstructions,map<string,vector<string>>& InstructionsMap){
@@ -336,25 +359,35 @@ int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICA
 				if(fivedArray[0].compare("M")==0){
 					moveFlag=1;
 				}
-				if(err!=SUCCESS|| seek==(int)line.length() || parse_out==""){
+				if(err!=SUCCESS|| seek>=(int)line.length() || parse_out==""){
+cout<<"ERROR 111111111111111"<<endl;
 					return ERROR;
 				}
-				
+				bool isRejectInstruction=(fivedArray[0]=="R");
 				err=getElem(line,seek,',');fivedArray[1]=string(parse_out);
-				if(err!=SUCCESS||seek==(int)line.length() || parse_out==""){
+				if(err!=SUCCESS||seek>=(int)line.length() || parse_out==""){
+				if(isRejectInstruction && parse_out!="" && seek>=(int)line.length()){
+					fivedArray[2]="-1";fivedArray[3]="-1";fivedArray[4]="-1";
+					return 0;
+				}
+cout<<"ERROR 2222222222222222222"<<endl;
+
 					return ERROR;
 				}
 				err=getElem(line,seek,',');fivedArray[2]=string(parse_out);
 				if(err!=SUCCESS|| seek==(int)line.length() || parse_out==""){
+cout<<"ERROR 333333333333333333"<<endl;
 					return ERROR;
 				}
 				err=getElem(line,seek,',');fivedArray[3]=string(parse_out);
 				if(err!=SUCCESS|| seek==(int)line.length() || parse_out==""){
+cout<<"ERROR 444444444444444444"<<endl;
 					return ERROR;
 				}
 				if(moveFlag){
 					err=getElem(line,seek,'[');fivedArray[4]=string(parse_out);
 					if(err!=SUCCESS || seek==(int)line.length() || parse_out==""){
+cout<<"ERROR 455555555555555555555"<<endl;
 						return ERROR;
 					}
 					err=getElem(line,seek,',');
@@ -406,7 +439,7 @@ int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICA
 string** ReadExpectedInstructions(string cargoFileName){
 	ifstream fd_info;
 	string** expectedInstructions;
-
+cout<<"starting ReadExpectedInstructions...."<<endl;
 	fd_info.open(cargoFileName,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
@@ -455,7 +488,7 @@ cout << "reading expected ******"<<endl;
 		fd_info.close();
 	}
 cout << "finish expected ******"<<endl;
-
+cout<<"ending ReadExpectedInstructions...."<<endl;
 	return expectedInstructions;
 }
 //[12]
@@ -595,9 +628,14 @@ handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 	cout << endl<<endl<<"##################### Algo = "<<algoName<<"##################"<<endl<<endl;
 		auto algo = (*algo_iter)();
 		try{
+		cout<<"start calling readShipPlan"<<endl;
+
 		err=algo->readShipPlan(shipPlanName);
+		cout<<"end calling readShipPlan"<<endl;
+
 		}catch(...){
 			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling readShipPlan (stop the simulation on this algorithm/travel pair)");
+			cout<<"throws an exception by calling readShipPlan"<<endl;
 			throw 1;
 		}
 		if(err!=0){
@@ -645,8 +683,9 @@ handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 		string FileNameCargewithout=getNameWithoutExtinsion(FileNameCarge,'.',"cargo_data");
 		it =emptyPorts.find(FileNameCargewithout);
 		int isEmpty=0;
-		
+cout << "111111111111"<<endl;		
 		if(it!=emptyPorts.end()){
+cout << "empty"<<endl;
 			for(it=emptyPorts.begin() ;it!=emptyPorts.end();it++){
 			//cout<< string(*it);
 			}
@@ -658,6 +697,7 @@ handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 			fd.open(output+"/"+"emptyFiles/"+FileNameCarge);
 			isEmpty=1;
 		}
+cout << "22222222222"<<endl;
 		string input;
 		if(isEmpty){
 		input=output+"/"+"emptyFiles/"+FileNameCarge;
@@ -666,7 +706,9 @@ handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 		input=travelPath+"/"+FileNameCarge;
 		}
 		try{
+cout << "==calling getInstructionsForCargo"<<endl;
 		err=algo->getInstructionsForCargo(input,makeDir+"/"+FileNameInstruction);
+cout << "===end getInstructionsForCargo"<<endl;
 		}catch(...){
 			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling getInstructionsForCargo(stop the simulation on this algorithm/travel pair)");
 			continue;		
@@ -702,7 +744,9 @@ cout<<endl<<"isItFineInstructions ends ---with err= "<< err<<"-------"<<endl<<en
 			if(err!=ERROR){
 				numOfInstructions=getNumOfLines(fd_info);//get container size
 				cout<<"validation "<<endl;
-				 err=0;//= validateAlgorithm(instructions, numOfInstructions, ports[routeIndex], ship, ports, routeIndex);
+				err=0;
+				Port* ports=getPortsFromRoute(route);
+				 err= validateAlgorithm(instructions, ports[routeIndex], ship, ports, routeIndex);
 				//cout<<"VALIDATION==========================="<<validation<<endl;
 			}
 		}else{
