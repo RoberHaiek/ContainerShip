@@ -2,7 +2,7 @@
  * ErrorCode.h
  *
  *  Created on: May 16, 2020
- *      Author: n_b_a
+ *      Author: Aubaida
  */
 #pragma once
 #include <cmath>

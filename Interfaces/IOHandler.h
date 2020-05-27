@@ -1,7 +1,17 @@
-// IOHandler.h
+
+/*
+ * IOHandler.h
+ *
+ *  Created on: Mar 29, 2020
+ *      Author: Aubaida
+ */
+
 #ifndef IOHANDLER_H_INCLUDED
 #define IOHANDLER_H_INCLUDED
-
+/*
+*this interface is rensponsiple of handling the I/O files and parsing them.. 
+*and initiate the route/ship plan by a file path..
+*/
 //includes and globals
 #include "../algorithm/StowageTester.cpp"
 #include <fstream>

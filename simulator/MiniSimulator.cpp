@@ -553,7 +553,7 @@ int simulateTravel(){
 	ErrorCode errCode;
 cout<< endl << "DELETING THE EMPTY FILES" << endl<< endl<< endl;
 emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
-handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
+//handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 
 
 	cout << "*initShipPlan"<<endl;
@@ -612,8 +612,6 @@ handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 	}
 	cout << "*end_checkCargoFiles"<<endl;
 	cout << "*end_ports"<<endl;
-
-	//parseResults (AlgoName ,travelName ,0 ,0);
 
 //new implemntation using algo regestrar
 	int flag=0;

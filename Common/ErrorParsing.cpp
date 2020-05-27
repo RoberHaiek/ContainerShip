@@ -1,6 +1,8 @@
 #include "ErrorCode.cpp"
 #include <stdio.h>
 #include<iostream>
+
+/*switch case msg reciver*/
 void getInfo(int errorId,string& msg,status& currentStatus){
 
 	switch(errorId){
@@ -64,6 +66,7 @@ void getInfo(int errorId,string& msg,status& currentStatus){
 	}
 
 }
+/*error status {Ignore,Fatal_error}*/
 status giveMeErrorStatus(int errorCode){
 	status currentStatus = Ignore;
 	string msg;
@@ -89,13 +92,14 @@ status giveMeErrorStatus(int errorCode){
 	
 	
 	
-
+/*document errors by the error code*/
 status documentErrors(ofstream& fd_errors,int errorCode){
 	status currentStatus = Ignore;
 	int fatal_flag=0;
 	if(errorCode==0){
 		return currentStatus ;
 	}
+	//for each error checks if added to the error code
 	for (int index=0 ;index<19 ; index++) {
 			auto it =(ErrorID)index;
 			if (((int)(pow(2,(int)it)) & errorCode) == (int)(pow(2,(int)it))){
@@ -114,7 +118,7 @@ status documentErrors(ofstream& fd_errors,int errorCode){
 
 	return currentStatus;
 }
-
+/*creating the error file*/
 status handleError(const string& errorOutputPath,const string& errorFounder,int errorCode){
 	if(!fd_errors.is_open()){
 			fd_errors.open(errorOutputPath+"/"+"simulation.errors");
@@ -126,7 +130,7 @@ status handleError(const string& errorOutputPath,const string& errorFounder,int 
 	return currentStatus;
 
 }
-
+/*creating the error file*/
 status handleError(const string& errorOutputPath,const string& errFounder,const string& errorMsg){
 	if(!fd_errors.is_open()){
 			fd_errors.open(errorOutputPath+"/"+"simulation.errors");

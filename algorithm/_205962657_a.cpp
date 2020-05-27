@@ -86,7 +86,7 @@ public:
 		int notBadPort=1;
 		if(!fd_info){
 		notBadPort=0;
-		error|=(int)pow(2,16);
+		error|=ErrorID::ContainersFileCannotBeRead;
 		}
 
 		Container* containers=parseCargoFile(input_full_path_and_file_name);
@@ -108,7 +108,7 @@ public:
 		if((routeIndex==routeSize-1) && notBadPort){
 			//is it have cargo on it
 			if(containers[0].uniqueId.compare("last")!=0){
-			error|=(int)pow(2,17);}
+			error|=ErrorID::ContainersLastPortHasWaitingContainers;}
 			notBadPort=0;
 		}
 		if(notBadPort){
@@ -140,9 +140,9 @@ public:
 	}
 	void rejectWhatLeft(){
 		for(auto it=rejectedNotInRoute.begin();it!=rejectedNotInRoute.end();it++){
-			fillInstructions(Action::REJECT, it->uniqueId,"-1", "-1", "-1");
-			
+			fillInstructions(Action::REJECT, it->uniqueId,"-1", "-1", "-1");			
 		}
+			rejectedNotInRoute.clear();
 	
 	}
 //loading for sure 
@@ -365,7 +365,7 @@ void printTestResults(node  currentContainer){
 			rejectFlag=1;
 		}
 		if(shipCapacity==0){
-			error|=(int)pow(2,18);
+			error|=ErrorID::ContainersTooManyContainers;
 			rejectFlag=1;
 		}
 		if(rejectFlag!=0){

@@ -13,7 +13,7 @@ public:
 				}
 			}
 		}
-		return pow(2,18);
+		return ErrorID::ContainersTooManyContainers;
 	}
 
 
@@ -21,7 +21,7 @@ public:
 	static int isLegalWeight(int containerWeight){
 		if(containerWeight>=0)
 			return 0;
-		return pow(2,12);
+		return ErrorID::ContainersMissingOrBadWeight;
 	}
 	
 	static int charToIntISO(char c, int index){
@@ -52,24 +52,24 @@ public:
 	// checks if the unique id of a container is valid
 	static int isValidId(std::string uniqueId){
 		if(uniqueId.length()!=11)
-			return pow(2,15);
+			return ErrorID::ContainersIllegalIDCheck;
 		for(int i=0;i<10;i++){
 			if(i<3){
 				if(!(((int)uniqueId[i]>=65 && (int)uniqueId[i]<=90)|| ((int)uniqueId[i]>=97 && (int)uniqueId[i]<=122))){
 					//cout <<" and the char is "<< (int)uniqueId[10]-48<<endl;
-					return pow(2,15);
+					return ErrorID::ContainersIllegalIDCheck;
 				}
 			}
 			if(i==3){
 				if(!((int)uniqueId[i]==74 || (int)uniqueId[i]==85 || (int)uniqueId[i]==90 || (int)uniqueId[i]==106 || (int)uniqueId[i]==117 || (int)uniqueId[i]==122)){
 					//cout <<" and the char is "<< (int)uniqueId[10]-48<<endl;
-					return pow(2,15);
+					return ErrorID::ContainersIllegalIDCheck;
 				}
 			}
 			if(i>3){
 				if(!((int)uniqueId[i]>=48 && (int)uniqueId[i]<=57)){
 					//cout <<" the char is "<< (int)uniqueId[10]-48<<endl;
-					return pow(2,15);
+					return ErrorID::ContainersIllegalIDCheck;
 				}
 			}
 		}
@@ -83,18 +83,18 @@ public:
 		if(checkNumber==(int)uniqueId[10]-48){
 			return 0;
 		}
-		return pow(2,15);
+		return ErrorID::ContainersIllegalIDCheck;
 	}
 
 	static int isValidLoad(int row, int column, int floor, int shipWidth, int shipLength, int cellHeight, std::map<std::string,int*>* planMap, std::string uniqueId){
 		if(floor>=cellHeight || floor<0){
-			return pow(2,1);
+			return ErrorID::ShipPlanWrongXY;
 		}
 		if(row>=shipWidth || row<0 || column>=shipLength || column<0){
-			return pow(2,1);
+			return ErrorID::ShipPlanWrongXY;
 		}
 		if(planMap->find(uniqueId) != planMap->end()){
-			return pow(2,11);
+			return ErrorID::ContainersIDArleadyOnShip;
 		}
 		return 0;
 	}
@@ -148,13 +148,12 @@ public:
 	
 	static int isDuplicateIdOnShip(std::map<std::string,int*>* planMap, std::string uniqueId){
 		if(planMap->find(uniqueId) != planMap->end()){
-			return pow(2,10);
-		}
+			return ErrorID::ContainersDuplicateID;		}
 		return 0;
 	}
 	static int lastPortHasContainers(int size){
 		if(size != 0 ){
-			return pow(2,18);
+			return ErrorID::ContainersTooManyContainers;	
 		}
 		return 0;
 	}
