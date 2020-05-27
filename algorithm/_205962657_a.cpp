@@ -349,11 +349,11 @@ void printTestResults(node  currentContainer){
 			rejectFlag=-1;
 			error = -1;
 		}
-	/*	tmpError=CraneTester::isValidId(currentContainer.container->uniqueId);
+		tmpError=CraneTester::isValidId(currentContainer.container->uniqueId);
 		if(tmpError!=0){
 			error|=tmpError;
 			rejectFlag=1;
-		}*/
+		}
 		tmpError=CraneTester::isLegalWeight(currentContainer.container->weight);
 		if(tmpError!=0){
 			error|=tmpError;
