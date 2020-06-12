@@ -1,5 +1,6 @@
 [Link to ex1](https://docs.google.com/document/d/1PloUy0vfoR0AWHmpWb0W85FZXM_BZqbaQhKXzHhwC1o/edit) <br/>
 [Link to ex2](https://docs.google.com/document/d/1qpXBOM24UiHUc5l2QiUlNGZOnfNm40aVd7bXbNVLIFs/edit) <br/>
+[Link to ex3](https://docs.google.com/document/d/1u0NihmbVIU5x7o7gDeObSi2Dw1TXT6ipoo4My2RyOdc/edit) <br/>
 
 ## **How to use**   
 Run the following command from ContainerShip/Simulator: ./simulator --travel_path ../root --algorithm_path ../Algorithms
