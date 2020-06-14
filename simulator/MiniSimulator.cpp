@@ -31,11 +31,11 @@ const char* EXPECTED_OUTPUT="/expected_output";
 string travelName;
 string AlgoName="StowageAlgo";
 string travel_path="",algorithm_path="",output="", num_threads="";
-queue<string> algoNameQueue;
-std::vector<auto> algoVector;
+queue<string> algoQueue;
+std::vector<string> algoVector;
 queue<string> travelQueue;
 vector<string> travelVector;
-std::pair<vector<string>,std::vector<auto>> *travelAlgoPairs;
+vector<std::pair<string,string>> travelAlgoPairs;
 std::map<string,std::vector<int>> resMap;
 int travelNum=0;
 /*---------------FUNC DEC-------------*/
@@ -702,16 +702,19 @@ string** ReadExpectedInstructions(string cargoFileName){
 
 	return expectedInstructions;
 }
+//[3] called in [2]
+/*here we simulate the  travel ......due to lack of time i didn't seperate this function and document it well .. 
+but if i had an one hour i'll do so xD
+*/
+int simulateTravel(){
+	  //intiate the ship and get the route
+	ErrorCode errCode;
+cout<< endl << "DELETING THE EMPTY FILES" << endl<< endl<< endl;
+//these are the emoty ports that was in the last travel .. se we clear it
+emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
+//handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 
-// Initialization
-int simulateTravelPart1(){
-  //intiate the ship and get the route
-	cout<< endl << "DELETING THE EMPTY FILES" << endl<< endl<< endl;
-	//these are the emoty ports that was in the last travel .. se we clear it
-	emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
-	//handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
-
-	/**********************in this section we check and initiate the route/ship plan and prepare the simulation********************/
+/**********************in this section we check and initiate the route/ship plan and prepare the simulation********************/
 	cout << "*initShipPlan"<<endl;
 	string shipPlanName;
 	string routeName;
@@ -735,7 +738,7 @@ int simulateTravelPart1(){
 			return 1;
 		}
 	}
-	cout<<"********************the ship plan :"<<travelPath+"/"+shipPlanName<<"/n******************and the route : "<<travelPath+"/"+routeName<<endl;
+	cout<<"********************the ship plane :"<<travelPath+"/"+shipPlanName<<"/n******************and the route : "<<travelPath+"/"+routeName<<endl;
 	shipPlanName=travelPath+"/"+shipPlanName+".ship_plan";
 	routeName=travelPath+"/"+routeName+".route";
 	err=initShipPlan(ship,shipPlanName);
@@ -754,10 +757,11 @@ int simulateTravelPart1(){
 	if(err!=0){
 		status isIgnore =handleError(output,"Simulator",err);
 		if(isIgnore!=status::Ignore){
-			return 1;
-		}
+			return 1;}
 	}
+
 	cout << "*end_initRoute"<<endl;
+	
 	err=checkCargoFiles(travelPath);
 	if(err!=0){
 		if(err==1){
@@ -767,118 +771,111 @@ int simulateTravelPart1(){
 	}
 	cout << "*end_checkCargoFiles"<<endl;
 	cout << "*end_ports"<<endl;
-	/******************END initiation SECTION****************************/
-	return simulateTravelPart2(err);
-}
+/******************END initiation SECTION****************************/
 
-// Registration
-int simulateTravelPart2(int err){
 /******************START in this section we initiate the registrar and get the algorithms*********************/
-	//new implemntation using algo regestrar
+//new implemntation using algo regestrar
 	int flag=0;
-	auto& registrar = AlgorithmRegistrar::getInstance();{
+	auto& registrar = AlgorithmRegistrar::getInstance();
+    	{
         	std::string error;
-			const char *cstr = algorithm_path.c_str();
-		  	DIR* fd_Algo=opendir(cstr);
-		  	if(fd_Algo==NULL){
-		 	
+		const char *cstr = algorithm_path.c_str();
+		  DIR* fd_Algo=opendir(cstr);
+		  if(fd_Algo==NULL){
+			 	
 				handleError(output,"Simulator","ERROR[3][1]- can't open "+algorithm_path);
 				return -1;
 			}
+
 		struct dirent *entry;
     		while ((entry = readdir(fd_Algo)))
 		if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 			string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
 			if(algoName.compare("/")!=0){
-				//cout << "the algoritim is : "<< algoName <<endl;
-				
+//cout << "the algoritim is : "<< algoName <<endl;
+				algoVector.push_back(algoName);
 				if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
 	        			std::cerr << error << '\n';
 					 handleError(output,"Simulator",algoName +" : bad with error : "+error);
             				continue;
-        		}
-				algoNameQueue.push(algoName);
-				//cout << "*good_regestration"<<endl;
+        			}
+				algoQueue.push(algoName);
+//cout << "*good_regestration"<<endl;
 				flag=1;
 
 			}
+			
 		}
-		cout << "*end_registration"<<endl;
-		/******************END initiate the registrar and get the algorithms*********************/
-		closedir(fd_Algo);
-    }
-    if(flag)
-    	return simulateTravelPart3(registrar,err);
-}
+	cout << "*end_registration"<<endl;
+/******************END initiate the registrar and get the algorithms*********************/
 
-int simulateTravelPart3(auto& registrar, int err){
+	closedir(fd_Algo);
+    	}
+	if(flag){
+	//adding the travel to the queue
 	travelQueue.push(travelName);
-	travelVector.insert(travelName);
 	travelNum++;
-    for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter){
-		string algoName=algoNameQueue.front();
-		algoNameQueue.pop();
+	cout<<"******starting the loop over the algos **********"<<endl;
+	cout << endl<<endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<<"#==#==#==#==#==#==#==#"<<endl<<endl;
+	//for each algorithm :
+    	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
+		string algoName=algoQueue.front();
+		algoVector.push_back(algoName);
+		algoQueue.pop();
+		cout << endl<<endl<<"##################### Algo = "<<algoName<<"##################"<<endl<<endl;
 		auto algo = (*algo_iter)();
-		algoVector.insert(algo);
-		int number = simulateTravelPart4(algo,err);
-	}
-	return SUCCESS;	
-}
-
-// worker function for a pair
-int simulateTravelPart4(auto algo, int err){
-	try{
+		try{
 		cout<<"start calling readShipPlan"<<endl;
+
 		err=algo->readShipPlan(shipPlanName);
 		cout<<"end calling readShipPlan"<<endl;
-	}catch(...){	
-		handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling readShipPlan (stop the simulation on this algorithm/travel pair)");
-		cout<<"throws an exception by calling readShipPlan"<<endl;
-		throw 1;
-	}
-	if(err!=0){
-		status isIgnore =handleError(output,algoName+"/"+travelName,err);
-		if(isIgnore!=status::Ignore)
-			continue;
-	}
-	//readShipRoute
-	try{
-		err=algo->readShipRoute(routeName);
-	}catch(...){
-		handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling readShipRoute(stop the simulation on this algorithm/travel pair)");
-		throw 1;
-	}
-	if(err!=0){
+
+		}catch(...){
+			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling readShipPlan (stop the simulation on this algorithm/travel pair)");
+			cout<<"throws an exception by calling readShipPlan"<<endl;
+			throw 1;
+		}
+		if(err!=0){
 		status isIgnore =handleError(output,algoName+"/"+travelName,err);
 		if(isIgnore!=status::Ignore){
-			continue;
+			 continue;}
+			}
+//readShipRoute
+		try{
+		
+		err=algo->readShipRoute(routeName);
+		}catch(...){
+			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling readShipRoute(stop the simulation on this algorithm/travel pair)");
+			throw 1;
 		}
-	}
-	//whightBalance
-	WeightBalanceCalculator calculator;
-	//setWeightBalanceCalculator
-	try{
-		algo->setWeightBalanceCalculator( calculator);
-	}
-	catch(...){
-		handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling setWeightBalanceCalculator(stop the simulation on this algorithm/travel pair)");
-		throw 1;		
-	}
-	//make directory
-	string makeDir=output+"/"+algoName+"_"+travelName+"_crane_instructions";
-	const char *cstr = makeDir.c_str();
-	int err= mkdir (cstr,0777);
-	if(err){
-		std::cout << "ERROR[3][1]- can't make dir with name : "<<makeDir<<std::endl; 
-	}
-	return simulateTravelPart5(algo,err);
-}
 
-int simulateTravelPart5(auto algo, int err){
-	cout<<"******starting the loop over the ports **********"<<endl;
-	int firstTiem=1;
-	for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
+		if(err!=0){
+		status isIgnore =handleError(output,algoName+"/"+travelName,err);
+		if(isIgnore!=status::Ignore){
+			continue;}
+			}
+		//whightBalance
+		WeightBalanceCalculator calculator;
+//setWeightBalanceCalculator
+		try{
+		algo->setWeightBalanceCalculator( calculator);
+		}catch(...){
+			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling setWeightBalanceCalculator(stop the simulation on this algorithm/travel pair)");
+			throw 1;		
+		}
+
+		//make directory
+		string makeDir=output+"/"+algoName+"_"+travelName+"_crane_instructions";
+		const char *cstr = makeDir.c_str();
+		int err= mkdir (cstr,0777);
+		if(err){	
+		std::cout << "ERROR[3][1]- can't make dir with name : "<<makeDir<<std::endl; 
+		}
+		cout<<"******starting the loop over the ports **********"<<endl;
+		int firstTiem=1;
+		for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
 		cout<<"******port number = "<<routeIndex<<" **********"<<endl;
+
 		string FileNameCarge=getCargoFileName(routeIndex,true);
 		string FileNameInstruction=getCargoFileName(routeIndex,false);
 		cout<<"****** getting instructions **********"<<endl;
@@ -888,7 +885,7 @@ int simulateTravelPart5(auto algo, int err){
 		int isEmpty=0;	
 		if(it!=emptyPorts.end()){
 			for(it=emptyPorts.begin() ;it!=emptyPorts.end();it++){
-				//cout<< string(*it);
+			//cout<< string(*it);
 			}
 			//cout<<"is empty ??? : "<<it <endl;
 			string makeDirc=output+"/"+"emptyFiles";
@@ -900,100 +897,110 @@ int simulateTravelPart5(auto algo, int err){
 		}
 		string input;
 		if(isEmpty){
-			input=output+"/"+"emptyFiles/"+FileNameCarge;
-			handleError(output,"Simulator","missing cargo files :"+FileNameCarge +"sending empty file");
+		input=output+"/"+"emptyFiles/"+FileNameCarge;
+		handleError(output,"Simulator","missing cargo files :"+FileNameCarge +"sending empty file");
 		}else{
-			input=travelPath+"/"+FileNameCarge;
+		input=travelPath+"/"+FileNameCarge;
 		}
 		fillShipMap(input,ship);
 		try{
-			err=algo->getInstructionsForCargo(input,makeDir+"/"+FileNameInstruction);
+		err=algo->getInstructionsForCargo(input,makeDir+"/"+FileNameInstruction);
 		}catch(...){
 			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling getInstructionsForCargo(stop the simulation on this algorithm/travel pair)");
 			continue;		
 		}
-		std::cout << "\n \n \n Error number: " << err << "\n \n \n";
-		if(err!=0){
-			status isIgnore =handleError(output,algoName+"/"+travelName,err);
-			if(isIgnore!=status::Ignore){
-				continue;
-			}
-		}
 
 		
-		/********************   VALIDATION ********************************************/
+		std::cout << "\n \n \n Error number: " << err << "\n \n \n";
+		if(err!=0){
+		status isIgnore =handleError(output,algoName+"/"+travelName,err);
+		if(isIgnore!=status::Ignore){
+			continue;}
+			}
 
-		int validated = simulateTravelPart6(err);
+		/********************Start in this section we validate the route*************/
+		//validate 
+		cout<<"instructions "<<endl;
+		string **instructions=ReadExpectedInstructions( output+"/"+makeDir+"/"+FileNameInstruction);
+		ifstream fd_info;
+		fd_info.open( output+"/"+makeDir+"/"+FileNameInstruction,ios_base::in);//open the file
+		//checking the access to the file
+		int numOfInstructions=0;
+	try{
+			if(!fd_info){
+			handleError(output,"Simulator","ERROR- can't open the algorithm instruction file :"+ output+"/"+makeDir+"/"+FileNameInstruction);
+			throw 1;
+			}
+			
+		if(instructions!=NULL){
+			err=isItFineInstructions(instructions,input,routeIndex);
+			if(err!=ERROR){
+				numOfInstructions=getNumOfLines(fd_info);//get container size
+				cout<<"validation "<<endl;
+				err=0;
+				Port* ports=getPortsFromRoute(route);
+				 err= validateAlgorithm(instructions, ports[routeIndex], ship, ports, routeIndex);
+				if(err==0 && routeIndex ==routeSize-1 && !(ship->planMap->empty())){
+					//ship must be empty
+					err=-1;
+				}
+				//cout<<"VALIDATION==========================="<<validation<<endl;
+			}
+		}else{
+			err=ERROR;
+		}
+}catch(int e){
+	err=e;
+}
+/********************END validaton the route*************/
 
 
-		/********************Start in this section we preapare the results*************/
-		//results parsing 
-		cout<<"its time to play"<<endl;
-		auto isThere=resMap.find(algoName);
-		if(isThere==resMap.end()){
+/********************Start in this section we preapare the results*************/
+
+			//results parsing 
+			cout<<"its time to play"<<endl;
+			auto isThere=resMap.find(algoName);
+
+			if(isThere==resMap.end()){
 			//add algo to the map
+
 			std::vector<int> v=vector<int>();
 			v.push_back(0);
 			v.push_back(0);
 			resMap[algoName]=v;
+		
 		}
-		numOfInstructions=getNumOfInstructions(instructions);
-		if(firstTiem==1){
-			isThere=resMap.find(algoName);
-			(isThere->second).resize(travelNum+2);
-			(isThere->second).push_back(0);
-			firstTiem=0;
-		}
-		if(err!=0 || (isThere->second)[travelNum+1]<0){
-			(isThere->second)[travelNum+1]=-1;
-		}else{
-			(isThere->second)[travelNum+1]+=numOfInstructions;
-		}
-	}
-}
+			numOfInstructions=getNumOfInstructions(instructions);
 
-int simulateTravelPart6(int err){
-	/********************Start in this section we validate the route*************/
-	//validate 
-	cout<<"instructions "<<endl;
-	string **instructions=ReadExpectedInstructions( output+"/"+makeDir+"/"+FileNameInstruction);
-	ifstream fd_info;
-	fd_info.open( output+"/"+makeDir+"/"+FileNameInstruction,ios_base::in);//open the file
-	//checking the access to the file
-	int numOfInstructions=0;
-	try{
-		if(!fd_info){
-			handleError(output,"Simulator","ERROR- can't open the algorithm instruction file :"+ output+"/"+makeDir+"/"+FileNameInstruction);
-			throw 1;
-		}
-		if(instructions!=NULL){
-		err=isItFineInstructions(instructions,input,routeIndex);
-		if(err!=ERROR){
-			numOfInstructions=getNumOfLines(fd_info);//get container size
-			cout<<"validation "<<endl;
-			err=0;
-			Port* ports=getPortsFromRoute(route);
-			err= validateAlgorithm(instructions, ports[routeIndex], ship, ports, routeIndex);
-			if(err==0 && routeIndex ==routeSize-1 && !(ship->planMap->empty())){
-				//ship must be empty
-				err=-1;
+			if(firstTiem==1){
+				isThere=resMap.find(algoName);
+				(isThere->second).resize(travelNum+2);
+
+				(isThere->second).push_back(0);
+				firstTiem=0;
 			}
-			//cout<<"VALIDATION==========================="<<validation<<endl;
-		}
-	}else{
-		err=ERROR;
+			if(err!=0 || (isThere->second)[travelNum+1]<0){
+				(isThere->second)[travelNum+1]=-1;
+			}else{
+					(isThere->second)[travelNum+1]+=numOfInstructions;
+			}
+		
+			}
+			
+/********************END preaparing the results*************/
+		
+		}	
 	}
-	}catch(int e){
-	err=e;
-	}
-	/********************END validaton the route*************/
+	return SUCCESS;
+	
 }
 
 int pairingTravelAlgo(){
 	int c=0;
-	for(int i=0;i<travelVector.size();i++){
-		for(int j=0;j<algoVector.size();j++){
-			travelAlgoPairs[c] = std::make_pair(travelVector[i],algoVector[j]);
+	for(int i=0;i<(int)travelVector.size();i++){
+		for(int j=0;j<(int)algoVector.size();j++){
+			travelAlgoPairs[c].first = travelVector[i];
+			travelAlgoPairs[c].second = algoVector[j];
 			c++;
 		}
 	}
@@ -1001,9 +1008,9 @@ int pairingTravelAlgo(){
 }
 
 //[2] called in [1]
-void simulate(DIR* fd){
+void simulate(DIR* fd){	// fd = ../TRAVELS
     struct dirent *entry;
-    while ((entry = readdir(fd)))
+    while ((entry = readdir(fd))){
       	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 		  	//open the travel dir
 		  	cout<< "the work path is : "<<workPath<<endl;
@@ -1015,12 +1022,13 @@ void simulate(DIR* fd){
 		  	if(fd_travel==NULL){
 			  std::cout << "ERROR[2][1]- can't open "<<entry->d_name<<std::endl; 
 			}else{
-				travelName=string(entry->d_name);
-				simulateTravelPart1();//simulate the travel
+				travelName=string(entry->d_name);	// specific travel
+				simulateTravel();//simulate the travel
 				//free resources
 				closedir(fd_travel);
 			}
 		}
+	}
 	if(fd_results.is_open()){
 		fd_results.close();	
 	}
