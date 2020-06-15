@@ -788,7 +788,7 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 			}
 
 		struct dirent *entry;
-    		while ((entry = readdir(fd_Algo)))
+    		while ((entry = readdir(fd_Algo))){
 		if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 			string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
 			if(algoName.compare("/")!=0){
@@ -804,8 +804,8 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 				flag=1;
 
 			}
-			
-		}
+		}	
+	}
 	cout << "*end_registration"<<endl;
 /******************END initiate the registrar and get the algorithms*********************/
 
@@ -995,15 +995,59 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 	
 }
 
-int pairingTravelAlgo(){
-	int c=0;
-	for(int i=0;i<(int)travelVector.size();i++){
-		for(int j=0;j<(int)algoVector.size();j++){
-			travelAlgoPairs[c].first = travelVector[i];
-			travelAlgoPairs[c].second = algoVector[j];
-			c++;
+int pairingTravelAlgo(DIR* fd){
+	cout << "Started pairing " << endl;
+	struct dirent *entry;
+    while ((entry = readdir(fd))){
+      	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+		  	travelPath=workPath+"/"+string(entry->d_name);
+		  	const char *cstr = travelPath.c_str();
+		  	DIR* fd_travel=opendir(cstr);
+		  	std::cout <<entry->d_name<<std::endl;
+		  	if(fd_travel==NULL){
+			  std::cout << "ERROR[2][1]- can't open "<<entry->d_name<<std::endl; 
+			}else{
+				travelName=string(entry->d_name);	// specific travel
+				travelVector.push_back(travelName);
+				closedir(fd_travel);
+			}
 		}
 	}
+	if(fd_results.is_open()){
+		fd_results.close();	
+	}
+	auto& registrar = AlgorithmRegistrar::getInstance();
+    	{	
+        	std::string error;
+		const char *cstr = algorithm_path.c_str();
+		DIR* fd_Algo=opendir(cstr);
+		if(fd_Algo==NULL){
+			handleError(output,"Simulator","ERROR[3][1]- can't open "+algorithm_path);
+			return -1;
+		}
+		struct dirent *entry;
+    		while ((entry = readdir(fd_Algo))){
+			if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+				string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
+				if(algoName.compare("/")!=0){
+					algoVector.push_back(algoName);
+					if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
+	        				std::cerr << error << '\n';
+						handleError(output,"Simulator",algoName +" : bad with error : "+error);
+            					continue;
+					}
+        			}
+			}
+		}	
+	}
+	cout << "travel size " << (int)travelVector.size() << " algo size " << (int)algoVector.size();
+	for(int i=0;i<(int)travelVector.size();i++){
+		for(int j=0;j<(int)algoVector.size();j++){
+			cout << endl << "Pairing " << travelVector[i] << " with " << algoVector[j] << endl;
+			travelAlgoPairs.push_back(std::make_pair(travelVector[i],algoVector[j]));
+		}
+	}
+
 	return 0;
 }
 
@@ -1120,9 +1164,10 @@ ThreadPoolExecuter executer1 {
     std::cout << "second cycle stopped" << std::endl;
 
 
-
+		cout << pairingTravelAlgo(fd_path);
+		rewinddir(fd_path);
 		//start the simulation
-		simulate(fd_path);	
+		simulate(fd_path);
 	}catch(...){	//there is an error with the command line prameters
 	cout<< "catched xD"<<endl;
 	}
@@ -1137,8 +1182,7 @@ ThreadPoolExecuter executer1 {
 	cout<<"results prints"<<endl;
 	printResults();
 	
-	
-	cout << "Done!"<<endl;
+	cout << "Done! - ";
 	return 0;
 }
 
