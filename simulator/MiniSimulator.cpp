@@ -706,14 +706,14 @@ string** ReadExpectedInstructions(string cargoFileName){
 /*here we simulate the  travel ......due to lack of time i didn't seperate this function and document it well .. 
 but if i had an one hour i'll do so xD
 */
-int simulateTravel(){
+
+int simulateTravel(std::pair<string,string> travelAlgoPair){
 	  //intiate the ship and get the route
-	ErrorCode errCode;
 cout<< endl << "DELETING THE EMPTY FILES" << endl<< endl<< endl;
 //these are the emoty ports that was in the last travel .. se we clear it
 emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 //handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
-
+	string travelPath1 = travelAlgoPair.first;
 /**********************in this section we check and initiate the route/ship plan and prepare the simulation********************/
 	cout << "*initShipPlan"<<endl;
 	string shipPlanName;
@@ -776,41 +776,38 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 /******************START in this section we initiate the registrar and get the algorithms*********************/
 //new implemntation using algo regestrar
 	int flag=0;
-	auto& registrar = AlgorithmRegistrar::getInstance();
-    	{
-        	std::string error;
+	auto& registrar = AlgorithmRegistrar::getInstance();{
+        std::string error;
 		const char *cstr = algorithm_path.c_str();
-		  DIR* fd_Algo=opendir(cstr);
-		  if(fd_Algo==NULL){
-			 	
-				handleError(output,"Simulator","ERROR[3][1]- can't open "+algorithm_path);
-				return -1;
-			}
-
+		DIR* fd_Algo=opendir(cstr);
+		if(fd_Algo==NULL){			 	
+			handleError(output,"Simulator","ERROR[3][1]- can't open "+algorithm_path);
+			return -1;
+		}
 		struct dirent *entry;
-    		while ((entry = readdir(fd_Algo))){
-		if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
-			string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
-			if(algoName.compare("/")!=0){
-//cout << "the algoritim is : "<< algoName <<endl;
-				algoVector.push_back(algoName);
-				if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
+    	while ((entry = readdir(fd_Algo))){
+			if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+				string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
+				if(algoName != travelAlgoPair.second){
+					continue;
+				}
+				if(algoName.compare("/")!=0){
+					algoVector.push_back(algoName);
+					if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
 	        			std::cerr << error << '\n';
-					 handleError(output,"Simulator",algoName +" : bad with error : "+error);
-            				continue;
+						handleError(output,"Simulator",algoName +" : bad with error : "+error);
+            			continue;
         			}
-				algoQueue.push(algoName);
-//cout << "*good_regestration"<<endl;
-				flag=1;
+					algoQueue.push(algoName);
+					flag=1;
+				}
+			}	
+		}
+		closedir(fd_Algo);
+    }
 
-			}
-		}	
-	}
-	cout << "*end_registration"<<endl;
-/******************END initiate the registrar and get the algorithms*********************/
+    	/******************END initiate the registrar and get the algorithms*********************/
 
-	closedir(fd_Algo);
-    	}
 	if(flag){
 	//adding the travel to the queue
 	travelQueue.push(travelName);
@@ -820,6 +817,8 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 	//for each algorithm :
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
 		string algoName=algoQueue.front();
+		if(algoName == "")
+			continue;
 		algoVector.push_back(algoName);
 		algoQueue.pop();
 		cout << endl<<endl<<"##################### Algo = "<<algoName<<"##################"<<endl<<endl;
@@ -1052,7 +1051,7 @@ int pairingTravelAlgo(DIR* fd){
 }
 
 //[2] called in [1]
-void simulate(DIR* fd){	// fd = ../TRAVELS
+void simulate(DIR* fd, std::pair<string,string> travelAlgoPair){	// fd = ../TRAVELS
     struct dirent *entry;
     while ((entry = readdir(fd))){
       	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
@@ -1067,9 +1066,11 @@ void simulate(DIR* fd){	// fd = ../TRAVELS
 			  std::cout << "ERROR[2][1]- can't open "<<entry->d_name<<std::endl; 
 			}else{
 				travelName=string(entry->d_name);	// specific travel
-				simulateTravel();//simulate the travel
-				//free resources
-				closedir(fd_travel);
+				if(travelName == travelAlgoPair.first){
+					simulateTravel(travelAlgoPair);//simulate the travel
+					//free resources
+					closedir(fd_travel);
+				}
 			}
 		}
 	}
@@ -1167,7 +1168,7 @@ ThreadPoolExecuter executer1 {
 		cout << pairingTravelAlgo(fd_path);
 		rewinddir(fd_path);
 		//start the simulation
-		simulate(fd_path);
+		simulate(fd_path,travelAlgoPairs[0]);
 	}catch(...){	//there is an error with the command line prameters
 	cout<< "catched xD"<<endl;
 	}
