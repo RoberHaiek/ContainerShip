@@ -41,158 +41,6 @@ int travelNum=0;
 /*---------------FUNC DEC-------------*/
 int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 
-/*--------------NAMED OBJ-------------*/
-
-template<typename T>
-class Named {
-    T value;
-public:
-    explicit Named(T value): value{value} {}
-    operator T() const {return value;}
-};
-
-class NumTasks: public Named<int> {
-    using Named<int>::Named;
-};
-
-class IterationsPerTask: public Named<int> {
-    using Named<int>::Named;
-};
-
-class NumThreads: public Named<int> {
-    using Named<int>::Named;
-};
-
-
-/*--------------EXECUTER-------------*/
-
-
-template<typename Producer>
-class ThreadPoolExecuter {
-    Producer producer;	// produces tasks
-    const int numThreads = -1;	// number of threads
-    std::vector<std::thread> workers;
-    std::atomic_bool running = false;
-    std::atomic_bool stopped = false;
-    static thread_local int num_tasks_finished;	// number of tasks, current thread executed
-    std::atomic_int total_num_tasks_finished { 0 };	// number of tasks executed by all threads
-    
-    // goes over AVAILABLE tasks and executes them for current thread
-    void worker_function() {
-        while(!stopped) {
-            auto task = producer.getTask();
-            if(!task) break;
-            (*task)();
-            ++num_tasks_finished;
-            ++total_num_tasks_finished;
-        }
-        if(stopped) {
-            std::cout << std::this_thread::get_id() << " - stopped gracefully after processing " << num_tasks_finished << " task(s)" << std::endl;
-        }
-        else {
-            std::cout << std::this_thread::get_id() << " - finished after processing " << num_tasks_finished << " task(s)" << std::endl;
-        }
-    }
-public:
-    ThreadPoolExecuter(Producer producer, NumThreads numThreads)
-    : producer(std::move(producer)), numThreads(numThreads) {
-        workers.reserve(numThreads);
-    }
-    // gives the tasks to the threads for them to execute
-    bool start() {
-        bool running_status = false;
-        if(!running.compare_exchange_strong(running_status, true)) {
-            return false;
-        }
-        for(int i=0; i<numThreads; ++i) {
-            workers.push_back(std::thread([this]{
-                worker_function();
-            }));
-        }
-        return true;
-    }
-    void stop_gracefully() {
-        stopped = true;
-        wait_till_finish();
-    }
-    void wait_till_finish() {
-        for(auto& t : workers) {
-            t.join();
-        }
-        std::cout << "thread pool finished/stopped after processing " << total_num_tasks_finished << " task(s)" << std::endl;
-    }
-};
-
-// ThreadPoolExecuter.h - being a template - but outside of the class:
-template<typename Producer>
-thread_local int ThreadPoolExecuter<Producer>::num_tasks_finished { 0 };
-
-
-/*--------------PRODUCER-------------*/
-
-
-
-class SimpleTasksProducer {
-    const int numTasks = -1;
-    const int iterationsPerTask = -1;
-    std::atomic_int task_counter = 0;
-    std::mutex m;
-    // 2 ways of getting next task index:
-
-
-    std::optional<int> next_task_index() {
-        for(int curr_counter = task_counter.load(); curr_counter < numTasks; ) {
-            if(task_counter.compare_exchange_weak(curr_counter, curr_counter + 1)) {
-                return {curr_counter}; // zero based
-            }
-        }
-        return {};
-    }
-
-    std::optional<int> next_task_index_simple() {
-        // this is a more simple approach for getting the next task index
-        // it will return each time an unused index in the range[0, numTasks)
-        // the difference from the one above is that at certain point of time
-        // the variable task_counter may exceed numTasks by any number between 1 and numThreads-1
-        // however, we will not return such values
-        if(task_counter < numTasks) {
-            int next_counter = ++task_counter; // atomic operation
-            // another thread could have increment task_counter after we passed the prev if
-            // so we must check again - following check is on a local variable so no race
-            if(next_counter <= numTasks) {
-                return {next_counter - 1}; // zero based
-            }
-            else {
-                // just so that at the end we will have: task_counter == numTasks
-                --task_counter;
-            }
-        }
-        return {};
-    }
-    
-public:
-    SimpleTasksProducer(NumTasks numTasks, IterationsPerTask iterations)
-        : numTasks(numTasks), iterationsPerTask(iterations) {}
-    SimpleTasksProducer(SimpleTasksProducer&& other)
-        : numTasks(other.numTasks), iterationsPerTask(other.iterationsPerTask), task_counter(other.task_counter.load()) {}
-
-    // returns a task
-    std::optional<std::function<void(void)>> getTask() {
-        auto task_index = next_task_index(); // or: next_task_index_simple();
-        if(task_index) {
-            return [task_index, this]{
-                for(int i=0; i<iterationsPerTask; ++i) {
-                    std::lock_guard g{m};
-                    std::cout << std::this_thread::get_id() << "-" << *task_index << ": " << i << std::endl;
-                    std::this_thread::yield();
-                }
-            };
-        }
-        else return {};
-    }
-};
-
-
 /*------------------DEBUGGING METHODS-------------------*/
 
 void printFiles(DIR* fd){
@@ -715,7 +563,7 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 //handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 	string travelPath1 = travelAlgoPair.first;
 /**********************in this section we check and initiate the route/ship plan and prepare the simulation********************/
-	cout << "*initShipPlan"<<endl;
+	cout << "*initShipPlan 1"<<endl;
 	string shipPlanName;
 	string routeName;
 	int err=getTheFileNameFromTheTravel(travelPath,"ship_plan",shipPlanName);
@@ -1090,6 +938,10 @@ int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorit
 			output=string(argv[i+1]);
 		}else if(string(argv[i]).compare("-num_threads")==0 && num_threads.compare("")==0){
 			num_threads=string(argv[i+1]);
+			if(std::stoi(num_threads) <= 0){
+				output=".";
+				return ERROR;
+			}
 		}
 		else{
 			output=".";
@@ -1110,6 +962,118 @@ int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorit
 	}
 	return SUCCESS;
 }
+
+
+/*--------------EXECUTER-------------*/
+
+
+template<typename Producer>
+class ThreadPoolExecuter {
+    Producer producer;	// produces tasks
+    const int numThreads = -1;	// number of threads
+    std::vector<std::thread> workers;
+    std::atomic_bool running = false;
+    std::atomic_bool stopped = false;
+    static thread_local int num_tasks_finished;	// number of tasks, current thread executed
+    std::atomic_int total_num_tasks_finished { 0 };	// number of tasks executed by all threads
+    
+    // goes over AVAILABLE tasks and executes them for current thread
+    void worker_function() {
+        while(!stopped) {
+            auto task = producer.getTask();
+            if(!task) break;
+            (*task)();
+            ++num_tasks_finished;
+            ++total_num_tasks_finished;
+        }
+        if(stopped) {
+            std::cout << std::this_thread::get_id() << " - stopped gracefully after processing " << num_tasks_finished << " task(s)" << std::endl;
+        }
+        else {
+            std::cout << std::this_thread::get_id() << " - finished after processing " << num_tasks_finished << " task(s)" << std::endl;
+        }
+    }
+public:
+    ThreadPoolExecuter(Producer producer, int numThreads)
+    : producer(std::move(producer)), numThreads(numThreads) {
+        workers.reserve(numThreads);
+    }
+    // gives the tasks to the threads for them to execute
+    bool start() {
+        bool running_status = false;
+        if(!running.compare_exchange_strong(running_status, true)) {
+            return false;
+        }
+        for(int i=0; i<numThreads; ++i) {
+            workers.push_back(std::thread([this]{
+                worker_function();
+            }));
+        }
+        return true;
+    }
+    void stop_gracefully() {
+        stopped = true;
+        wait_till_finish();
+    }
+    void wait_till_finish() {
+        for(auto& t : workers) {
+            t.join();
+        }
+        std::cout << "thread pool finished/stopped after processing " << total_num_tasks_finished << " task(s)" << std::endl;
+    }
+};
+
+// ThreadPoolExecuter.h - being a template - but outside of the class:
+template<typename Producer>
+thread_local int ThreadPoolExecuter<Producer>::num_tasks_finished { 0 };
+
+
+/*--------------PRODUCER-------------*/
+
+
+
+class SimpleTasksProducer {
+    const int numTasks = -1;
+    vector<std::pair<string,string>> travelAlgoPairs1;
+    DIR* fd;
+    std::atomic_int task_counter = 0;
+    std::mutex m;
+    // 2 ways of getting next task index:
+
+
+    std::optional<int> next_task_index() {
+        for(int curr_counter = task_counter.load(); curr_counter < numTasks; ) {
+            if(task_counter.compare_exchange_weak(curr_counter, curr_counter + 1)) {
+                return {curr_counter}; // zero based
+            }
+        }
+        return {};
+    }
+    
+public:
+    SimpleTasksProducer(int numTasks, vector<std::pair<string,string>> travelAlgoPairs1, DIR* fd): numTasks(numTasks), travelAlgoPairs1(travelAlgoPairs1), fd(fd) {}
+    SimpleTasksProducer(SimpleTasksProducer&& other) : numTasks(other.numTasks),travelAlgoPairs1(other.travelAlgoPairs1), fd(other.fd), task_counter(other.task_counter.load()) {}
+    std::optional<std::function<void(void)>> getTask() {
+        auto task_index = next_task_index();
+        if(task_index) {
+            return [task_index, this]{
+            	rewinddir(fd);
+		try {
+			std::lock_guard g{m};
+			std::cout << "Thread running: " << std::this_thread::get_id() << endl;
+        		int n = task_index.value();
+			simulate(fd,travelAlgoPairs1[n]);
+                	std::this_thread::yield();
+
+    		}catch(const std::bad_optional_access& e) {
+        		std::cout << e.what() << '\n';
+    		}
+            };
+        }
+        else return {};
+    }
+};
+
 
 /* argv[1] will be the path of the workspace(IO-Files)*/
 //[1]
@@ -1143,32 +1107,18 @@ int main(int argc, char *argv[]) {
 			throw 1;
 		}
 
-
-ThreadPoolExecuter executer1 {
-        SimpleTasksProducer{NumTasks{8}, IterationsPerTask{200}},
-        NumThreads{5}
-    };
-    std::cout << "first cycle started" << std::endl;
-    executer1.start();
-    executer1.wait_till_finish();
-    std::cout << "first cycle finished" << std::endl;
-    
-    ThreadPoolExecuter executer2 {
-        SimpleTasksProducer{NumTasks{5}, IterationsPerTask{500}},
-        NumThreads{2}
-    };
-    std::cout << "second cycle started" << std::endl;
-    executer2.start();
-    using namespace std::chrono_literals;
-    std::this_thread::sleep_for(10ms);
-    executer2.stop_gracefully();
-    std::cout << "second cycle stopped" << std::endl;
-
-
 		cout << pairingTravelAlgo(fd_path);
-		rewinddir(fd_path);
-		//start the simulation
-		simulate(fd_path,travelAlgoPairs[0]);
+
+		if(std::stoi(num_threads)>1){
+			ThreadPoolExecuter executer1 {SimpleTasksProducer{(int)travelAlgoPairs.size(), travelAlgoPairs, fd_path},std::stoi(num_threads)};
+    			executer1.start();
+    			executer1.wait_till_finish();
+		}
+		else{
+			rewinddir(fd_path);
+			//start the simulation
+			simulate(fd_path,travelAlgoPairs[0]);
+		}
 	}catch(...){	//there is an error with the command line prameters
 	cout<< "catched xD"<<endl;
 	}
