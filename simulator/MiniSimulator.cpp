@@ -785,11 +785,11 @@ string travelName=travelAlgoPair.first;
 	err=e;
 }
 
-}}}/*
-********************END validaton the route*************
+
+/********************END validaton the route*************/
 
 
-********************Start in this section we preapare the results*************
+/********************Start in this section we preapare the results*************/
 
 			//results parsing 
 			auto isThere=resMap.find(algoName);
@@ -797,34 +797,42 @@ string travelName=travelAlgoPair.first;
 			if(isThere==resMap.end()){
 			//add algo to the map
 
-			std::vector<int> v=vector<int>();
-			v.push_back(0);
-			v.push_back(0);
-			resMap[algoName]=v;
+			{
+				
+				std::lock_guard<std::mutex> lck (mtx);
+				std::vector<int> v=vector<int>();
+				v.push_back(0);
+				v.push_back(0);
+				resMap[travelAlgoPair.second]=v;
+			}
 		
 		}
 			numOfInstructions=getNumOfInstructions(instructions);
-
+		
+		{
+			std::lock_guard<std::mutex> lck (mtx);
 			if(firstTiem==1){
-				isThere=resMap.find(algoName);
-				(isThere->second).resize(travelNum+2);
+				
+					isThere=resMap.find(travelAlgoPair.second);
+					(isThere->second).resize(travelNum+2);
 
-				(isThere->second).push_back(0);
-				firstTiem=0;
+					(isThere->second).push_back(0);
+					firstTiem=0;
+				
 			}
 			if(err!=0 || (isThere->second)[travelNum+1]<0){
 				(isThere->second)[travelNum+1]=-1;
 			}else{
 					(isThere->second)[travelNum+1]+=numOfInstructions;
 			}
-		
+		}
 			}
 			
-********************END preaparing the results*************
+/********************END preaparing the results*************/
 		
 		}	
 	}
-*/
+
 	return SUCCESS;
 	
 }
@@ -1164,7 +1172,6 @@ int main(int argc, char *argv[]) {
 			simulate(fd_path,travelAlgoPairs[i]);
 			}
 		}
-	exit(1);
 	}catch(...){	//there is an error with the command line prameters
 	}
 	if(fd_errors.is_open()){
