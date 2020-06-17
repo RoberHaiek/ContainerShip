@@ -30,8 +30,7 @@ using namespace std;
 const char* EXPECTED_OUTPUT="/expected_output";
 
 std::mutex mtx;
-string travelName;
-string AlgoName="StowageAlgo";
+
 string travel_path="",algorithm_path="",output="", num_threads="";
 queue<string> algoQueue;
 std::vector<string> algoVector;
@@ -527,6 +526,7 @@ int simulateTravel(std::pair<string,string> travelAlgoPair,string &travelPath){
 	  //intiate the ship and get the route
 	
 //these are the empty ports that was in the last travel ..
+string travelName=travelAlgoPair.first;
 std::set<string>emptyPorts;
 char **route;
 Ship* ship;
@@ -591,8 +591,12 @@ Ship* ship;
 
 /******************START in this section we initiate the registrar and get the algorithms*********************/
 //new implemntation using algo regestrar
-	int flag=0;
-	auto& registrar = AlgorithmRegistrar::getInstance();{
+	int flag=1;
+
+cout<<"printing regestrar"<<endl;
+
+
+	auto& registrar = AlgorithmRegistrar::getInstance();/*{
 		std::lock_guard<std::mutex> lck (mtx);
         std::string error;
 		const char *cstr = algorithm_path.c_str();
@@ -621,7 +625,7 @@ Ship* ship;
 			}	
 		}
 		closedir(fd_Algo);
-    }
+    }*/
 
     	/******************END initiate the registrar and get the algorithms*********************/
 
@@ -631,12 +635,14 @@ Ship* ship;
 	travelNum++;
 	cout << endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<<"#==#==#==#==#==#==#==#"<<endl;
 	//for each algorithm :
-    	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
-		string algoName=algoQueue.front();
+    	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {
+//get index from map find map(algoName)
+//while not index continue	
+		string algoName=travelAlgoPair.second;
 		if(algoName == "")
 			continue;
 		algoVector.push_back(algoName);
-		algoQueue.pop();
+		//algoQueue.pop();
 		std::cout << "Thread running: " << std::this_thread::get_id() << endl;
 		cout <<endl<<"##################### Algo = "<<algoName<<"##################"<<endl;
 		auto algo = (*algo_iter)();
@@ -802,6 +808,7 @@ Ship* ship;
 int pairingTravelAlgo(DIR* fd){
 	struct dirent *entry;
 	string travelPath;
+	string travelName;
     while ((entry = readdir(fd))){
       	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 		  	travelPath=workPath+"/"+string(entry->d_name);
@@ -834,11 +841,13 @@ int pairingTravelAlgo(DIR* fd){
 				string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
 				if(algoName.compare("/")!=0){
 					algoVector.push_back(algoName);
+					cout<<"regester algoName ?"<<endl;
 					if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
 	        				std::cerr << error << '\n';
 						handleError(output,"Simulator",algoName +" : bad with error : "+error);
             					continue;
 					}
+					cout<<"**accepted"<<endl;
         			}
 			}
 		}	
@@ -856,6 +865,7 @@ int pairingTravelAlgo(DIR* fd){
 //[2] called in [1]
 void simulate(DIR* fd, std::pair<string,string> travelAlgoPair){	// fd = ../TRAVELS
     struct dirent *entry;
+	string travelName;
     while ((entry = readdir(fd))){
       	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 		  	//open the travel dir
@@ -1011,17 +1021,16 @@ public:
         if(task_index) {
             return [task_index, this]{
             	rewinddir(fd);
-		try {
-			std::lock_guard g{m};
-        		int n = task_index.value();
-			std::cout << " ***** Thread " << std::this_thread::get_id() << " is running " << travelAlgoPairs1[n].first << ", " << travelAlgoPairs1[n].second << " *****" << endl << endl;
-			simulate(fd,travelAlgoPairs1[n]);
-                	std::this_thread::yield();
-
-    		}catch(const std::bad_optional_access& e) {
-        		std::cout << e.what() << '\n';
-    		}
-            };
+				try {
+					std::lock_guard g{m};
+        			int n = task_index.value();
+					std::cout << " ***** Thread " << std::this_thread::get_id() << " is running " << travelAlgoPairs1[n].first << ", " << travelAlgoPairs1[n].second << " *****" << endl << endl;
+					simulate(fd,travelAlgoPairs1[n]);
+            		std::this_thread::yield();
+    			}catch(const std::bad_optional_access& e) {
+        			std::cout << e.what() << '\n';
+    			}
+     		};
         }
         else return {};
     }
@@ -1068,6 +1077,7 @@ int main(int argc, char *argv[]) {
     			executer1.wait_till_finish();
 		}
 		else{
+			//for(int i=0;(int)travelAlgoPairs.size();i++){}
 			rewinddir(fd_path);
 			//start the simulation
 			simulate(fd_path,travelAlgoPairs[0]);
