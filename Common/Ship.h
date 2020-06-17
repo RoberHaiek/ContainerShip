@@ -2,7 +2,7 @@
  * ContainerShip.h
  *
  *  Created on: Mar 29, 2020
- *      Author: n_b_a
+ *      Author: Aubaida
  */
 
 #ifndef CONTAINERSHIP_H_
@@ -15,8 +15,19 @@
 	    struct node *next;
 		node(){
 			Port p = Port("TEST");
-			container =new Container(1,p,"TESTING");
+			container =new Container(1,p,"Floor");
 			next = NULL;}
+	/*	 ~node(){
+			if (container!=NULL){
+			delete container;
+		}	
+			if(next!=NULL){
+			delete next;
+
+			}
+			
+		}*/
+
 	};
 	// each cellLinkedList represents a cell (specific row and column) in which containers are represented as nodes in the linked list, and the size
 	struct cellLinkedList
@@ -34,6 +45,13 @@
 			size=0;
 			maxHeight=max;
 	}
+	/*~cellLinkedList(){
+		if (linkedList!=NULL){
+			delete linkedList;
+		}		
+	
+		}*/
+
 
 	};
 

@@ -2,34 +2,37 @@
  * ErrorCode.h
  *
  *  Created on: May 16, 2020
- *      Author: n_b_a
+ *      Author: Aubaida
  */
 #pragma once
 #include <cmath>
 #include <string>
-
+#include <fstream>
+using namespace std;
 ofstream fd_errors;
+string errorOutputPath;
 enum status{Ignore,FatalError};
 enum ErrorID{
-	ShipPlanWrongFloors=0,
-	ShipPlanWrongXY=1,
-	ShipPlanBadLineFormat=2,
-	ShipPlanBadFirstLine=3,
-	ShipPlanDuplicateXY=4,
-	TravelRoutePortAppearsTwice=5,
-	TravelRouteBadPortSymbol=6,
-	TravelRouteEmptyOrCantReadFile=7,
-	TravelRoureFileWithOnlySinglePort=8,
-	Reserved=9,
-	ContainersDuplicateID=10,
-	ContainersIDArleadyOnShip=11,
-	ContainersMissingOrBadWeight=12,
-	ContainersMissingOrBadPortDest=13,
-	ContainersIDCannotBeRead=14,
-	ContainersIllegalIDCheck=15,
-	ContainersFileCannotBeRead=16,
-	ContainersLastPortHasWaitingContainers=17,
-	ContainersTooManyContainers=18
+	ShipPlanWrongFloors=(int)pow(2,0),
+	ShipPlanWrongXY=(int)pow(2,1),
+	ShipPlanBadLineFormat=(int)pow(2,2),
+	ShipPlanBadFirstLine=(int)pow(2,3),
+	ShipPlanDuplicateXY=(int)pow(2,4),
+	TravelRoutePortAppearsTwice=(int)pow(2,5),
+	TravelRouteBadPortSymbol=(int)pow(2,6),
+	TravelRouteEmptyOrCantReadFile=(int)pow(2,7),
+	TravelRoureFileWithOnlySinglePort=(int)pow(2,8),
+	Reserved=(int)pow(2,9),
+	ContainersDuplicateID=(int)pow(2,10),
+	ContainersIDArleadyOnShip=(int)pow(2,11),
+	ContainersMissingOrBadWeight=(int)pow(2,12),
+	ContainersMissingOrBadPortDest=(int)pow(2,13),
+	ContainersIDCannotBeRead=(int)pow(2,14),
+	ContainersIllegalIDCheck=(int)pow(2,15),
+	ContainersFileCannotBeRead=(int)pow(2,16),
+	ContainersLastPortHasWaitingContainers=(int)pow(2,17),
+	ContainersTooManyContainers=(int)pow(2,18)
 	};
+
 class ErrorCode;
 
