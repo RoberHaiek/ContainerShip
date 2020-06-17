@@ -30,10 +30,9 @@ using namespace std;
 const char* EXPECTED_OUTPUT="/expected_output";
 
 std::mutex mtx;
-string travelName;
-string AlgoName="StowageAlgo";
+
 string travel_path="",algorithm_path="",output="", num_threads="";
-queue<string> algoQueue;
+//queue<string> algoQueue;
 std::vector<string> algoVector;
 queue<string> travelQueue;
 vector<string> travelVector;
@@ -41,6 +40,7 @@ vector<std::pair<string,string>> travelAlgoPairs;
 std::map<string,std::vector<int>> resMap;
 int travelNum=0;
 std::map<std::thread::id,std::vector<std::pair<string,string>>*> threadsCount;
+std::map<string,int> regestrationMapIndexeis;
 /*---------------FUNC DEC-------------*/
 int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 
@@ -541,6 +541,7 @@ cout<< endl << "DECLEARING of THE EMPTY LIST" << endl<< endl<< endl;
 std::set<string>emptyPorts;
 char **route;
 Ship* ship;
+string travelName=travelAlgoPair.first;
 //handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 	string travelPath1 = travelAlgoPair.first;
 /**********************in this section we check and initiate the route/ship plan and prepare the simulation********************/
@@ -602,37 +603,8 @@ Ship* ship;
 
 /******************START in this section we initiate the registrar and get the algorithms*********************/
 //new implemntation using algo regestrar
-	int flag=0;
-	auto& registrar = AlgorithmRegistrar::getInstance();{
-		std::lock_guard<std::mutex> lck (mtx);
-        std::string error;
-		const char *cstr = algorithm_path.c_str();
-		DIR* fd_Algo=opendir(cstr);
-		if(fd_Algo==NULL){			 	
-			handleError(output,"Simulator","ERROR[3][1]- can't open "+algorithm_path);
-			return -1;
-		}
-		struct dirent *entry;
-    	while ((entry = readdir(fd_Algo))){
-			if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
-				string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
-				if(algoName != travelAlgoPair.second){
-					continue;
-				}
-				if(algoName.compare("/")!=0){
-					algoVector.push_back(algoName);
-					if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
-	        			std::cerr << error << '\n';
-						handleError(output,"Simulator",algoName +" : bad with error : "+error);
-            			continue;
-        			}
-					algoQueue.push(algoName);
-					flag=1;
-				}
-			}	
-		}
-		closedir(fd_Algo);
-    }
+	int flag=1;
+	auto& registrar = AlgorithmRegistrar::getInstance();
 
     	/******************END initiate the registrar and get the algorithms*********************/
 
@@ -640,14 +612,27 @@ Ship* ship;
 	//adding the travel to the queue
 	travelQueue.push(travelName);
 	travelNum++;
-	cout << endl<<endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<<"#==#==#==#==#==#==#==#"<<endl<<endl;
+	cout << endl<<endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<< " with "<<travelAlgoPair.second<<"#==#==#==#==#==#==#==#"<<endl<<endl;
 	//for each algorithm :
-    	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
-		string algoName=algoQueue.front();
+	int AlgoIndex;
+	try{
+	AlgoIndex =regestrationMapIndexeis.find(travelAlgoPair.second)->second;
+	}catch(...){
+		return -1;
+	}
+	cout<<"#### the AlgoIndex ="<<AlgoIndex <<endl;
+    	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {
+	cout<<"#### itreate ="<<AlgoIndex <<endl;
+		if(AlgoIndex!=0 || AlgoIndex<0){
+			cout<<"	continue" <<endl;
+			AlgoIndex--;
+			continue;
+		}	
+		string algoName=travelAlgoPair.second;
 		if(algoName == "")
 			continue;
 		algoVector.push_back(algoName);
-		algoQueue.pop();
+		//algoQueue.pop();
 		std::cout << "Thread running: " << std::this_thread::get_id() << endl;
 		cout << endl<<endl<<"##################### Algo = "<<algoName<<"##################"<<endl<<endl;
 		auto algo = (*algo_iter)();
@@ -813,6 +798,7 @@ Ship* ship;
 int pairingTravelAlgo(DIR* fd){
 	struct dirent *entry;
 	string travelPath;
+	string travelName;
     while ((entry = readdir(fd))){
       	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 		  	travelPath=workPath+"/"+string(entry->d_name);
@@ -830,6 +816,7 @@ int pairingTravelAlgo(DIR* fd){
 	if(fd_results.is_open()){
 		fd_results.close();	
 	}
+	int AlgoIndex=0;
 	auto& registrar = AlgorithmRegistrar::getInstance();
     	{	
         	std::string error;
@@ -849,6 +836,9 @@ int pairingTravelAlgo(DIR* fd){
 	        				std::cerr << error << '\n';
 						handleError(output,"Simulator",algoName +" : bad with error : "+error);
             					continue;
+					}else{
+
+					regestrationMapIndexeis.insert({algoName,AlgoIndex++});
 					}
         			}
 			}
@@ -868,7 +858,8 @@ int pairingTravelAlgo(DIR* fd){
 void simulate(DIR* fd2, std::pair<string,string> travelAlgoPair){	// fd = ../TRAVELS
     struct dirent *entry;
  /*openning the fd travels*/
-	DIR *fd=fd2;
+	DIR *fd=fd2;	
+	string travelName;
 	const char *cstr = workPath.c_str();
 		fd=opendir(cstr);
 		if(fd==NULL){
@@ -1073,6 +1064,7 @@ public:
 std::this_thread::yield();
 
 			simulate(fd,travelAlgoPairs1[n]);
+//std::this_thread::yield();
 			//ExecuteThread(n	);
 
                 	
@@ -1129,7 +1121,9 @@ int main(int argc, char *argv[]) {
 		else{
 			rewinddir(fd_path);
 			//start the simulation
-			simulate(fd_path,travelAlgoPairs[0]);
+			for(int i=0;i<(int)travelAlgoPairs.size();i++){
+			simulate(fd_path,travelAlgoPairs[i]);
+			}
 		}
 	}catch(...){	//there is an error with the command line prameters
 	}
@@ -1139,7 +1133,6 @@ int main(int argc, char *argv[]) {
 	if(flag){
 		return -1;
 	}
-	
 	//printing the results
 	cout<<"results prints"<<endl;
 	printResults();
