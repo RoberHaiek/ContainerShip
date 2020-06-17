@@ -21,7 +21,7 @@
 using namespace std;
 
 string workPath;
-string parse_out;
+//string parse_out;
 ofstream fd_results;
 
 //string travelPath;
@@ -32,9 +32,9 @@ ofstream fd_results;
 //Ship* ship;
 
 //functions
-int getElem(string s , int& seek,char delmiter);
-int getElem(string s , int& seek){
-	return getElem(s ,seek,' ');
+int getElem(string s , int& seek,char delmiter,string& parse_out);
+int getElem(string s , int& seek,string& parse_out){
+	return getElem(s ,seek,' ',parse_out);
 }
 
 void parseResults (string algoName,string travelName,int numInst, int port);

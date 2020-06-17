@@ -18,7 +18,7 @@ int checkPortName(string& name);
 
 /*--------------------------PARSING METHODS--------------------------*/
 /*this function got a string and a seek with a delemiter and searchs for the next matched item*/
-int getElem(string s , int& seek,char delmiter){
+int getElem(string s , int& seek,char delmiter,string& parse_out){
 	parse_out="";
 	if(delmiter==' '){//find the first index which not whitspace
 		while(seek < (int)s.length() && s.at(seek)==delmiter){
@@ -116,6 +116,7 @@ Container* parseCargoFile(string fileName){
 	ifstream fd_info;
 	//cout << "in parseCargoFile"<<endl;
 	int is_err=SUCCESS;
+	string parse_out;
 	Container* containers;
 	int containerNum=0;
 	string filePath=fileName;
@@ -146,7 +147,7 @@ Container* parseCargoFile(string fileName){
 			}
 			seek=0;
 			try{
-			getElem(line,seek,',');
+			getElem(line,seek,',',parse_out);
 			if(parse_out==""){
 				throw((int)ErrorID::ContainersIDCannotBeRead);
 			}
@@ -154,13 +155,13 @@ Container* parseCargoFile(string fileName){
 			if(parse_out==""){
 				throw((int)ErrorID::ContainersIDCannotBeRead);
 			}
-			getElem(line,seek,',');
+			getElem(line,seek,',',parse_out);
 			containerWeight=std::stoi(parse_out); // get length
 			if(parse_out=="" || containerWeight<0){
 				throw ((int)ErrorID::ContainersMissingOrBadWeight);
 			}
 
-			getElem(line,seek,',');
+			getElem(line,seek,',',parse_out);
 			if(parse_out=="" || containerWeight<0 || seek <(int)line.length()){
 				throw ((int)ErrorID::ContainersMissingOrBadPortDest);
 			}
@@ -236,6 +237,7 @@ int initRoute(char** &currRoute,string travelPath,int &routeSize){
 	ifstream fd_info;
 	int is_err;
 	int err=0;
+	string parse_out;
 	fd_info.open(travelPath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
@@ -260,7 +262,7 @@ int initRoute(char** &currRoute,string travelPath,int &routeSize){
 			continue;
 			}
 			seek=0;
-			getElem(line,seek);
+			getElem(line,seek,parse_out);
 			is_err=checkPortName(parse_out);
 			if(is_err==ERROR){
 			//	std::cout << "ERROR[5][2]- wrong port name "<< parse_out<< std::endl;
@@ -298,23 +300,24 @@ int initRoute(char** &currRoute,string travelPath,int &routeSize){
 //[6] called in[4]
 /*getting three elements seprated by ',' ---- containerID,weight,port*/
 int getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& thirdElem){
+	string parse_out;
 	try{
-	int err=getElem(line,seek,',');
+	int err=getElem(line,seek,',',parse_out);
 	firstElem=std::stoi(parse_out); // get max height
 	if(err!=SUCCESS|| firstElem<0){
 		return err;
 	}
-	err=getElem(line,seek,',');
+	err=getElem(line,seek,',',parse_out);
 	secElem=std::stoi(parse_out); // get length
 	if(err!=SUCCESS|| secElem<0){
 		return err;
 	}
-	err=getElem(line,seek,',');
+	err=getElem(line,seek,',',parse_out);
 	thirdElem=std::stoi(parse_out);// get width
 	if(err!=SUCCESS || thirdElem<0){
 		return err;
 	}
-	err=getElem(line,seek,',');
+	err=getElem(line,seek,',',parse_out);
 	if(err!=ERROR || seek<=(int)line.length()){
 		return ERROR;
 	}				
@@ -528,14 +531,15 @@ int checkCargoFiles(string travelPath,std::set<string>& emptyPorts,char** route,
 /*getting the port index from the route*/
 int getRouteIndex(int &routeIndex,const std::string& input_full_path_and_file_name,char** route){
 		int seek=0;
+		string parse_out;
 		while(seek < (int)input_full_path_and_file_name.length()){
-		getElem(input_full_path_and_file_name,seek,'/');
+		getElem(input_full_path_and_file_name,seek,'/',parse_out);
 		}
 		seek=0;
 		string fileName(parse_out);
-		getElem(fileName,seek,'_');
+		getElem(fileName,seek,'_',parse_out);
 		string portName(parse_out);
-		getElem(fileName,seek,'.');
+		getElem(fileName,seek,'.',parse_out);
 //std::cout<<"the parse_out is :"<<parse_out<<std::endl;
 		int portNum=std::stoi(parse_out);
 		routeIndex=0;
@@ -553,10 +557,11 @@ int getRouteIndex(int &routeIndex,const std::string& input_full_path_and_file_na
 	}
 	string getTheFileName(string fullFilePath){
 		int seek=0;
+		string parse_out;
 		string fileName;
 //cout<<"in getTheFileName: "<<fullFilePath<<endl;
 		while(seek <= (int)fullFilePath.length()){
-		getElem(fullFilePath,seek,'/');
+		getElem(fullFilePath,seek,'/',parse_out);
 //cout << parse_out<<endl;
 		}
 		fileName=string(parse_out);
@@ -569,7 +574,7 @@ int getRouteIndex(int &routeIndex,const std::string& input_full_path_and_file_na
 /*getting a name without extensions*/
 string getNameWithoutExtinsion(string fileName,char delemiter,string extension){
 //cout<<"getNameWithoutExtinsion start"<<endl;
-
+	string parse_out;
 	int seek=0;
 	if(fileName.at(0)==delemiter){
 	return "/";
@@ -584,7 +589,7 @@ string getNameWithoutExtinsion(string fileName,char delemiter,string extension){
 	}
 //cout<<"getNameWithoutExtinsion start  while"<<endl;
 	while(seek < (int)fileName.length()){
-		getElem(fileName,seek,delemiter);
+		getElem(fileName,seek,delemiter,parse_out);
 	}
 //cout<<"getNameWithoutExtinsion end  while"<<endl;
 	if(extension.compare(parse_out)==0){

@@ -30,6 +30,8 @@ using namespace std;
 const char* EXPECTED_OUTPUT="/expected_output";
 
 std::mutex mtx;
+std::mutex routeMtx;
+std::mutex shipMtx;
 
 string travel_path="",algorithm_path="",output="", num_threads="";
 //queue<string> algoQueue;
@@ -385,6 +387,7 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 //[14]
 /*parsing the instruction line from the algorithm output file*/
 int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR){
+	string parse_out;
 	switch(INDICATOR){
 		case LAST :{fivedArray[0]="last";fivedArray[1]="";fivedArray[2]="";fivedArray[3]="";fivedArray[4]="";fivedArray[5]="";fivedArray[6]="";fivedArray[7]="";
 				return 0;
@@ -394,7 +397,7 @@ int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICA
 				try{
 				int moveFlag=0;
 				int err=0;
-				getElem(line,seek,',');fivedArray[0]=string(parse_out);
+				getElem(line,seek,',',parse_out);fivedArray[0]=string(parse_out);
 				if(fivedArray[0].compare("M")==0){
 					moveFlag=1;
 				}
@@ -402,7 +405,7 @@ int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICA
 					return ERROR;
 				}
 				bool isRejectInstruction=(fivedArray[0]=="R");
-				err=getElem(line,seek,',');fivedArray[1]=string(parse_out);
+				err=getElem(line,seek,',',parse_out);fivedArray[1]=string(parse_out);
 				if(err!=SUCCESS||seek>=(int)line.length() || parse_out==""){
 				if(isRejectInstruction && parse_out!="" && seek>=(int)line.length()){
 					fivedArray[2]="-1";fivedArray[3]="-1";fivedArray[4]="-1";
@@ -411,49 +414,49 @@ int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICA
 
 					return ERROR;
 				}
-				err=getElem(line,seek,',');fivedArray[2]=string(parse_out);
+				err=getElem(line,seek,',',parse_out);fivedArray[2]=string(parse_out);
 				if(err!=SUCCESS|| seek==(int)line.length() || parse_out==""){
 
 					return ERROR;
 				}
-				err=getElem(line,seek,',');fivedArray[3]=string(parse_out);
+				err=getElem(line,seek,',',parse_out);fivedArray[3]=string(parse_out);
 				if(err!=SUCCESS|| seek==(int)line.length() || parse_out==""){
 					return ERROR;
 				}
 				if(moveFlag){
-					err=getElem(line,seek,'[');fivedArray[4]=string(parse_out);
+					err=getElem(line,seek,'[',parse_out);fivedArray[4]=string(parse_out);
 					if(err!=SUCCESS || seek==(int)line.length() || parse_out==""){
 						return ERROR;
 					}
-					err=getElem(line,seek,',');
+					err=getElem(line,seek,',',parse_out);
 					if(seek==(int)line.length() || parse_out.compare("")!=0){
 						return ERROR;
 					}
-					err=getElem(line,seek,',');fivedArray[5]=string(parse_out);
+					err=getElem(line,seek,',',parse_out);fivedArray[5]=string(parse_out);
 					if(err!=SUCCESS || seek==(int)line.length() || parse_out==""){
 						return ERROR;
 					}
-					err=getElem(line,seek,',');fivedArray[6]=string(parse_out);
+					err=getElem(line,seek,',',parse_out);fivedArray[6]=string(parse_out);
 					if(err!=SUCCESS || seek==(int)line.length() || parse_out==""){
 						return ERROR;
 					}
 					cout << "the parse out is :"<<parse_out << endl;
-					err=getElem(line,seek,']');fivedArray[7]=string(parse_out);
+					err=getElem(line,seek,']',parse_out);fivedArray[7]=string(parse_out);
 					if(err!=SUCCESS || parse_out.compare("")==0 || (seek<=(int)line.length()&& line.at(seek-1)!=']')){
 						return ERROR;
 					}
 					cout << "the parse out is :"<<parse_out << endl;
-					err=getElem(line,seek,',');
+					err=getElem(line,seek,',',parse_out);
 					if(err!=ERROR || seek<=(int)line.length()){
 						return ERROR;
 					}
 					
 				}else{
-					err =getElem(line,seek,',');fivedArray[4]=string(parse_out);
+					err =getElem(line,seek,',',parse_out);fivedArray[4]=string(parse_out);
 					if(err!=SUCCESS){
 						return ERROR;
 					}
-					err=getElem(line,seek,',');
+					err=getElem(line,seek,',',parse_out);
 					if(err!=ERROR || seek<=(int)line.length()){
 						return ERROR;
 					}
@@ -534,12 +537,18 @@ int simulateTravel(std::pair<string,string> travelAlgoPair,string &travelPath){
 
 /*--DEBUGING--*/
 auto it=threadsCount.find(std::this_thread::get_id());
-if(it==threadsCount.end()){
-	vector<std::pair<string,string>>* v=new vector<std::pair<string,string>>();
-	threadsCount.insert({std::this_thread::get_id(),v});
-}
+{
+	std::lock_guard<std::mutex> lck (mtx);
+	if(it==threadsCount.end()){
+		vector<std::pair<string,string>>* v=new vector<std::pair<string,string>>();
+	
+	
+		threadsCount.insert({std::this_thread::get_id(),v});
+		}
+	
 it=threadsCount.find(std::this_thread::get_id());
 it->second->push_back(travelAlgoPair);
+}
 
 cout<< endl << "DECLEARING of THE EMPTY LIST" << endl<< endl<< endl;
 //these are the empty ports that was in the last travel ..
@@ -587,6 +596,8 @@ string travelName=travelAlgoPair.first;
 			return 1;
 		}
 	}
+
+
 	err=initRoute(route,routeName,routeSize);
 	if(err!=0){
 		status isIgnore =handleError(output,"Simulator",err);
@@ -615,8 +626,11 @@ string travelName=travelAlgoPair.first;
 
 	if(flag){
 	//adding the travel to the queue
+{	
+	std::lock_guard<std::mutex> lck2 (mtx);
 	travelQueue.push(travelName);
 	travelNum++;
+}
 	cout << endl<<endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<< " with "<<travelAlgoPair.second<<"#==#==#==#==#==#==#==#"<<endl<<endl;
 	//for each algorithm :
 	int AlgoIndex;
@@ -639,15 +653,21 @@ string travelName=travelAlgoPair.first;
 		string algoName=travelAlgoPair.second;
 		if(algoName == "")
 			continue;
-		algoVector.push_back(algoName);
+		
+		{
+		std::lock_guard<std::mutex> lck (mtx);
+		algoVector.push_back(travelAlgoPair.second);
+		}
 		//algoQueue.pop();
 		std::cout << "Thread running: " << std::this_thread::get_id() << endl;
 		cout << endl<<endl<<"##################### Algo = "<<algoName<<"##################"<<endl<<endl;
 		auto algo = (*algo_iter)();
+		cout<<"readShipPlan"<<endl;
 		try{
-
+		{
+		//std::lock_guard<std::mutex> lck (shipMtx);
 		err=algo->readShipPlan(shipPlanName);
-
+		}
 		}catch(...){
 			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling readShipPlan (stop the simulation on this algorithm/travel pair)");
 			cout<<"throws an exception by calling readShipPlan"<<endl;
@@ -658,10 +678,13 @@ string travelName=travelAlgoPair.first;
 		if(isIgnore!=status::Ignore){
 			 continue;}
 			}
-//readShipRoute
+	//readShipRoute
+	cout<<"readShipRoute"<<endl;
 		try{
-		
+		{
+		//std::lock_guard<std::mutex> lck (routeMtx);
 		err=algo->readShipRoute(routeName);
+		}
 		}catch(...){
 			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling readShipRoute(stop the simulation on this algorithm/travel pair)");
 			throw 1;
@@ -761,10 +784,12 @@ string travelName=travelAlgoPair.first;
 }catch(int e){
 	err=e;
 }
-/********************END validaton the route*************/
+
+}}}/*
+********************END validaton the route*************
 
 
-/********************Start in this section we preapare the results*************/
+********************Start in this section we preapare the results*************
 
 			//results parsing 
 			auto isThere=resMap.find(algoName);
@@ -795,10 +820,11 @@ string travelName=travelAlgoPair.first;
 		
 			}
 			
-/********************END preaparing the results*************/
+********************END preaparing the results*************
 		
 		}	
 	}
+*/
 	return SUCCESS;
 	
 }
@@ -1068,10 +1094,13 @@ public:
             return [task_index, this]{
             	rewinddir(fd);
 		try {
+			int n;
+			{
 			std::lock_guard g{m};
 			std::cout << "Thread running: " << std::this_thread::get_id() << endl;
-        		int n = task_index.value();
-std::this_thread::yield();
+        		n = task_index.value();
+			std::this_thread::yield();
+			}
 
 			simulate(fd,travelAlgoPairs1[n]);
 //std::this_thread::yield();
@@ -1135,6 +1164,7 @@ int main(int argc, char *argv[]) {
 			simulate(fd_path,travelAlgoPairs[i]);
 			}
 		}
+	exit(1);
 	}catch(...){	//there is an error with the command line prameters
 	}
 	if(fd_errors.is_open()){
