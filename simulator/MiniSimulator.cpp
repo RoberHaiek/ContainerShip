@@ -524,7 +524,7 @@ but if i had an one hour i'll do so xD
 int simulateTravel(std::pair<string,string> travelAlgoPair,string &travelPath){
 	bool locked = true;
 	  //intiate the ship and get the route
-	
+	std::cout << "*+=+=+=+Thread running: " << std::this_thread::get_id() <<"in simulate"<< endl;
 //these are the empty ports that was in the last travel ..
 string travelName=travelAlgoPair.first;
 std::set<string>emptyPorts;
@@ -593,7 +593,7 @@ Ship* ship;
 //new implemntation using algo regestrar
 	int flag=1;
 
-cout<<"printing regestrar"<<endl;
+//cout<<"printing regestrar"<<endl;
 
 
 	auto& registrar = AlgorithmRegistrar::getInstance();/*{
@@ -633,7 +633,7 @@ cout<<"printing regestrar"<<endl;
 	//adding the travel to the queue
 	travelQueue.push(travelName);
 	travelNum++;
-	cout << endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<<"#==#==#==#==#==#==#==#"<<endl;
+	//cout << endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<<"#==#==#==#==#==#==#==#"<<endl;
 	//for each algorithm :
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {
 //get index from map find map(algoName)
@@ -643,8 +643,8 @@ cout<<"printing regestrar"<<endl;
 			continue;
 		algoVector.push_back(algoName);
 		//algoQueue.pop();
-		std::cout << "Thread running: " << std::this_thread::get_id() << endl;
-		cout <<endl<<"##################### Algo = "<<algoName<<"##################"<<endl;
+		
+		//cout <<endl<<"##################### Algo = "<<algoName<<"##################"<<endl;
 		auto algo = (*algo_iter)();
 		try{
 
@@ -841,7 +841,7 @@ int pairingTravelAlgo(DIR* fd){
 				string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
 				if(algoName.compare("/")!=0){
 					algoVector.push_back(algoName);
-					cout<<"regester algoName ?"<<endl;
+					//cout<<"regester algoName ?"<<endl;
 					if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
 	        				std::cerr << error << '\n';
 						handleError(output,"Simulator",algoName +" : bad with error : "+error);
@@ -943,8 +943,12 @@ class ThreadPoolExecuter {
     // goes over AVAILABLE tasks and executes them for current thread
     void worker_function() {
         while(!stopped) {
+		std::cout <<" %#%#%#%#%#%#%#%#%#%#%# Thread " << std::this_thread::get_id() << " is getting a task " << endl;
             auto task = producer.getTask();
-            if(!task) break;
+            if(!task){
+		cout << " NO TASK GIVEN " << endl;
+		break;
+		}
             (*task)();
             ++num_tasks_finished;
             ++total_num_tasks_finished;
@@ -1019,14 +1023,15 @@ public:
     std::optional<std::function<void(void)>> getTask() {
         auto task_index = next_task_index();
         if(task_index) {
+		cout << std::this_thread::get_id() << "  RECEIVING TASK INDEX "<< (int)task_index.value() << endl;
             return [task_index, this]{
             	rewinddir(fd);
 				try {
 					std::lock_guard g{m};
-        			int n = task_index.value();
-					std::cout << " ***** Thread " << std::this_thread::get_id() << " is running " << travelAlgoPairs1[n].first << ", " << travelAlgoPairs1[n].second << " *****" << endl << endl;
+        				int n = task_index.value();
+					std::cout << "***** Thread " << std::this_thread::get_id() << " is running " << travelAlgoPairs1[n].first << ", " << travelAlgoPairs1[n].second << " *****" << endl;
 					simulate(fd,travelAlgoPairs1[n]);
-            		std::this_thread::yield();
+					//std::this_thread::yield();
     			}catch(const std::bad_optional_access& e) {
         			std::cout << e.what() << '\n';
     			}
