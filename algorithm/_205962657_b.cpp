@@ -9,6 +9,7 @@
 class _205962657_b: public AbstractAlgorithm{
 public:
 	int instNum;
+	int routeSize;
 	Ship *ship;
 	Port *route;					// array of ports
 	std::string **currentInstructions;
@@ -53,14 +54,14 @@ public:
 		int error = 0;
 		//cout << "*initRoute from stowage"<<endl;
 		char** routeArray;
-	  	error |=initRoute(routeArray,full_path_and_file_name);
+	  	error |=initRoute(routeArray,full_path_and_file_name,routeSize);
 		status isFatalError=giveMeErrorStatus(error);{
 			if(isFatalError!=status::Ignore){
 				return error;
 			}
 		}
 		this->routeArr=routeArray;
-		route= getPortsFromRoute(routeArray);
+		route= getPortsFromRoute(routeArray,routeSize);
 		//cout<<"* finish route from stowage"<<endl;
 
 		return error ; // success

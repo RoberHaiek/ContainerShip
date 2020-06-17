@@ -14,10 +14,6 @@
 #define MAX_LINE 1024
 using namespace std;
 
-std::set<string> myset;
-std::set<string>emptyPorts;
-
-
 int checkPortName(string& name);
 
 /*--------------------------PARSING METHODS--------------------------*/
@@ -53,7 +49,7 @@ int getElem(string s , int& seek,char delmiter){
 
 //[11]
 /*get the ports from the char***/
-Port* getPortsFromRoute(char** &currRoute){
+Port* getPortsFromRoute(char** &currRoute,int &routeSize){
 	int index;
 	Port* ports=new Port[routeSize+1];
 	for(index=0;index<routeSize;index++){
@@ -69,7 +65,7 @@ int instructionsOut(string** instructions,string outName){
 	//open output file to write the instruction to output dir ??????????????????????? we must open a output dir to every algo????
 	ofstream fd_info;
 //	cout << "in out" <<endl;
-	numInstructions=0;
+	//numInstructions=0;
 	string filePath=outName;
 //	cout << filePath <<endl;
 	fd_info.open(filePath,ios_base::out);//open the file to out
@@ -98,7 +94,7 @@ int instructionsOut(string** instructions,string outName){
 }
 //[9]
 /*adding the extension of .cargo_data/.crane_instructions to the port file name*/
-string getCargoFileName(int portIndex,bool cargoData){
+string getCargoFileName(int portIndex,bool cargoData,char** route){
 	int cnt=1;
 	for(int i=0;i<portIndex;i++){
 		if(strcmp(route[portIndex],route[i])==0){
@@ -236,7 +232,7 @@ int getNumOfLines(ifstream& fd){
 
 //[5] called in [3]
 /*initiate the route from a travel path */
-int initRoute(char** &currRoute,string travelPath){
+int initRoute(char** &currRoute,string travelPath,int &routeSize){
 	ifstream fd_info;
 	int is_err;
 	int err=0;
@@ -341,6 +337,7 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 	ifstream fd_info;
 	int err=0;
 	int isErr=0;	
+	int width,length,maxHeight;
 	fd_info.open(travelPath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
@@ -469,9 +466,12 @@ int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNe
 	return SUCCESS;
 }
 
+
 /**********implement some funcs*********/
-int checkCargoFiles(string travelPath){
+int checkCargoFiles(string travelPath,std::set<string>& emptyPorts,char** route,int &routeSize){
 	//int err=0;
+	std::set<string> myset;
+	int numOfCargoFiles=0;
 	const char *cstr = travelPath.c_str();
 	DIR* fd_travel=opendir(cstr);
 	if(fd_travel==NULL){
@@ -502,7 +502,7 @@ int checkCargoFiles(string travelPath){
 //cout<<"******************************start loop with :"<<routeSize <<endl;
 	for(int routeIndex=0;routeIndex<routeSize;routeIndex++){
 //cout<<routeIndex<<endl;
-		string FileNameCarge=getCargoFileName(routeIndex,true);
+		string FileNameCarge=getCargoFileName(routeIndex,true,route);
 //cout<<FileNameCarge<<endl;
 
 		FileNameCarge=getNameWithoutExtinsion(FileNameCarge,'.',"cargo_data");
@@ -526,7 +526,7 @@ int checkCargoFiles(string travelPath){
 	}
 
 /*getting the port index from the route*/
-int getRouteIndex(int &routeIndex,const std::string& input_full_path_and_file_name){
+int getRouteIndex(int &routeIndex,const std::string& input_full_path_and_file_name,char** route){
 		int seek=0;
 		while(seek < (int)input_full_path_and_file_name.length()){
 		getElem(input_full_path_and_file_name,seek,'/');
