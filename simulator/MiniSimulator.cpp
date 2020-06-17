@@ -27,9 +27,7 @@
 #define LAST 1
 #define REGULAR 0
 using namespace std;
-const char* EXPECTED_OUTPUT="/expected_output";
 string travelName;
-string AlgoName="StowageAlgo";
 string travel_path="",algorithm_path="",output="", num_threads="";
 queue<string> algoQueue;
 std::vector<string> algoVector;
@@ -56,7 +54,7 @@ void printContainerArray(Container* arr,char* fileName){
 	Container pt=arr[index];
 	std::cout << "-list of containers in " <<fileName<<" :"<<std::endl;
 	while(pt.uniqueId.compare("last")!=0){
-		std::cout <<"	"<< pt.uniqueId <<" ,"<<pt.weight<<" ,"<<pt.destPort.toString()<<std::endl;
+		//std::cout <<"	"<< pt.uniqueId <<" ,"<<pt.weight<<" ,"<<pt.destPort.toString()<<std::endl;
 		pt=arr[++index];
 	}
 }
@@ -238,15 +236,15 @@ int isItFineInstructions(string** instructions,string file_name , int routeIndex
 int isRejected(node currentContainer, Ship *ship,Port* route, int routeIndex) {
 		int error = 0;
 		error = error | StowageTester::isInRoute(currentContainer.container->destPort.toString(),route,routeIndex);	// is the container's destination NOT port in route?
-		cout<<"isInRoute="<<error <<"with :"<<currentContainer.container->destPort.toString()<<","<<routeIndex<<endl;
+		//cout<<"isInRoute="<<error <<"with :"<<currentContainer.container->destPort.toString()<<","<<routeIndex<<endl;
 		error = error | CraneTester::isValidId(currentContainer.container->uniqueId);						// is the container's unique ID invalid?
-		cout<<"isValidId="<<error<<endl;
+		//cout<<"isValidId="<<error<<endl;
 		error = error | CraneTester::isDuplicateIdOnShip(ship->planMap,currentContainer.container->uniqueId);				// is the container's unique ID already on the ship?
-		cout<<"isDuplicateIdOnShip="<<error<<endl;
+		//cout<<"isDuplicateIdOnShip="<<error<<endl;
 		error= error | CraneTester::isFull(ship);
-		cout<<"isFull="<<error<<endl;
+		//cout<<"isFull="<<error<<endl;
 		error = error | CraneTester::isLegalWeight(currentContainer.container->weight);					// is the container's weight illegal?
-		cout<<"isLegalWeight="<<error<<endl;
+		//cout<<"isLegalWeight="<<error<<endl;
 		return error;
 }
 
@@ -272,22 +270,22 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 	int error = 0;
 	struct node currentContainer;
 	int row, column,floor;
-	bool MoveFlag=false;
+	//bool MoveFlag=false;
 	set<string *> rejectedElementsByAlgo; 
 	Crane crane = Crane(ship);
 	for(int i=0;currentInstructions[i][0]!="last";i++){
-		MoveFlag=false;
+		//MoveFlag=false;
 
 		if(currentInstructions[i][0]=="M"){
-			MoveFlag=true;
+			//MoveFlag=true;
 			
 		}
 		//all the operations must be M/L/U/R
 		if(currentInstructions[i][0] != "U" && currentInstructions[i][0] != "R" && currentInstructions[i][0] != "L"  && currentInstructions[i][0] != "M"){
 			return -1;
 		}	
-		cout<< "+-+- VALIDATE the instruction :" <<currentInstructions[i][0]<<","<<currentInstructions[i][1]<<","<<currentInstructions[i][2]<<","<<currentInstructions[i][3]<<","<<currentInstructions[i][4];if(MoveFlag){cout<<"[,"<<currentInstructions[i][5]<<","<<currentInstructions[i][6]<<","<<currentInstructions[i][7]<<"]";}
-		cout<<endl;
+		//cout<< "+-+- VALIDATE the instruction :" <<currentInstructions[i][0]<<","<<currentInstructions[i][1]<<","<<currentInstructions[i][2]<<","<<currentInstructions[i][3]<<","<<currentInstructions[i][4];if(MoveFlag){cout<<"[,"<<currentInstructions[i][5]<<","<<currentInstructions[i][6]<<","<<currentInstructions[i][7]<<"]";}
+		//cout<<endl;
 		
 		//if we see R we put it in map so we will check if really should be rejected after the Loads/unloads done
 		if(currentInstructions[i][0] == "R"){
@@ -309,7 +307,7 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 
 		//if "M"
 		if(currentInstructions[i][0]=="M"){
-			MoveFlag=true;
+			//MoveFlag=true;
 			//unload then load;
 			if(ship->planMap->find(currentContainer.container->uniqueId)==ship->planMap->end()){
 				return -1;//the unloaded container not on the ship
@@ -370,7 +368,7 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 				}
 			}
 			else{	
-				cout<<"size=="<< ship->planLinkedList[row][column].size << " , maxHeight="<<ship->planLinkedList[row][column].maxHeight<<endl;
+				//cout<<"size=="<< ship->planLinkedList[row][column].size << " , maxHeight="<<ship->planLinkedList[row][column].maxHeight<<endl;
 				std::cout << "Illegal algorithm command: Exceeded ship height limit while loading container " << currentContainer.container->uniqueId << " to " << row << ", " << column << "\n";
 				return -1;
 			}	
@@ -463,12 +461,12 @@ int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICA
 					if(err!=SUCCESS || seek==(int)line.length() || parse_out==""){
 						return ERROR;
 					}
-					cout << "the parse out is :"<<parse_out << endl;
+					//cout << "the parse out is :"<<parse_out << endl;
 					err=getElem(line,seek,']');fivedArray[7]=string(parse_out);
 					if(err!=SUCCESS || parse_out.compare("")==0 || (seek<=(int)line.length()&& line.at(seek-1)!=']')){
 						return ERROR;
 					}
-					cout << "the parse out is :"<<parse_out << endl;
+					//cout << "the parse out is :"<<parse_out << endl;
 					err=getElem(line,seek,',');
 					if(err!=ERROR || seek<=(int)line.length()){
 						return ERROR;
@@ -541,7 +539,7 @@ string** ReadExpectedInstructions(string cargoFileName){
 	
 	int index=0;
 	while((expectedInstructions[index][0]).compare("last")!=0){
-		cout<<"**reading expected :"<< expectedInstructions[index][0] << " , "<< expectedInstructions[index][1]<<"  " <<index <<endl;
+		//cout<<"**reading expected :"<< expectedInstructions[index][0] << " , "<< expectedInstructions[index][1]<<"  " <<index <<endl;
 		index++;
 	}
 	if(fd_info.is_open()){
@@ -557,6 +555,10 @@ but if i had an one hour i'll do so xD
 
 int simulateTravel(std::pair<string,string> travelAlgoPair,string &travelPath){
 	  //intiate the ship and get the route
+
+     std::cout <<"running (" <<travelAlgoPair.first<<","<<travelAlgoPair.second<<")++++++++++++++++++++++++"<<std::endl; 
+
+
 cout<< endl << "DECLEARING of THE EMPTY LIST" << endl<< endl<< endl;
 //these are the empty ports that was in the last travel ..
 std::set<string>emptyPorts;
@@ -1059,7 +1061,9 @@ public:
     SimpleTasksProducer(int numTasks, vector<std::pair<string,string>> travelAlgoPairs1, DIR* fd): numTasks(numTasks), travelAlgoPairs1(travelAlgoPairs1), fd(fd) {}
     SimpleTasksProducer(SimpleTasksProducer&& other) : numTasks(other.numTasks),travelAlgoPairs1(other.travelAlgoPairs1), fd(other.fd), task_counter(other.task_counter.load()) {}
     std::optional<std::function<void(void)>> getTask() {
+std::lock_guard g{m};
         auto task_index = next_task_index();
+std::this_thread::yield();
         if(task_index) {
             return [task_index, this]{
             	rewinddir(fd);
@@ -1120,9 +1124,15 @@ int main(int argc, char *argv[]) {
     			executer1.wait_till_finish();
 		}
 		else{
-			rewinddir(fd_path);
+			
 			//start the simulation
-			simulate(fd_path,travelAlgoPairs[0]);
+			cout<<"one thread*+*+ with "<< (int)travelAlgoPairs.size()<<endl;
+			for(int i=0;i<(int)travelAlgoPairs.size();i++){
+cout<<"run the pair i="<<i<<"+++++++++++++++++"<<endl;
+				rewinddir(fd_path);
+				simulate(fd_path,travelAlgoPairs[i]);
+				
+			}
 		}
 	}catch(...){	//there is an error with the command line prameters
 	cout<< "catched xD"<<endl;
