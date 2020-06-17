@@ -28,44 +28,52 @@
 #define REGULAR 0
 using namespace std;
 const char* EXPECTED_OUTPUT="/expected_output";
-
-std::mutex mtx;
 string travelName;
 string AlgoName="StowageAlgo";
-string travel_path="",algorithm_path="",output="", num_threads="";
+string travel_path="",algorithm_path="",output="";
 queue<string> algoQueue;
-std::vector<string> algoVector;
 queue<string> travelQueue;
-vector<string> travelVector;
-vector<std::pair<string,string>> travelAlgoPairs;
 std::map<string,std::vector<int>> resMap;
 int travelNum=0;
 /*---------------FUNC DEC-------------*/
 int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 
 /*------------------DEBUGGING METHODS-------------------*/
-
 void printFiles(DIR* fd){
 	struct dirent *entry;
     	while ((entry = readdir(fd)))
 		if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+			std::cout <<entry->d_name<<std::endl;
 	}
 }
-
+void printContainerArray(Container* arr,char* fileName){
+	int index=0;
+	Container pt=arr[index];
+	std::cout << "-list of containers in " <<fileName<<" :"<<std::endl;
+	while(pt.uniqueId.compare("last")!=0){
+		std::cout <<"	"<< pt.uniqueId <<" ,"<<pt.weight<<" ,"<<pt.destPort.toString()<<std::endl;
+		pt=arr[++index];
+	}
+	
+}
 //aubaida 
 /* printing to the output+"/"+"simulation.results*/
 void parseResults (std::pair<string,std::vector<int>> const &pair, bool isFirstLine){
 	//static int sum;
 	if(!fd_results.is_open()&& isFirstLine){
+
 		fd_results.open(output+"/"+"simulation.results");
 		fd_results<<"RESULTS,	";
+
 		while(!travelQueue.empty()){
-			fd_results<<travelQueue.front()<<",	";
-			travelQueue.pop();
+
+		fd_results<<travelQueue.front()<<",	";
+		travelQueue.pop();
 		}
 		fd_results<<"Sum,	"<<"NumErrors"<<endl;
 	}
 	if(!isFirstLine){
+
 		fd_results<<pair.first<<",	";
 		auto v=pair.second;
 		for(int i=0;i<travelNum;i++){
@@ -73,11 +81,20 @@ void parseResults (std::pair<string,std::vector<int>> const &pair, bool isFirstL
 		}
 		fd_results<<v[0]<<",		";
 		fd_results<<v[1]<<endl;
-	}	
-}
 
+
+	}
+	
+}
 /*we sort the results from the map and the n print them*/
 void printResults(){
+	for(auto it=resMap.begin();it!=resMap.end();it++){
+	cout << it->first <<"<";
+	for(auto it2=(it->second).begin();it2!=(it->second).end();it2++){	
+	cout << *it2<<",";
+	}
+	cout<<endl;
+	}
 	bool isFirstLine=true;
 	std::pair<string,std::vector<int>> x=pair<string,std::vector<int>>();
 
@@ -97,6 +114,7 @@ void printResults(){
 				errNum+=1;
 			}
 		}
+		cout<<"sum="<<Sum <<endl;
 		pair.second[0]=Sum;
 		pair.second[1]=errNum;
 	}
@@ -123,11 +141,11 @@ void printResults(){
 	for (auto pair: vec) {
 		
 		parseResults (pair,!isFirstLine);
-	}	
+	}
+	
 }
 
 /*-------------------------------------------------------------------------------------------------------------*/
-
 int sizeOfArray(Container *array) {
 		int c = 0;
 		while (true) {
@@ -136,8 +154,7 @@ int sizeOfArray(Container *array) {
 			c++;
 		}
 		return 0;
-}
-
+	}
 int getNumOfInstructions(string** instructions){
 	int opreations=0;
 	for(int i=0;instructions[i][0]!="last";i++){
@@ -149,7 +166,6 @@ int getNumOfInstructions(string** instructions){
 	return opreations;
 	
 }
-
 void fillShipMap(string input,Ship *ship){
 	Container* containers=parseCargoFile(input);
 	for(int i=0;containers[i].uniqueId!="last";i++){
@@ -158,10 +174,10 @@ void fillShipMap(string input,Ship *ship){
 	}
 
 }
-
-/*this function checks if the instrucctions that we got from the algorithm is readable and that every Load done after Unload operation
+/*thius function checks if the instrucctions that we got from the algorithm is readable and that every Load done after Unload operation
 and also checks that in each stop we rejected or loaded the cargo*/
-int isItFineInstructions(string** instructions,string file_name , int routeIndex,int &routeSize){
+int isItFineInstructions(string** instructions,string file_name , int routeIndex){
+cout << "file_name is "<<file_name<<endl;
 	Container* containers=parseCargoFile(file_name);
 
 	int sizeArray=sizeOfArray(containers);
@@ -196,44 +212,47 @@ int isItFineInstructions(string** instructions,string file_name , int routeIndex
 	}
 	//if it is the last port all the operation will be L/R	
 	if(!last_port){ 
-		for(int index=0;containers[index].uniqueId!="last";index++){
-			for(int i=0;instructions[i][0]!="last";i++){
-				string * array=instructions[i];
+	for(int index=0;containers[index].uniqueId!="last";index++){
+		for(int i=0;instructions[i][0]!="last";i++){
+			string * array=instructions[i];
 
-				if(array[1]==containers[index].uniqueId && (array[0]=="L" || array[0]=="R") && indexes.count(i)==0){
-					indexes.insert(i);
-					break;
-					}
+			if(array[1]==containers[index].uniqueId && (array[0]=="L" || array[0]=="R") && indexes.count(i)==0){
+				indexes.insert(i);
+				break;
 				}
+			}
 		}
-		if(sizeArray==(int)indexes.size()){
-			return SUCCESS;	
-		}
-		handleError(output,"Simulator","ERROR : algorithm must contain a LOAD/REJECT instruction for each awaiting cargo at the port(not encluding the last port)");
-		return ERROR;
+	if(sizeArray==(int)indexes.size()){
+		cout << endl<< "SUCCESS"<<endl;
+		return SUCCESS;	
 	}
-	return SUCCESS;
+	handleError(output,"Simulator","ERROR : algorithm must contain a LOAD/REJECT instruction for each awaiting cargo at the port(not encluding the last port)");
+	return ERROR;
+}
+return SUCCESS;
 }
 
 // rejection test
-int isRejected(node currentContainer, Ship *ship,Port* route, int routeIndex) {
+	int isRejected(node currentContainer, Ship *ship,Port* route, int routeIndex) {
 		int error = 0;
 		error = error | StowageTester::isInRoute(currentContainer.container->destPort.toString(),route,routeIndex);	// is the container's destination NOT port in route?
-		//cout<<"isInRoute="<<error <<"with :"<<currentContainer.container->destPort.toString()<<","<<routeIndex<<endl;
+		cout<<"isInRoute="<<error <<"with :"<<currentContainer.container->destPort.toString()<<","<<routeIndex<<endl;
 		error = error | CraneTester::isValidId(currentContainer.container->uniqueId);						// is the container's unique ID invalid?
-		//cout<<"isValidId="<<error<<endl;
+		cout<<"isValidId="<<error<<endl;
 		error = error | CraneTester::isDuplicateIdOnShip(ship->planMap,currentContainer.container->uniqueId);				// is the container's unique ID already on the ship?
-		//cout<<"isDuplicateIdOnShip="<<error<<endl;
+		cout<<"isDuplicateIdOnShip="<<error<<endl;
 		error= error | CraneTester::isFull(ship);
-		//cout<<"isFull="<<error<<endl;
+		cout<<"isFull="<<error<<endl;
 		error = error | CraneTester::isLegalWeight(currentContainer.container->weight);					// is the container's weight illegal?
-		//cout<<"isLegalWeight="<<error<<endl;
+		cout<<"isLegalWeight="<<error<<endl;
 		return error;
-}
+	}
 
-/*get the port of the container*/
+	/*get the port of the container*/
 string getContainerPort(string name,Ship* ship){
+cout<<"here1"<<endl;
 	if(ship->contMap->empty()){
+cout<<"here1"<<endl;
 
 		return "";
 	}
@@ -245,19 +264,32 @@ string getContainerPort(string name,Ship* ship){
 	return "";
 }
 
+//[??]
+
 /*this is the validation algorithm .. after we got the instructions from the algorithm we know want to check if the 
 instructions are valid otherwise we say that the algorithm fails*/
 int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,Port* route, int routeIndex ){
 	int error = 0;
 	struct node currentContainer;
 	int row, column,floor;
+	bool MoveFlag=false;
 	set<string *> rejectedElementsByAlgo; 
 	Crane crane = Crane(ship);
 	for(int i=0;currentInstructions[i][0]!="last";i++){
+		MoveFlag=false;
+
+		if(currentInstructions[i][0]=="M"){
+			MoveFlag=true;
+			
+		}
 		//all the operations must be M/L/U/R
 		if(currentInstructions[i][0] != "U" && currentInstructions[i][0] != "R" && currentInstructions[i][0] != "L"  && currentInstructions[i][0] != "M"){
 			return -1;
 		}	
+		cout<< "+-+- VALIDATE the instruction :" <<currentInstructions[i][0]<<","<<currentInstructions[i][1]<<","<<currentInstructions[i][2]
+<<","<<currentInstructions[i][3]
+<<","<<currentInstructions[i][4];if(MoveFlag){cout<<"[,"<<currentInstructions[i][5]<<","<<currentInstructions[i][6]<<","<<currentInstructions[i][7]<<"]";}
+cout<<endl;
 		
 		//if we see R we put it in map so we will check if really should be rejected after the Loads/unloads done
 		if(currentInstructions[i][0] == "R"){
@@ -279,6 +311,7 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 
 		//if "M"
 		if(currentInstructions[i][0]=="M"){
+			MoveFlag=true;
 			//unload then load;
 			if(ship->planMap->find(currentContainer.container->uniqueId)==ship->planMap->end()){
 				return -1;//the unloaded container not on the ship
@@ -339,6 +372,7 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 				}
 			}
 			else{	
+				cout<<"size=="<< ship->planLinkedList[row][column].size << " , maxHeight="<<ship->planLinkedList[row][column].maxHeight<<endl;
 				std::cout << "Illegal algorithm command: Exceeded ship height limit while loading container " << currentContainer.container->uniqueId << " to " << row << ", " << column << "\n";
 				return -1;
 			}	
@@ -509,6 +543,7 @@ string** ReadExpectedInstructions(string cargoFileName){
 	
 	int index=0;
 	while((expectedInstructions[index][0]).compare("last")!=0){
+		cout<<"**reading expected :"<< expectedInstructions[index][0] << " , "<< expectedInstructions[index][1]<<"  " <<index <<endl;
 		index++;
 	}
 	if(fd_info.is_open()){
@@ -517,29 +552,25 @@ string** ReadExpectedInstructions(string cargoFileName){
 
 	return expectedInstructions;
 }
+
+
 //[3] called in [2]
 /*here we simulate the  travel ......due to lack of time i didn't seperate this function and document it well .. 
 but if i had an one hour i'll do so xD
 */
-
-int simulateTravel(std::pair<string,string> travelAlgoPair,string &travelPath){
-	bool locked = true;
+int simulateTravel(){
 	  //intiate the ship and get the route
-	
-cout<< endl << "DECLEARING of THE EMPTY LIST" << endl<< endl<< endl;
-//these are the empty ports that was in the last travel ..
-std::set<string>emptyPorts;
-char **route;
-Ship* ship;
+	ErrorCode errCode;
+cout<< endl << "DELETING THE EMPTY FILES" << endl<< endl<< endl;
+//these are the emoty ports that was in the last travel .. se we clear it
+emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 //handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
-	string travelPath1 = travelAlgoPair.first;
+
 /**********************in this section we check and initiate the route/ship plan and prepare the simulation********************/
+	cout << "*initShipPlan"<<endl;
 	string shipPlanName;
 	string routeName;
-	int routeSize;
 	int err=getTheFileNameFromTheTravel(travelPath,"ship_plan",shipPlanName);
-	if(locked){
-		std::lock_guard<std::mutex> lck (mtx);
 	if(err!=0){
 		if(err==-1){
 			return 1;
@@ -559,6 +590,7 @@ Ship* ship;
 			return 1;
 		}
 	}
+	cout<<"********************the ship plane :"<<travelPath+"/"+shipPlanName<<"/n******************and the route : "<<travelPath+"/"+routeName<<endl;
 	shipPlanName=travelPath+"/"+shipPlanName+".ship_plan";
 	routeName=travelPath+"/"+routeName+".route";
 	err=initShipPlan(ship,shipPlanName);
@@ -571,79 +603,83 @@ Ship* ship;
 			return 1;
 		}
 	}
-	err=initRoute(route,routeName,routeSize);
+	cout << "*initRoute"<<endl;
+	err=initRoute(route,routeName);
+	cout << "init route error is "<< err <<endl<<endl;
 	if(err!=0){
 		status isIgnore =handleError(output,"Simulator",err);
 		if(isIgnore!=status::Ignore){
 			return 1;}
 	}
 
+	cout << "*end_initRoute"<<endl;
 	
-	err=checkCargoFiles(travelPath,emptyPorts,route,routeSize);
+	err=checkCargoFiles(travelPath);
 	if(err!=0){
 		if(err==1){
 			return 1;
 		}
 		handleError(output,"Simulator","missing cargo files / there is additional cargo files");
 	}
-}
-
+	cout << "*end_checkCargoFiles"<<endl;
+	cout << "*end_ports"<<endl;
 /******************END initiation SECTION****************************/
 
 /******************START in this section we initiate the registrar and get the algorithms*********************/
 //new implemntation using algo regestrar
 	int flag=0;
-	auto& registrar = AlgorithmRegistrar::getInstance();{
-		std::lock_guard<std::mutex> lck (mtx);
-        std::string error;
+	auto& registrar = AlgorithmRegistrar::getInstance();
+    	{
+        	std::string error;
 		const char *cstr = algorithm_path.c_str();
-		DIR* fd_Algo=opendir(cstr);
-		if(fd_Algo==NULL){			 	
-			handleError(output,"Simulator","ERROR[3][1]- can't open "+algorithm_path);
-			return -1;
-		}
+		  DIR* fd_Algo=opendir(cstr);
+		  if(fd_Algo==NULL){
+			 	
+				handleError(output,"Simulator","ERROR[3][1]- can't open "+algorithm_path);
+				return -1;
+			}
+
 		struct dirent *entry;
-    	while ((entry = readdir(fd_Algo))){
-			if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
-				string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
-				if(algoName != travelAlgoPair.second){
-					continue;
-				}
-				if(algoName.compare("/")!=0){
-					algoVector.push_back(algoName);
-					if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
+    		while ((entry = readdir(fd_Algo)))
+		if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+			string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
+			if(algoName.compare("/")!=0){
+//cout << "the algoritim is : "<< algoName <<endl;
+				
+				if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
 	        			std::cerr << error << '\n';
-						handleError(output,"Simulator",algoName +" : bad with error : "+error);
-            			continue;
+					 handleError(output,"Simulator",algoName +" : bad with error : "+error);
+            				continue;
         			}
-					algoQueue.push(algoName);
-					flag=1;
-				}
-			}	
+				algoQueue.push(algoName);
+//cout << "*good_regestration"<<endl;
+				flag=1;
+
+			}
+			
 		}
-		closedir(fd_Algo);
-    }
+	cout << "*end_registration"<<endl;
+/******************END initiate the registrar and get the algorithms*********************/
 
-    	/******************END initiate the registrar and get the algorithms*********************/
-
+	closedir(fd_Algo);
+    	}
 	if(flag){
 	//adding the travel to the queue
 	travelQueue.push(travelName);
 	travelNum++;
+	cout<<"******starting the loop over the algos **********"<<endl;
 	cout << endl<<endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<<"#==#==#==#==#==#==#==#"<<endl<<endl;
 	//for each algorithm :
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {	
 		string algoName=algoQueue.front();
-		if(algoName == "")
-			continue;
-		algoVector.push_back(algoName);
 		algoQueue.pop();
-		std::cout << "Thread running: " << std::this_thread::get_id() << endl;
-		cout << endl<<endl<<"##################### Algo = "<<algoName<<"##################"<<endl<<endl;
+	cout << endl<<endl<<"##################### Algo = "<<algoName<<"##################"<<endl<<endl;
 		auto algo = (*algo_iter)();
 		try{
+		cout<<"start calling readShipPlan"<<endl;
 
 		err=algo->readShipPlan(shipPlanName);
+		cout<<"end calling readShipPlan"<<endl;
 
 		}catch(...){
 			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling readShipPlan (stop the simulation on this algorithm/travel pair)");
@@ -686,18 +722,23 @@ Ship* ship;
 		if(err){	
 		std::cout << "ERROR[3][1]- can't make dir with name : "<<makeDir<<std::endl; 
 		}
+		cout<<"******starting the loop over the ports **********"<<endl;
 		int firstTiem=1;
 		for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
+		cout<<"******port number = "<<routeIndex<<" **********"<<endl;
 
-		string FileNameCarge=getCargoFileName(routeIndex,true,route);
-		string FileNameInstruction=getCargoFileName(routeIndex,false,route);
+		string FileNameCarge=getCargoFileName(routeIndex,true);
+		string FileNameInstruction=getCargoFileName(routeIndex,false);
+		cout<<"****** getting instructions **********"<<endl;
 		std::set<string>::iterator it;
 		string FileNameCargewithout=getNameWithoutExtinsion(FileNameCarge,'.',"cargo_data");
 		it =emptyPorts.find(FileNameCargewithout);
 		int isEmpty=0;	
 		if(it!=emptyPorts.end()){
 			for(it=emptyPorts.begin() ;it!=emptyPorts.end();it++){
+			//cout<< string(*it);
 			}
+			//cout<<"is empty ??? : "<<it <endl;
 			string makeDirc=output+"/"+"emptyFiles";
 			const char *cstr = makeDirc.c_str();
 			mkdir (cstr,0777);
@@ -721,6 +762,7 @@ Ship* ship;
 		}
 
 		
+		std::cout << "\n \n \n Error number: " << err << "\n \n \n";
 		if(err!=0){
 		status isIgnore =handleError(output,algoName+"/"+travelName,err);
 		if(isIgnore!=status::Ignore){
@@ -729,6 +771,7 @@ Ship* ship;
 
 		/********************Start in this section we validate the route*************/
 		//validate 
+		cout<<"instructions "<<endl;
 		string **instructions=ReadExpectedInstructions( output+"/"+makeDir+"/"+FileNameInstruction);
 		ifstream fd_info;
 		fd_info.open( output+"/"+makeDir+"/"+FileNameInstruction,ios_base::in);//open the file
@@ -741,16 +784,18 @@ Ship* ship;
 			}
 			
 		if(instructions!=NULL){
-			err=isItFineInstructions(instructions,input,routeIndex,routeSize);
+			err=isItFineInstructions(instructions,input,routeIndex);
 			if(err!=ERROR){
 				numOfInstructions=getNumOfLines(fd_info);//get container size
+				cout<<"validation "<<endl;
 				err=0;
-				Port* ports=getPortsFromRoute(route,routeSize);
+				Port* ports=getPortsFromRoute(route);
 				 err= validateAlgorithm(instructions, ports[routeIndex], ship, ports, routeIndex);
 				if(err==0 && routeIndex ==routeSize-1 && !(ship->planMap->empty())){
 					//ship must be empty
 					err=-1;
 				}
+				//cout<<"VALIDATION==========================="<<validation<<endl;
 			}
 		}else{
 			err=ERROR;
@@ -764,6 +809,7 @@ Ship* ship;
 /********************Start in this section we preapare the results*************/
 
 			//results parsing 
+			cout<<"its time to play"<<endl;
 			auto isThere=resMap.find(algoName);
 
 			if(isThere==resMap.end()){
@@ -800,89 +846,33 @@ Ship* ship;
 	
 }
 
-int pairingTravelAlgo(DIR* fd){
-	struct dirent *entry;
-	string travelPath;
-    while ((entry = readdir(fd))){
-      	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
-		  	travelPath=workPath+"/"+string(entry->d_name);
-		  	const char *cstr = travelPath.c_str();
-		  	DIR* fd_travel=opendir(cstr);
-		  	if(fd_travel==NULL){
-			  std::cout << "ERROR[2][1]- can't open "<<entry->d_name<<std::endl; 
-			}else{
-				travelName=string(entry->d_name);	// specific travel
-				travelVector.push_back(travelName);
-				closedir(fd_travel);
-			}
-		}
-	}
-	if(fd_results.is_open()){
-		fd_results.close();	
-	}
-	auto& registrar = AlgorithmRegistrar::getInstance();
-    	{	
-        	std::string error;
-		const char *cstr = algorithm_path.c_str();
-		DIR* fd_Algo=opendir(cstr);
-		if(fd_Algo==NULL){
-			handleError(output,"Simulator","ERROR[3][1]- can't open "+algorithm_path);
-			return -1;
-		}
-		struct dirent *entry;
-    		while ((entry = readdir(fd_Algo))){
-			if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
-				string algoName=getNameWithoutExtinsion(entry->d_name,'.',"so");
-				if(algoName.compare("/")!=0){
-					algoVector.push_back(algoName);
-					if (!registrar.loadAlgorithmFromFile((algorithm_path+"/"+string(entry->d_name)).c_str(), error)) {
-	        				std::cerr << error << '\n';
-						handleError(output,"Simulator",algoName +" : bad with error : "+error);
-            					continue;
-					}
-        			}
-			}
-		}	
-	}
-	cout << "travel size " << (int)travelVector.size() << " algo size " << (int)algoVector.size() << endl;
-	for(int i=0;i<(int)travelVector.size();i++){
-		for(int j=0;j<(int)algoVector.size();j++){
-			travelAlgoPairs.push_back(std::make_pair(travelVector[i],algoVector[j]));
-		}
-	}
-
-	return 0;
-}
-
 //[2] called in [1]
-void simulate(DIR* fd, std::pair<string,string> travelAlgoPair){	// fd = ../TRAVELS
+void simulate(DIR* fd){
     struct dirent *entry;
-    while ((entry = readdir(fd))){
-      	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
-		  	//open the travel dir
-			string travelPath;
-		  	travelPath=workPath+"/"+string(entry->d_name);
-		  	const char *cstr = travelPath.c_str();
-		  	DIR* fd_travel=opendir(cstr);
-		  	if(fd_travel==NULL){
+    while ((entry = readdir(fd)))
+      if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
+		  //open the travel dir
+		  cout<< "the work path is : "<<workPath<<endl;
+		  travelPath=workPath+"/"+string(entry->d_name);
+		  const char *cstr = travelPath.c_str();
+		  cout<< "the travel path is : "<<travelPath<<endl;
+		  DIR* fd_travel=opendir(cstr);
+		  std::cout <<entry->d_name<<std::endl;
+		  if(fd_travel==NULL){
 			  std::cout << "ERROR[2][1]- can't open "<<entry->d_name<<std::endl; 
-			}else{
-				travelName=string(entry->d_name);	// specific travel
-				if(travelName == travelAlgoPair.first){
-					simulateTravel(travelAlgoPair,travelPath);//simulate the travel
-					//free resources
-					closedir(fd_travel);
-				}
-			}
-		}
-	}
+			  }else{
+				travelName=string(entry->d_name);
+				  simulateTravel();//simulate the travel
+				  //free resources
+				  closedir(fd_travel);
+			  }
+	  }
 	if(fd_results.is_open()){
 		fd_results.close();	
 	}
 }
-
 /*parse the command line prameters*/
-int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorithm_path ,string& output, string& num_threads){
+int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorithm_path ,string& output){
 	for(int i=1;i<argc;i+=2){
 		if(string(argv[i]).compare("-travel_path")==0 && travel_path.compare("")==0){
 			travel_path=string(argv[i+1]);
@@ -890,14 +880,7 @@ int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorit
 			algorithm_path=string(argv[i+1]);
 		}else if(string(argv[i]).compare("-output")==0 && output.compare("")==0){
 			output=string(argv[i+1]);
-		}else if(string(argv[i]).compare("-num_threads")==0 && num_threads.compare("")==0){
-			num_threads=string(argv[i+1]);
-			if(std::stoi(num_threads) <= 0){
-				output=".";
-				return ERROR;
-			}
-		}
-		else{
+		}else{
 			output=".";
 			return ERROR;
 		}
@@ -911,123 +894,8 @@ int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorit
 	if(output.compare("")==0){
 		output=".";
 	}
-	if(num_threads.compare("")==0){
-		num_threads="1";
-	}
 	return SUCCESS;
 }
-
-
-/*--------------EXECUTER-------------*/
-
-
-template<typename Producer>
-class ThreadPoolExecuter {
-    Producer producer;	// produces tasks
-    const int numThreads = -1;	// number of threads
-    std::vector<std::thread> workers;
-    std::atomic_bool running = false;
-    std::atomic_bool stopped = false;
-    static thread_local int num_tasks_finished;	// number of tasks, current thread executed
-    std::atomic_int total_num_tasks_finished { 0 };	// number of tasks executed by all threads
-    
-    // goes over AVAILABLE tasks and executes them for current thread
-    void worker_function() {
-        while(!stopped) {
-            auto task = producer.getTask();
-            if(!task) break;
-            (*task)();
-            ++num_tasks_finished;
-            ++total_num_tasks_finished;
-        }
-        if(stopped) {
-            std::cout << std::this_thread::get_id() << " - stopped gracefully after processing " << num_tasks_finished << " task(s)" << std::endl;
-        }
-        else {
-            std::cout << std::this_thread::get_id() << " - finished after processing " << num_tasks_finished << " task(s)" << std::endl;
-        }
-    }
-public:
-    ThreadPoolExecuter(Producer producer, int numThreads)
-    : producer(std::move(producer)), numThreads(numThreads) {
-        workers.reserve(numThreads);
-    }
-    // gives the tasks to the threads for them to execute
-    bool start() {
-        bool running_status = false;
-        if(!running.compare_exchange_strong(running_status, true)) {
-            return false;
-        }
-        for(int i=0; i<numThreads; ++i) {
-            workers.push_back(std::thread([this]{
-                worker_function();
-            }));
-        }
-        return true;
-    }
-    void stop_gracefully() {
-        stopped = true;
-        wait_till_finish();
-    }
-    void wait_till_finish() {
-        for(auto& t : workers) {
-            t.join();
-        }
-        std::cout << "thread pool finished/stopped after processing " << total_num_tasks_finished << " task(s)" << std::endl;
-    }
-};
-
-// ThreadPoolExecuter.h - being a template - but outside of the class:
-template<typename Producer>
-thread_local int ThreadPoolExecuter<Producer>::num_tasks_finished { 0 };
-
-
-/*--------------PRODUCER-------------*/
-
-
-
-class SimpleTasksProducer {
-    const int numTasks = -1;
-    vector<std::pair<string,string>> travelAlgoPairs1;
-    DIR* fd;
-    std::atomic_int task_counter = 0;
-    std::mutex m;
-    // 2 ways of getting next task index:
-
-
-    std::optional<int> next_task_index() {
-        for(int curr_counter = task_counter.load(); curr_counter < numTasks; ) {
-            if(task_counter.compare_exchange_weak(curr_counter, curr_counter + 1)) {
-                return {curr_counter}; // zero based
-            }
-        }
-        return {};
-    }
-    
-public:
-    SimpleTasksProducer(int numTasks, vector<std::pair<string,string>> travelAlgoPairs1, DIR* fd): numTasks(numTasks), travelAlgoPairs1(travelAlgoPairs1), fd(fd) {}
-    SimpleTasksProducer(SimpleTasksProducer&& other) : numTasks(other.numTasks),travelAlgoPairs1(other.travelAlgoPairs1), fd(other.fd), task_counter(other.task_counter.load()) {}
-    std::optional<std::function<void(void)>> getTask() {
-        auto task_index = next_task_index();
-        if(task_index) {
-            return [task_index, this]{
-            	rewinddir(fd);
-		try {
-			std::lock_guard g{m};
-			std::cout << "Thread running: " << std::this_thread::get_id() << endl;
-        		int n = task_index.value();
-			simulate(fd,travelAlgoPairs1[n]);
-                	std::this_thread::yield();
-
-    		}catch(const std::bad_optional_access& e) {
-        		std::cout << e.what() << '\n';
-    		}
-            };
-        }
-        else return {};
-    }
-};
-
 
 /* argv[1] will be the path of the workspace(IO-Files)*/
 //[1]
@@ -1035,14 +903,14 @@ int main(int argc, char *argv[]) {
 	DIR *fd_path;
 	int flag=0;
 	try{
-		if(argc!=3 && argc!=5 && argc!=7 && argc!=9){
+		if(argc!=3 && argc!=5 && argc!=7){
 			std::cout << "ERROR[1][1]- Wrong Number of Parameters!" << std::endl;
 			return ERROR;
 		}
-    	int checkErr=getFromCommandLine(argv,argc,travel_path,algorithm_path ,output, num_threads);
+    	int checkErr=getFromCommandLine(argv,argc,travel_path,algorithm_path ,output);
 		if (checkErr==ERROR){
 			std::cout << "ERROR[1][2]- Wrong Parameters foramt! or A missing -travel_path argument" << std::endl;
-			std::cout << "did you mean : simulator [-travel_path <path>] [-algorithm_path <algorithm path>] [-output <output path>] [-num_threads <num of threads>]" << std::endl;
+			std::cout << "did you mean : simulator [-travel_path <path>] [-algorithm_path <algorithm path>] [-output <output path>]" << std::endl;
 			handleError(output,"Simulator","ERROR- Wrong Parameters foramt! or A missing -travel_path argument");
 			cout<<output<<endl;
 			throw 1;
@@ -1060,20 +928,10 @@ int main(int argc, char *argv[]) {
 			flag=1;
 			throw 1;
 		}
-
-		cout << pairingTravelAlgo(fd_path);
-
-		if(std::stoi(num_threads)>1){
-			ThreadPoolExecuter executer1 {SimpleTasksProducer{(int)travelAlgoPairs.size(), travelAlgoPairs, fd_path},std::stoi(num_threads)};
-    			executer1.start();
-    			executer1.wait_till_finish();
-		}
-		else{
-			rewinddir(fd_path);
-			//start the simulation
-			simulate(fd_path,travelAlgoPairs[0]);
-		}
+		//start the simulation
+		simulate(fd_path);	
 	}catch(...){	//there is an error with the command line prameters
+	cout<< "catched xD"<<endl;
 	}
 	if(fd_errors.is_open()){
 		fd_errors.close();	
@@ -1086,7 +944,8 @@ int main(int argc, char *argv[]) {
 	cout<<"results prints"<<endl;
 	printResults();
 	
-	cout << "Done! - ";
+	
+	cout << "Done!"<<endl;
 	return 0;
 }
 

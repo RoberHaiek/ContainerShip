@@ -8,7 +8,7 @@
 
 // A singleton to hold algorithm factories and .so handles 
 class AlgorithmRegistrar
-{	/*
+{
 	struct DlCloser
 	{
     		void operator()(void *dlhandle) const noexcept;
@@ -58,5 +58,4 @@ public:
         // Returns:
         //   true if given shared object's algorithm was registered successfully, false oterwise
         bool loadAlgorithmFromFile(const char *file_path, std::string& error);
-*/
 };
