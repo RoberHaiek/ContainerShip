@@ -178,7 +178,7 @@ void fillShipMap(string input,Ship *ship){
 
 /*this function checks if the instrucctions that we got from the algorithm is readable and that every Load done after Unload operation
 and also checks that in each stop we rejected or loaded the cargo*/
-int isItFineInstructions(string** instructions,string file_name , int routeIndex){
+int isItFineInstructions(string** instructions,string file_name , int routeIndex,int &routeSize){
 	cout << "file_name is "<<file_name<<endl;
 	Container* containers=parseCargoFile(file_name);
 
@@ -555,17 +555,20 @@ string** ReadExpectedInstructions(string cargoFileName){
 but if i had an one hour i'll do so xD
 */
 
-int simulateTravel(std::pair<string,string> travelAlgoPair){
+int simulateTravel(std::pair<string,string> travelAlgoPair,string &travelPath){
 	  //intiate the ship and get the route
-cout<< endl << "DELETING THE EMPTY FILES" << endl<< endl<< endl;
-//these are the emoty ports that was in the last travel .. se we clear it
-emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
+cout<< endl << "DECLEARING of THE EMPTY LIST" << endl<< endl<< endl;
+//these are the empty ports that was in the last travel ..
+std::set<string>emptyPorts;
+char **route;
+Ship* ship;
 //handleError(output,"=#=#=#Simulator running : <"+ travelName+"> travel=#=#",0);
 	string travelPath1 = travelAlgoPair.first;
 /**********************in this section we check and initiate the route/ship plan and prepare the simulation********************/
 	cout << "*initShipPlan 1"<<endl;
 	string shipPlanName;
 	string routeName;
+	int routeSize;
 	int err=getTheFileNameFromTheTravel(travelPath,"ship_plan",shipPlanName);
 	if(err!=0){
 		if(err==-1){
@@ -600,7 +603,7 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 		}
 	}
 	cout << "*initRoute"<<endl;
-	err=initRoute(route,routeName);
+	err=initRoute(route,routeName,routeSize);
 	cout << "init route error is "<< err <<endl<<endl;
 	if(err!=0){
 		status isIgnore =handleError(output,"Simulator",err);
@@ -610,7 +613,7 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 
 	cout << "*end_initRoute"<<endl;
 	
-	err=checkCargoFiles(travelPath);
+	err=checkCargoFiles(travelPath,emptyPorts,route,routeSize);
 	if(err!=0){
 		if(err==1){
 			return 1;
@@ -723,8 +726,8 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 		for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
 		cout<<"******port number = "<<routeIndex<<" **********"<<endl;
 
-		string FileNameCarge=getCargoFileName(routeIndex,true);
-		string FileNameInstruction=getCargoFileName(routeIndex,false);
+		string FileNameCarge=getCargoFileName(routeIndex,true,route);
+		string FileNameInstruction=getCargoFileName(routeIndex,false,route);
 		cout<<"****** getting instructions **********"<<endl;
 		std::set<string>::iterator it;
 		string FileNameCargewithout=getNameWithoutExtinsion(FileNameCarge,'.',"cargo_data");
@@ -780,12 +783,12 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 			}
 			
 		if(instructions!=NULL){
-			err=isItFineInstructions(instructions,input,routeIndex);
+			err=isItFineInstructions(instructions,input,routeIndex,routeSize);
 			if(err!=ERROR){
 				numOfInstructions=getNumOfLines(fd_info);//get container size
 				cout<<"validation "<<endl;
 				err=0;
-				Port* ports=getPortsFromRoute(route);
+				Port* ports=getPortsFromRoute(route,routeSize);
 				 err= validateAlgorithm(instructions, ports[routeIndex], ship, ports, routeIndex);
 				if(err==0 && routeIndex ==routeSize-1 && !(ship->planMap->empty())){
 					//ship must be empty
@@ -845,6 +848,7 @@ emptyPorts.erase(emptyPorts.begin(),emptyPorts.end());
 int pairingTravelAlgo(DIR* fd){
 	cout << "Started pairing " << endl;
 	struct dirent *entry;
+	string travelPath;
     while ((entry = readdir(fd))){
       	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 		  	travelPath=workPath+"/"+string(entry->d_name);
@@ -904,6 +908,7 @@ void simulate(DIR* fd, std::pair<string,string> travelAlgoPair){	// fd = ../TRAV
     while ((entry = readdir(fd))){
       	if(strcmp(entry->d_name,".")!=0 && strcmp(entry->d_name,"..")!=0){
 		  	//open the travel dir
+			string travelPath;
 		  	cout<< "the work path is : "<<workPath<<endl;
 		  	travelPath=workPath+"/"+string(entry->d_name);
 		  	const char *cstr = travelPath.c_str();
@@ -915,7 +920,7 @@ void simulate(DIR* fd, std::pair<string,string> travelAlgoPair){	// fd = ../TRAV
 			}else{
 				travelName=string(entry->d_name);	// specific travel
 				if(travelName == travelAlgoPair.first){
-					simulateTravel(travelAlgoPair);//simulate the travel
+					simulateTravel(travelAlgoPair,travelPath);//simulate the travel
 					//free resources
 					closedir(fd_travel);
 				}
