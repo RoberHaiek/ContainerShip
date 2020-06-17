@@ -45,6 +45,11 @@ std::map<string,int> regestrationMapIndexeis;
 int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 
 /*------------------DEBUGGING METHODS-------------------*/
+int GetRandom(int max){
+    srand(time(NULL));
+    return rand() % max;
+}
+ 
 
 void printFiles(DIR* fd){
 	struct dirent *entry;
@@ -524,7 +529,7 @@ but if i had an one hour i'll do so xD
 */
 
 int simulateTravel(std::pair<string,string> travelAlgoPair,string &travelPath){
-	bool locked = true;
+	//bool locked = true;
 	  //intiate the ship and get the route
 
 /*--DEBUGING--*/
@@ -549,8 +554,8 @@ string travelName=travelAlgoPair.first;
 	string routeName;
 	int routeSize;
 	int err=getTheFileNameFromTheTravel(travelPath,"ship_plan",shipPlanName);
-	if(locked){
-		std::lock_guard<std::mutex> lck (mtx);
+//	if(locked){
+//		std::lock_guard<std::mutex> lck (mtx);
 	if(err!=0){
 		if(err==-1){
 			return 1;
@@ -597,7 +602,7 @@ string travelName=travelAlgoPair.first;
 		}
 		handleError(output,"Simulator","missing cargo files / there is additional cargo files");
 	}
-}
+//}
 
 /******************END initiation SECTION****************************/
 
@@ -620,6 +625,9 @@ string travelName=travelAlgoPair.first;
 	}catch(...){
 		return -1;
 	}
+
+//std::this_thread::sleep_for (std::chrono::seconds(GetRandom(6)));
+
 	cout<<"#### the AlgoIndex ="<<AlgoIndex <<endl;
     	for (auto algo_iter = registrar.begin();algo_iter != registrar.end(); ++algo_iter) {
 	cout<<"#### itreate ="<<AlgoIndex <<endl;
@@ -928,11 +936,6 @@ int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorit
 }
 
 /*   sample   */
-int GetRandom(int max){
-    srand(time(NULL));
-    return rand() % max;
-}
- 
 void ExecuteThread(int id){
     // Get current time
     auto nowTime = std::chrono::system_clock::now(); 
@@ -982,6 +985,7 @@ class ThreadPoolExecuter {
             auto task = producer.getTask();
             if(!task) break;
             (*task)();
+	   
             ++num_tasks_finished;
             ++total_num_tasks_finished;
         }
@@ -1005,6 +1009,12 @@ public:
         }
         for(int i=0; i<numThreads; ++i) {
             workers.push_back(std::thread([this]{
+		
+		/*cout<<"workers = ";
+		for(auto it=workers.begin();it!=workers.end();it++){
+			cout<< (*it).get_id()<<" ,";
+		}
+		cout << endl;*/
                 worker_function();
             }));
         }
@@ -1070,7 +1080,7 @@ std::this_thread::yield();
                 	
 
     		}catch(const std::bad_optional_access& e) {
-        		std::cout << e.what() << '\n';
+        		std::cout << "thread error "<<e.what() << '\n';
     		}
             };
         }

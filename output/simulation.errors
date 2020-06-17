@@ -5,54 +5,19 @@
 -------------------------------------------------------------------
 	* missing cargo files :TRIST_1.cargo_datasending empty file
 -------------------------------------------------------------------
-	* ***ERROR[22][3]: no ship_plan file in <<travelPath<<(exiting the travel)
+	* missing cargo files :TRIST_1.cargo_datasending empty file
 -------------------------------------------------------------------
------------------Simulator-----------------------------
-	-2^3 - ship plan: travel error - bad first line or file cannot be read altogether (cannot run this travel)
-------------------------------------------------------------------
-	* ***ERROR[22][3]: no ship_plan file in <<travelPath<<(exiting the travel)
+	* missing cargo files :TRIST_1.cargo_datasending empty file
 -------------------------------------------------------------------
------------------Simulator-----------------------------
-	-2^3 - ship plan: travel error - bad first line or file cannot be read altogether (cannot run this travel)
-------------------------------------------------------------------
------------------_205962657_a/travel_4-----------------------------
+	* missing cargo files :TRIST_1.cargo_datasending empty file
+-------------------------------------------------------------------
+-----------------_205962657_a/travel_1-----------------------------
 	-2^18 - containers at port: total containers amount exceeds ship capacity (rejecting far containers)
 ------------------------------------------------------------------
------------------_205962657_a/travel_4-----------------------------
+-----------------_205962657_a/travel_1-----------------------------
 	-2^14 - containers at port: bad line format, ID cannot be read (ignored) 
 ------------------------------------------------------------------
 	* missing cargo files :ITNAP_1.cargo_datasending empty file
--------------------------------------------------------------------
------------------_205962657_a/travel_4-----------------------------
-	-2^18 - containers at port: total containers amount exceeds ship capacity (rejecting far containers)
-------------------------------------------------------------------
------------------_205962657_a/travel_4-----------------------------
-	-2^14 - containers at port: bad line format, ID cannot be read (ignored) 
-------------------------------------------------------------------
-	* missing cargo files :ITNAP_1.cargo_datasending empty file
--------------------------------------------------------------------
------------------_205962657_b/travel_4-----------------------------
-	-2^18 - containers at port: total containers amount exceeds ship capacity (rejecting far containers)
-------------------------------------------------------------------
------------------_205962657_b/travel_4-----------------------------
-	-2^14 - containers at port: bad line format, ID cannot be read (ignored) 
-------------------------------------------------------------------
-	* missing cargo files :ITNAP_1.cargo_datasending empty file
--------------------------------------------------------------------
------------------_205962657_a/travel_5-----------------------------
-	-2^15 - containers at port: illegal ID check ISO 6346 (ID rejected) 
-------------------------------------------------------------------
-	* missing cargo files :ILHFA_2.cargo_datasending empty file
--------------------------------------------------------------------
------------------_205962657_a/travel_5-----------------------------
-	-2^15 - containers at port: illegal ID check ISO 6346 (ID rejected) 
-------------------------------------------------------------------
-	* missing cargo files :ILHFA_2.cargo_datasending empty file
--------------------------------------------------------------------
------------------_205962657_b/travel_5-----------------------------
-	-2^15 - containers at port: illegal ID check ISO 6346 (ID rejected) 
-------------------------------------------------------------------
-	* missing cargo files :ILHFA_2.cargo_datasending empty file
 -------------------------------------------------------------------
 -----------------_205962657_a/travel_1-----------------------------
 	-2^18 - containers at port: total containers amount exceeds ship capacity (rejecting far containers)
@@ -77,4 +42,32 @@
 	-2^14 - containers at port: bad line format, ID cannot be read (ignored) 
 ------------------------------------------------------------------
 	* missing cargo files :ITNAP_1.cargo_datasending empty file
+-------------------------------------------------------------------
+-----------------_205962657_b/travel_1-----------------------------
+	-2^18 - containers at port: total containers amount exceeds ship capacity (rejecting far containers)
+------------------------------------------------------------------
+-----------------_205962657_b/travel_1-----------------------------
+	-2^14 - containers at port: bad line format, ID cannot be read (ignored) 
+------------------------------------------------------------------
+	* missing cargo files :ITNAP_1.cargo_datasending empty file
+-------------------------------------------------------------------
+-----------------_205962657_c/travel_1-----------------------------
+	-2^18 - containers at port: total containers amount exceeds ship capacity (rejecting far containers)
+------------------------------------------------------------------
+-----------------_205962657_c/travel_1-----------------------------
+	-2^14 - containers at port: bad line format, ID cannot be read (ignored) 
+------------------------------------------------------------------
+	* missing cargo files :ITNAP_1.cargo_datasending empty file
+-------------------------------------------------------------------
+	* missing cargo files :TRIST_1.cargo_datasending empty file
+-------------------------------------------------------------------
+	* missing cargo files :TRIST_1.cargo_datasending empty file
+-------------------------------------------------------------------
+	* missing cargo files :TRIST_1.cargo_datasending empty file
+-------------------------------------------------------------------
+	* missing cargo files :TRIST_1.cargo_datasending empty file
+-------------------------------------------------------------------
+	* missing cargo files :TRIST_1.cargo_datasending empty file
+-------------------------------------------------------------------
+	* missing cargo files :TRIST_1.cargo_datasending empty file
 -------------------------------------------------------------------

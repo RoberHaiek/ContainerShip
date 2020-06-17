@@ -1,3 +1,4 @@
-RESULTS,	TRAVEL-2,	travel_2,	travel_2,	travel_4,	travel_4,	travel_5,	travel_5,	travel_1,	travel_1,	TRAVEL-2,	TRAVEL_1,	TRAVEL_1,	Sum,	NumErrors
-_205962657_a,	92,		4,		0,		4,		0,		16,		0,		4,		0,		0,		24,		0,		144,		0
-_205962657_b,	0,		0,		2,		0,		2,		0,		8,		0,		2,		58,		0,		14,		86,		0
+RESULTS,	TRAVEL-2,	TRAVEL_1,	travel_3,	travel_3,	travel_3,	travel_1,	travel_1,	travel_1,	travel_2,	travel_2,	travel_2,	TRAVEL_1,	TRAVEL_1,	TRAVEL-2,	TRAVEL-2,	Sum,	NumErrors
+_205962657_a,	150,		0,		12,		0,		0,		6,		0,		0,		6,		0,		0,		38,		0,		0,		0,		212,		0
+_205962657_b,	0,		0,		0,		8,		0,		0,		4,		0,		0,		4,		0,		0,		28,		116,		0,		160,		0
+_205962657_c,	0,		14,		0,		0,		4,		0,		0,		2,		0,		0,		2,		0,		0,		0,		58,		80,		0
