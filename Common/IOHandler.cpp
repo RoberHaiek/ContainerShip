@@ -78,17 +78,17 @@ int instructionsOut(string** instructions,string outName){
 	while(instructions[instIndex][2].compare("last")!=0){
 		//uid,L/R/U,row,column,height
 		//cout<<"the instruction : "<<instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4]<<endl;
-		if(instructions[instIndex][1].compare("M")!=0){
-			fd_info<< instructions[instIndex][1]<<","<<instructions[instIndex][0]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4];
-		}else{
-			fd_info<< instructions[instIndex][1]<<","<<instructions[instIndex][0]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4]<<","<<instructions[instIndex][5]<<","<<instructions[instIndex][6]<<","<<instructions[instIndex][7];
+		fd_info<< instructions[instIndex][1]<<","<<instructions[instIndex][0]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4];
+		if(instructions[instIndex][1]=="M"){
+		fd_info<<","<<instructions[instIndex][5]<<","<<instructions[instIndex][6]<<","<<instructions[instIndex][7];
 		}
+		fd_info<<endl;
 		instIndex++;
 
-		if(instructions[instIndex][2].compare("last")!=0){
+		/*if(instructions[instIndex][2].compare("last")!=0){
 
 			fd_info<<endl;
-		}
+		}*/
 	} 
 	if(fd_info.is_open()){
 	fd_info.close();
@@ -118,7 +118,7 @@ string getCargoFileName(int portIndex,bool cargoData,char** route){
 /*read the cargo from a file*/
 Container* parseCargoFile(string fileName){
 	ifstream fd_info;
-	//cout << "in parseCargoFile"<<endl;
+	cout << "in parseCargoFile"<<endl;
 	int is_err=SUCCESS;
 	string parse_out;
 	Container* containers;
@@ -127,7 +127,7 @@ Container* parseCargoFile(string fileName){
 	fd_info.open(filePath,ios_base::in);//open the file
 	//checking the access to the file
 	if(!fd_info){
-		//std::cout << "ERROR[8][1]- can't open "<< filePath<< std::endl;
+		std::cout << "ERROR[8][1]- can't open "<< filePath<< std::endl;
 		containers=new Container[1];
 		containers[containerNum]=Container(0,Port(""),"last");
 		return containers;
@@ -135,7 +135,7 @@ Container* parseCargoFile(string fileName){
 	}
 	
 	containerNum=getNumOfLines(fd_info);//get container size
-	//cout<<"in parseCargoFile with lines "<<containerNum<<endl;
+	cout<<"in parseCargoFile with lines "<<containerNum<<endl;
 	containers=new Container[containerNum+1];
 	string line;
 	int containerIndex=0;
@@ -145,7 +145,7 @@ Container* parseCargoFile(string fileName){
 	int containerWeight;
 	//looping over the lines
 	while(getline(fd_info,line)){
-	//	cout<<"line :  "<<line<<endl;
+		cout<<"line :  "<<line<<endl;
 		if(line=="" || line.at(0)=='#'){
 			continue;
 			}
@@ -309,17 +309,17 @@ int getTripleElem(string line,int& seek,int& firstElem ,int& secElem ,int& third
 	int err=getElem(line,seek,',',parse_out);
 	firstElem=std::stoi(parse_out); // get max height
 	if(err!=SUCCESS|| firstElem<0){
-		return err;
+		return ERROR;
 	}
 	err=getElem(line,seek,',',parse_out);
 	secElem=std::stoi(parse_out); // get length
 	if(err!=SUCCESS|| secElem<0){
-		return err;
+		return ERROR;
 	}
 	err=getElem(line,seek,',',parse_out);
 	thirdElem=std::stoi(parse_out);// get width
 	if(err!=SUCCESS || thirdElem<0){
-		return err;
+		return ERROR;
 	}
 	err=getElem(line,seek,',',parse_out);
 	if(err!=ERROR || seek<=(int)line.length()){
@@ -370,7 +370,7 @@ int initShipPlan(Ship* &currShip ,string travelPath){
 		
 		if(isErr!=SUCCESS || maxHeight==0 || width==0 || length==0){
 //cout << "errrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrror  "<<err+(int)ErrorID::ShipPlanBadLineFormat<<endl;
-		return err|(int)ErrorID::ShipPlanBadLineFormat;
+		return err|(int)ErrorID::ShipPlanBadFirstLine;
 		}
 
 		/*

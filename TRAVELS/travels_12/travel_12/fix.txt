@@ -1,0 +1,59 @@
+fix 1:
+-in Common/IOHandler.cpp
+	*) in lines 309 314 319 
+	 -changing:"return err;" --> "return ERROR;"
+	*)in line 369
+	-changing the ERROR ID : "return err|(int)ErrorID::ShipPlanBadLineFormat;" --> "return err|(int)ErrorID::ShipPlanBadFirstLine;"
+
+-the purpose of the change :
+	1)we missed up and in the first line section ,we returned the ShipPlanBadLineFormat Error instead of ShipPlanBadFirstLine.
+	2)we missed up in lines 309 314 319, which they are the same line with the same error by using the err world instead of ERROR which can change 
+	the result of printing the ShipPlanBadFirstLine or not.
+
+fix 2:
+-in simulator/MiniSimulator.cpp
+	*)in line 768 770
+	-removing "output" : "output+"/"+makeDir+"/"+FileNameInstruction" --> "makeDir+"/"+FileNameInstruction"
+
+-the purpose of the remove :
+	1)i was using a relative paths in the command line without pay attention to the duplication we were creating with "output+"/"+makeDir"
+	relative path example :
+		let output be "../output" and makeDir be "../output/_318244738_a" that makes output+"/"+makeDir ="../output/../output/_318244738_a" 
+	problematic full path example :
+		let output be "C/output" and makeDir be "C/output/_318244738_a" that makes output+"/"+makeDir ="C/output/C/output/_318244738_a" which is wrong
+	
+fix 3:
+in Common/CraneTester.cpp	
+	*)in line 83
+	- adding "if(checkNumber==10){checkNumber=0;}"
+
+-the purpose of the addition :
+	1)in the ISO format there is a special case that we didn't pay attention for when whats left of calculating the check digit is 10 and 
+		therfore in test 5 the container ITKU0000030 will be rejected because 0!=10 . the small addition will support this case
+
+fix 4:
+in simulator/MiniSimulator.cpp
+	*)line 153
+	-)adding "if(instructions==NULL){return -1;}"
+
+-the purpose of the addtion :
+	1)when the instructions==NULL is an error case and we should return -1 , in this function we forgot to support this case which might brings a null pointer ERROR.
+
+
+fix 5:
+in Common/CraneTester.cpp
+	*)in line 205 
+	-adding "for(int i=routeIndx+1;i<routeSize;i++){"
+	*)in line 207 
+	-adding "if(*curr!=routeArray[i]){continue;}"
+	*)in line 224
+	-adding "ports.erase(*curr);"
+	*)in line 226
+	-adding "}"
+
+
+-the purpose of the addtion :
+	1)in the priority calculation(rejecting the far containers) we used the std::set to store the "sorted" ports in it , but the set don't take in consedration 
+	the order of the inserted elemnts . due to the fact that we were using a special case of ordered ports as "AAAAA" , "BBBBB" so the itreation 
+	over the elemnts was by the insertion order.(and this is the mistake)
+	so we added a wrapper for loop that itrates over the ports in order to fix this problem.

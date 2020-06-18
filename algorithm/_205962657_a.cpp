@@ -148,6 +148,7 @@ fillInstructions(Action::REJECT, "aa", "aa", "aa", "output_full_path_and_file_na
 	}
 	void rejectWhatLeft(){
 		for(auto it=rejectedNotInRoute.begin();it!=rejectedNotInRoute.end();it++){
+			cout<<"I'm here madaaa faakaaaa "<< it->uniqueId<<endl; 
 			fillInstructions(Action::REJECT, it->uniqueId,"-1", "-1", "-1","","","");			
 		}
 			rejectedNotInRoute.clear();
@@ -260,6 +261,8 @@ bool shipNotFull(int indx1, int indx2, int &moveToRow,int &moveToColumn,int &mov
 						if(shipNotFull(std::stoi(indx[0]),std::stoi(indx[1]),moveToRow,moveToColumn,moveToHeight)){
 							crane.load(popedElem->container,moveToRow,moveToColumn,moveToHeight);
 							fillInstructions(Action::MOVE,popedElem->container->uniqueId,indx[2],indx[0],indx[1],to_string(moveToHeight),to_string(moveToRow),to_string(moveToColumn));
+							delete popedElem;
+							delete[] indx;
 						}
 						else{
 							fillInstructions(Action::UNLOAD, popedElem->container->uniqueId, indx[2], indx[0], indx[1],"","","");
@@ -361,7 +364,7 @@ void printTestResults(node  currentContainer){
 
 // rejection test
 	int isRejected(node currentContainer) {
-		//printTestResults(currentContainer);
+		printTestResults(currentContainer);
 		int error = 0;
 		int rejectFlag=0;
 		int tmpError=0;

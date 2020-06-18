@@ -281,6 +281,8 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 	for(int i=0;currentInstructions[i][0]!="last";i++){
 		//all the operations must be M/L/U/R
 		if(currentInstructions[i][0] != "U" && currentInstructions[i][0] != "R" && currentInstructions[i][0] != "L"  && currentInstructions[i][0] != "M"){
+			cout<<" 	*)unknown error "<<endl;
+
 			return -1;
 		}	
 		
@@ -299,14 +301,29 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 			row = std::stoi(currentInstructions[i][3]);
 			column = std::stoi(currentInstructions[i][4]);
 		}catch(...){
+			cout<<" 	*)catched error 1"<<endl;
+
 			return -1;
 		}
 
 		//if "M"
 		if(currentInstructions[i][0]=="M"){
+	cout << "we got a move command  "<< currentInstructions[i][0]<<","<< currentInstructions[i][1]<<","<< currentInstructions[i][2]<<","<< currentInstructions[i][3]<<","
+<< currentInstructions[i][4]<<","
+<< currentInstructions[i][5]<<","
+<< currentInstructions[i][6]<<","
+<< currentInstructions[i][7]<<endl;
+cout<< " in move section with "<<currentContainer.container->uniqueId<<","<<floor<<","<<row<<","<<column<<endl;
+			for(auto it = ship->planMap->begin();
+    it != ship->planMap->end(); ++it){		std::cout << "{" << it->first << ": " << it->second[0]<<","<<it->second[1]<<","<<it->second[2]<< "}\n";
+			}
+
+
 			//unload then load;
 			if(ship->planMap->find(currentContainer.container->uniqueId)==ship->planMap->end()){
+				cout<<" 	*)M error : the unloaded container not on the ship"<<endl;
 				return -1;//the unloaded container not on the ship
+				
 			}
 			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
 		
@@ -319,19 +336,33 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 			}
 			else{
 				std::cout << "Illegal algorithm command: Could not unload container " << currentContainer.container->uniqueId << "\n";
+				
 				return -1;
 			}
+cout<< " after move --> unload section with "<<currentContainer.container->uniqueId<<","<<floor<<","<<row<<","<<column<<endl;
+			for(auto it = ship->planMap->begin();
+    it != ship->planMap->end(); ++it){		std::cout << "{" << it->first << ": " << it->second[0]<<","<<it->second[1]<<","<<it->second[2]<< "}\n";
+			}
+
 			try{//is it a number?
 			floor = std::stoi(currentInstructions[i][5]);
 			row = std::stoi(currentInstructions[i][6]);
 			column = std::stoi(currentInstructions[i][7]);
 			}catch(...){
+				cout<<" 	*)M error : catched error"<<endl;
+
 				return -1;
 			}
-			if (ship->planLinkedList[row][column].size <floor && floor < ship->planLinkedList[row][column].maxHeight) {
+			if (ship->planLinkedList[row][column].size <= floor && floor < ship->planLinkedList[row][column].maxHeight) {
 				// Was the load valid?
 				if(error == 0){
-					crane.load(currentContainer.container, row,column,ship->planLinkedList[row][column].size);
+cout <<"in move loading ...." << endl;
+					crane.load(currentContainer.container, row,column,floor+1);
+cout<< " after move --> load section with "<<currentContainer.container->uniqueId<<","<<floor<<","<<row<<","<<column<<endl;
+			for(auto it = ship->planMap->begin();
+    it != ship->planMap->end(); ++it){		std::cout << "{" << it->first << ": " << it->second[0]<<","<<it->second[1]<<","<<it->second[2]<< "}\n";
+			}
+
 				}
 				else{
 					std::cout << "Illegal algorithm command: Invalid load for container " << currentContainer.container->uniqueId << "\n";
@@ -371,7 +402,14 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 		
 		// //if "U"?
 		if(currentInstructions[i][0] == "U"){
+cout<< "  unload section with "<<currentContainer.container->uniqueId<<","<<floor<<","<<row<<","<<column<<endl;
+			for(auto it = ship->planMap->begin();
+    it != ship->planMap->end(); ++it){		std::cout << "{" << it->first << ": " << it->second[0]<<","<<it->second[1]<<","<<it->second[2]<< "}\n";
+			}
+
 			if(ship->planMap->find(currentContainer.container->uniqueId)==ship->planMap->end()){
+				cout<<" 	*)U error : the unloaded container not on the ship"<<endl;
+
 				return -1;//the unloaded container not on the ship
 			}
 			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
@@ -389,12 +427,14 @@ int validateAlgorithm(std::string **currentInstructions, Port port, Ship *ship,P
 			}
 		}
 	}
-	//and now after we done loading/unloading we check if really must reject these ccargo containers
+	//and now after we done loading/unloading we check if really must reject these cargo containers
 	for(auto inst=rejectedElementsByAlgo.begin();inst!=rejectedElementsByAlgo.end();inst++){
 		string containerPort=getContainerPort((*inst)[1],ship);
 		*currentContainer.container = Container(0,Port(containerPort),(*inst)[1]);
 		error=isRejected(currentContainer,ship,route,routeIndex);
 		if(error==0){
+			cout<<" 	*)reject  error"<<endl;
+
 			return -1;//no need to reject
 		}
 	}
@@ -441,14 +481,14 @@ int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICA
 					return ERROR;
 				}
 				if(moveFlag){
-					err=getElem(line,seek,'[',parse_out);fivedArray[4]=string(parse_out);
+					err=getElem(line,seek,',',parse_out);fivedArray[4]=string(parse_out);
 					if(err!=SUCCESS || seek==(int)line.length() || parse_out==""){
 						return ERROR;
 					}
-					err=getElem(line,seek,',',parse_out);
+					/*err=getElem(line,seek,',',parse_out);
 					if(seek==(int)line.length() || parse_out.compare("")!=0){
 						return ERROR;
-					}
+					}*/
 					err=getElem(line,seek,',',parse_out);fivedArray[5]=string(parse_out);
 					if(err!=SUCCESS || seek==(int)line.length() || parse_out==""){
 						return ERROR;
@@ -458,8 +498,8 @@ int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICA
 						return ERROR;
 					}
 					cout << "the parse out is :"<<parse_out << endl;
-					err=getElem(line,seek,']',parse_out);fivedArray[7]=string(parse_out);
-					if(err!=SUCCESS || parse_out.compare("")==0 || (seek<=(int)line.length()&& line.at(seek-1)!=']')){
+					err=getElem(line,seek,',',parse_out);fivedArray[7]=string(parse_out);
+					if(err!=SUCCESS || parse_out.compare("")==0){
 						return ERROR;
 					}
 					cout << "the parse out is :"<<parse_out << endl;
@@ -778,14 +818,14 @@ cout << "itration : "<< AlgoIndex << "to "<<makeDir<<endl;
 
 		/********************Start in this section we validate the route*************/
 		//validate 
-		string **instructions=ReadExpectedInstructions( output+"/"+makeDir+"/"+FileNameInstruction);
+		string **instructions=ReadExpectedInstructions(makeDir+"/"+FileNameInstruction);
 		ifstream fd_info;
-		fd_info.open( output+"/"+makeDir+"/"+FileNameInstruction,ios_base::in);//open the file
+		fd_info.open(makeDir+"/"+FileNameInstruction,ios_base::in);//open the file
 		//checking the access to the file
 		int numOfInstructions=0;
 	try{
 			if(!fd_info){
-			handleError(output,"Simulator","ERROR- can't open the algorithm instruction file :"+ output+"/"+makeDir+"/"+FileNameInstruction);
+			handleError(output,"Simulator","ERROR- can't open the algorithm instruction file :"+ makeDir+"/"+FileNameInstruction);
 			throw 1;
 			}
 			

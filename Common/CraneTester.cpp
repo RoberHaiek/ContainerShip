@@ -80,6 +80,7 @@ public:
 		}
 		
 		int checkNumber= sum - int(sum/11) * 11;
+		if(checkNumber==10){checkNumber=0;}
 		if(checkNumber==(int)uniqueId[10]-48){
 			return 0;
 		}
@@ -176,21 +177,22 @@ public:
 	static Container* priority(Container *PortInstructions,char** routeArray,int routeIndx ,int numOfInstruction,int routeSize,vector<Container>& rejectedNotInRoute){
 		set<string> ports;
 		set<int> indexes;
+cout << "priorety "<<endl;
 		//adds the next ports just once 
 		for(int i=routeIndx+1;i<routeSize;i++){
-		//cout << "init the set if ? "<<routeArray[i];
+		cout << "init the set if ? "<<routeArray[i];
 			if(!ports.count(string(routeArray[i]))){
-				//cout << "  accepted";
+				cout << "  accepted";
 				ports.insert(string(routeArray[i]));
 			}
-		//cout << endl;
+		cout << endl;
 		}
 		//if its the last port then we reject all the containers
 		if(routeIndx==routeSize-1){//last Port
 		Container* sortedContainers=new Container[1];
 		sortedContainers[0]=Container(0,Port("last"),"last");
 		for(int inst=0;inst<=numOfInstruction;inst++){
-			//cout<< "in last port we must reject "<<PortInstructions[inst].uniqueId<<endl;
+			cout<< "in last port we must reject "<<PortInstructions[inst].uniqueId<<endl;
 			rejectedNotInRoute.push_back(PortInstructions[inst]);
 
 		}
@@ -201,24 +203,35 @@ public:
 		int containerIndx=0;
 
 		//for each port -- we find the relevant cargo and push it in the set one by one
+for(int i=routeIndx+1;i<routeSize;i++){
 		for(auto curr=ports.begin();curr!=ports.end(); curr++){
+if(*curr!=routeArray[i]){continue;}
 			for(int inst=0;inst<=numOfInstruction;inst++){
-			//cout<< "the port is :: "<<*curr <<" , and the container is ::"<<PortInstructions[inst].uniqueId<<endl;
+			cout<< "the port is :: "<<*curr <<" , and the container is ::"<<PortInstructions[inst].uniqueId<<endl;
 				if(PortInstructions[inst].uniqueId =="last"){
 					break;
 				}else if(PortInstructions[inst].destPort.port=="reject" && !indexes.count(inst)){//this container have been rejected for bad weight/dst port format
-			//cout << "	*)'reject'"<<endl;
+			cout << "	*)'reject'"<<endl;
 					indexes.insert(inst);
 					rejectedNotInRoute.push_back(PortInstructions[inst]);	
 				}
 				else if(PortInstructions[inst].destPort.port==*curr && !indexes.count(inst)){ //the port name matches
-			//cout << "	*)taken"<<endl;
+			cout << "	*)taken"<<endl;
 					indexes.insert(inst);
 					sortedContainers[containerIndx]=Container(PortInstructions[inst].weight,PortInstructions[inst].destPort,PortInstructions[inst].uniqueId);
 					containerIndx++;
+				}else{
+					
+					cout << "	*)in the else zbbe with port = "<<PortInstructions[inst].destPort.port<<endl;
+					cout << "PortInstructions[inst].destPort.port==*curr -- "<<(PortInstructions[inst].destPort.port==(*curr))<<endl;
+					cout << "!indexes.count(inst) -- "<<(!indexes.count(inst))<<endl;
+
+
 				}
 			}
+ports.erase(*curr);
 		}
+}
 		//for each other instructions ... add them to the reject (these are the containers that its destinations not in the route)
 		for(int inst=0;inst<=numOfInstruction;inst++){
 			if(PortInstructions[inst].uniqueId =="last"){
