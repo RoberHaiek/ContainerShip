@@ -464,7 +464,7 @@ int getTheFileNameFromTheTravel(string travelPath,string extention,string& theNe
 	}
 		//if there is no extensions file
 	if(numOfFilesWithTheExtention==0){
-		string errorMsg="***ERROR[22][3]: no "+extention+" file in <<travelPath<<(exiting the travel)";
+		string errorMsg="***ERROR[22][3]: no "+extention+" file in "<<travelPath<<" (exiting the travel)";
 		handleError(errorOutputPath,"Simulator",errorMsg);
 		return (extention.compare("route")==0 ? (int)ErrorID::TravelRouteEmptyOrCantReadFile : (int)ErrorID::ShipPlanBadFirstLine);
 
