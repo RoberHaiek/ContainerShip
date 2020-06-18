@@ -165,7 +165,7 @@ void loadAgain(node *temp){
 						if (error == 0) {
 							crane.load(temp->container, row,column,this->ship->planLinkedList[row][column].size);	// load it
 							fillInstructions(Action::LOAD, temp->container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size-1)), std::to_string(row), std::to_string(column),"","","");	// edit instructions
-							}
+						}
 					}
 				}
 			}
@@ -174,7 +174,10 @@ void loadAgain(node *temp){
 bool shipNotFull(int indx1, int indx2, int &moveToRow,int &moveToColumn,int &moveToHeight){
 	for (int row = 0; row < ship->shipWidth; row++) {	// for each row
 		for (int column = 0; column < ship->shipLength; column++) {	// for each column
-			if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && indx1!=row && indx2!=column) {		// check if we are below height limit and balanced
+			cout << "if " << row << ", " << column << " <=  " << ship->planLinkedList[row][column].maxHeight << " && "<< indx1 << ", " << indx2 << endl;
+			cout << (ship->planLinkedList[row][column].size<=ship->planLinkedList[row][column].maxHeight) << ", " <<(indx1!=row)<< ", " <<(indx2!=column)<< endl;
+			if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight && (indx1!=row || indx2!=column)) {		// check if we are below height limit and balanced
+				cout << row << ", " << column << endl;
 				moveToRow = row;
 				moveToColumn = column;
 				moveToHeight = ship->planLinkedList[row][column].size;
