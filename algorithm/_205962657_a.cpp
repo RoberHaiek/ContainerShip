@@ -122,6 +122,10 @@ public:
 
 		rejectWhatLeft();
 		}
+/*
+cout<<"aa, aa, aa, "<<output_full_path_and_file_name<<endl;
+fillInstructions(Action::REJECT, "aa", "aa", "aa", "output_full_path_and_file_name");
+*/
 		fillInstructions(Action::REJECT, "last", "last", "last", "last");
 		instructionsOut(currentInstructions,output_full_path_and_file_name);
 		this->instNum = 0;

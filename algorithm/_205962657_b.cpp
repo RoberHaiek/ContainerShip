@@ -122,7 +122,7 @@ public:
 		rejectWhatLeft();
 		}
 		fillInstructions(Action::REJECT, "last", "last", "last", "last");
-		instructionsOut(currentInstructions,output_full_path_and_file_name);
+		//instructionsOut(currentInstructions,output_full_path_and_file_name);
 		this->instNum = 0;
 		this->routeIndex++;
 		return error;

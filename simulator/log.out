@@ -1,0 +1,585 @@
+travel size 3 algo size 3
+0
+DECLEARING of THE EMPTY LIST
+
+
+Closing dl
+Closing dl
+Closing dl
+
+
+#==#==#==#==#==#==#==#NEW_TRAVEL = TRAVEL-2 with _205962657_a#==#==#==#==#==#==#==#
+
+#### the AlgoIndex =0
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_a##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_a_TRAVEL-2_crane_instructions
+itration : 0to ../output//_205962657_a_TRAVEL-2_crane_instructions
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_TRAVEL-2_crane_instructions/AAAAA_1.crane_instructions
+number of instructions in AAAAA  (TRAVEL-2,_205962657_a) = 7
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_TRAVEL-2_crane_instructions/BBBBB_1.crane_instructions
+number of instructions in BBBBB  (TRAVEL-2,_205962657_a) = 8
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_TRAVEL-2_crane_instructions/CCCCC_1.crane_instructions
+number of instructions in CCCCC  (TRAVEL-2,_205962657_a) = 6
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/DDDDD_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_TRAVEL-2_crane_instructions/DDDDD_1.crane_instructions
+number of instructions in DDDDD  (TRAVEL-2,_205962657_a) = 9
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/EEEEE_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_TRAVEL-2_crane_instructions/EEEEE_1.crane_instructions
+number of instructions in EEEEE  (TRAVEL-2,_205962657_a) = 7
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/AAAAA_2.crane_instructions  (TRAVEL-2,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_TRAVEL-2_crane_instructions/AAAAA_2.crane_instructions
+number of instructions in AAAAA  (TRAVEL-2,_205962657_a) = 4
+
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_a##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_a_TRAVEL-2_crane_instructions
+itration : 0to ../output//_205962657_a_TRAVEL-2_crane_instructions
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+number of instructions in AAAAA  (TRAVEL-2,_205962657_a) = 7
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+number of instructions in BBBBB  (TRAVEL-2,_205962657_a) = 8
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+number of instructions in CCCCC  (TRAVEL-2,_205962657_a) = 6
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/DDDDD_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+number of instructions in DDDDD  (TRAVEL-2,_205962657_a) = 9
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/EEEEE_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+number of instructions in EEEEE  (TRAVEL-2,_205962657_a) = 7
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/AAAAA_2.crane_instructions  (TRAVEL-2,_205962657_a) = 
+number of instructions in AAAAA  (TRAVEL-2,_205962657_a) = 4
+
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_a##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_a_TRAVEL-2_crane_instructions
+itration : 0to ../output//_205962657_a_TRAVEL-2_crane_instructions
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_TRAVEL-2_crane_instructions/AAAAA_1.crane_instructions
+number of instructions in AAAAA  (TRAVEL-2,_205962657_a) = 7
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_TRAVEL-2_crane_instructions/BBBBB_1.crane_instructions
+number of instructions in BBBBB  (TRAVEL-2,_205962657_a) = 8
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_TRAVEL-2_crane_instructions/CCCCC_1.crane_instructions
+number of instructions in CCCCC  (TRAVEL-2,_205962657_a) = 6
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/DDDDD_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_TRAVEL-2_crane_instructions/DDDDD_1.crane_instructions
+number of instructions in DDDDD  (TRAVEL-2,_205962657_a) = 9
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/EEEEE_1.crane_instructions  (TRAVEL-2,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_TRAVEL-2_crane_instructions/EEEEE_1.crane_instructions
+number of instructions in EEEEE  (TRAVEL-2,_205962657_a) = 7
+
+makdir = ../output//_205962657_a_TRAVEL-2_crane_instructions/AAAAA_2.crane_instructions  (TRAVEL-2,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_TRAVEL-2_crane_instructions/AAAAA_2.crane_instructions
+number of instructions in AAAAA  (TRAVEL-2,_205962657_a) = 4
+
+
+DECLEARING of THE EMPTY LIST
+
+
+Closing dl
+Closing dl
+Closing dl
+
+
+#==#==#==#==#==#==#==#NEW_TRAVEL = TRAVEL-2 with _205962657_b#==#==#==#==#==#==#==#
+
+#### the AlgoIndex =1
+#### itreate =1
+	continue
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_b##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_b_TRAVEL-2_crane_instructions
+itration : 0to ../output//_205962657_b_TRAVEL-2_crane_instructions
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL-2,_205962657_b) = 
+number of instructions in AAAAA  (TRAVEL-2,_205962657_b) = 7
+
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL-2,_205962657_b) = 
+number of instructions in BBBBB  (TRAVEL-2,_205962657_b) = 8
+
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL-2,_205962657_b) = 
+number of instructions in CCCCC  (TRAVEL-2,_205962657_b) = 6
+
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/DDDDD_1.crane_instructions  (TRAVEL-2,_205962657_b) = 
+number of instructions in DDDDD  (TRAVEL-2,_205962657_b) = 9
+
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/EEEEE_1.crane_instructions  (TRAVEL-2,_205962657_b) = 
+number of instructions in EEEEE  (TRAVEL-2,_205962657_b) = 7
+
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/AAAAA_2.crane_instructions  (TRAVEL-2,_205962657_b) = 
+number of instructions in AAAAA  (TRAVEL-2,_205962657_b) = 4
+
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_b##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_b_TRAVEL-2_crane_instructions
+itration : 0to ../output//_205962657_b_TRAVEL-2_crane_instructions
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL-2,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_TRAVEL-2_crane_instructions/AAAAA_1.crane_instructions
+number of instructions in AAAAA  (TRAVEL-2,_205962657_b) = 7
+
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL-2,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_TRAVEL-2_crane_instructions/BBBBB_1.crane_instructions
+number of instructions in BBBBB  (TRAVEL-2,_205962657_b) = 8
+
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL-2,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_TRAVEL-2_crane_instructions/CCCCC_1.crane_instructions
+number of instructions in CCCCC  (TRAVEL-2,_205962657_b) = 6
+
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/DDDDD_1.crane_instructions  (TRAVEL-2,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_TRAVEL-2_crane_instructions/DDDDD_1.crane_instructions
+number of instructions in DDDDD  (TRAVEL-2,_205962657_b) = 9
+
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/EEEEE_1.crane_instructions  (TRAVEL-2,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_TRAVEL-2_crane_instructions/EEEEE_1.crane_instructions
+number of instructions in EEEEE  (TRAVEL-2,_205962657_b) = 7
+
+makdir = ../output//_205962657_b_TRAVEL-2_crane_instructions/AAAAA_2.crane_instructions  (TRAVEL-2,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_TRAVEL-2_crane_instructions/AAAAA_2.crane_instructions
+number of instructions in AAAAA  (TRAVEL-2,_205962657_b) = 4
+
+
+DECLEARING of THE EMPTY LIST
+
+
+Closing dl
+Closing dl
+Closing dl
+
+
+#==#==#==#==#==#==#==#NEW_TRAVEL = TRAVEL-2 with _205962657_c#==#==#==#==#==#==#==#
+
+#### the AlgoIndex =2
+#### itreate =2
+	continue
+#### itreate =1
+	continue
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_c##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_c_TRAVEL-2_crane_instructions
+itration : 0to ../output//_205962657_c_TRAVEL-2_crane_instructions
+makdir = ../output//_205962657_c_TRAVEL-2_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL-2,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_TRAVEL-2_crane_instructions/AAAAA_1.crane_instructions
+number of instructions in AAAAA  (TRAVEL-2,_205962657_c) = 7
+
+makdir = ../output//_205962657_c_TRAVEL-2_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL-2,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_TRAVEL-2_crane_instructions/BBBBB_1.crane_instructions
+number of instructions in BBBBB  (TRAVEL-2,_205962657_c) = 8
+
+makdir = ../output//_205962657_c_TRAVEL-2_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL-2,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_TRAVEL-2_crane_instructions/CCCCC_1.crane_instructions
+number of instructions in CCCCC  (TRAVEL-2,_205962657_c) = 6
+
+makdir = ../output//_205962657_c_TRAVEL-2_crane_instructions/DDDDD_1.crane_instructions  (TRAVEL-2,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_TRAVEL-2_crane_instructions/DDDDD_1.crane_instructions
+number of instructions in DDDDD  (TRAVEL-2,_205962657_c) = 9
+
+makdir = ../output//_205962657_c_TRAVEL-2_crane_instructions/EEEEE_1.crane_instructions  (TRAVEL-2,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_TRAVEL-2_crane_instructions/EEEEE_1.crane_instructions
+number of instructions in EEEEE  (TRAVEL-2,_205962657_c) = 7
+
+makdir = ../output//_205962657_c_TRAVEL-2_crane_instructions/AAAAA_2.crane_instructions  (TRAVEL-2,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_TRAVEL-2_crane_instructions/AAAAA_2.crane_instructions
+number of instructions in AAAAA  (TRAVEL-2,_205962657_c) = 4
+
+
+DECLEARING of THE EMPTY LIST
+
+
+Closing dl
+Closing dl
+Closing dl
+
+
+#==#==#==#==#==#==#==#NEW_TRAVEL = TRAVEL_1 with _205962657_a#==#==#==#==#==#==#==#
+
+#### the AlgoIndex =0
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_a##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_a_TRAVEL_1_crane_instructions
+itration : 0to ../output//_205962657_a_TRAVEL_1_crane_instructions
+makdir = ../output//_205962657_a_TRAVEL_1_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL_1,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_TRAVEL_1_crane_instructions/AAAAA_1.crane_instructions
+number of instructions in AAAAA  (TRAVEL_1,_205962657_a) = 5
+
+makdir = ../output//_205962657_a_TRAVEL_1_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL_1,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_TRAVEL_1_crane_instructions/BBBBB_1.crane_instructions
+number of instructions in BBBBB  (TRAVEL_1,_205962657_a) = 5
+
+makdir = ../output//_205962657_a_TRAVEL_1_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL_1,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_TRAVEL_1_crane_instructions/CCCCC_1.crane_instructions
+number of instructions in CCCCC  (TRAVEL_1,_205962657_a) = 4
+
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_a##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_a_TRAVEL_1_crane_instructions
+itration : 0to ../output//_205962657_a_TRAVEL_1_crane_instructions
+makdir = ../output//_205962657_a_TRAVEL_1_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL_1,_205962657_a) = 
+number of instructions in AAAAA  (TRAVEL_1,_205962657_a) = 5
+
+makdir = ../output//_205962657_a_TRAVEL_1_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL_1,_205962657_a) = 
+number of instructions in BBBBB  (TRAVEL_1,_205962657_a) = 5
+
+makdir = ../output//_205962657_a_TRAVEL_1_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL_1,_205962657_a) = 
+number of instructions in CCCCC  (TRAVEL_1,_205962657_a) = 4
+
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_a##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_a_TRAVEL_1_crane_instructions
+itration : 0to ../output//_205962657_a_TRAVEL_1_crane_instructions
+makdir = ../output//_205962657_a_TRAVEL_1_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL_1,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_TRAVEL_1_crane_instructions/AAAAA_1.crane_instructions
+number of instructions in AAAAA  (TRAVEL_1,_205962657_a) = 5
+
+makdir = ../output//_205962657_a_TRAVEL_1_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL_1,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_TRAVEL_1_crane_instructions/BBBBB_1.crane_instructions
+number of instructions in BBBBB  (TRAVEL_1,_205962657_a) = 5
+
+makdir = ../output//_205962657_a_TRAVEL_1_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL_1,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_TRAVEL_1_crane_instructions/CCCCC_1.crane_instructions
+number of instructions in CCCCC  (TRAVEL_1,_205962657_a) = 4
+
+
+DECLEARING of THE EMPTY LIST
+
+
+Closing dl
+Closing dl
+Closing dl
+
+
+#==#==#==#==#==#==#==#NEW_TRAVEL = TRAVEL_1 with _205962657_b#==#==#==#==#==#==#==#
+
+#### the AlgoIndex =1
+#### itreate =1
+	continue
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_b##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_b_TRAVEL_1_crane_instructions
+itration : 0to ../output//_205962657_b_TRAVEL_1_crane_instructions
+makdir = ../output//_205962657_b_TRAVEL_1_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL_1,_205962657_b) = 
+number of instructions in AAAAA  (TRAVEL_1,_205962657_b) = 5
+
+makdir = ../output//_205962657_b_TRAVEL_1_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL_1,_205962657_b) = 
+number of instructions in BBBBB  (TRAVEL_1,_205962657_b) = 5
+
+makdir = ../output//_205962657_b_TRAVEL_1_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL_1,_205962657_b) = 
+number of instructions in CCCCC  (TRAVEL_1,_205962657_b) = 4
+
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_b##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_b_TRAVEL_1_crane_instructions
+itration : 0to ../output//_205962657_b_TRAVEL_1_crane_instructions
+makdir = ../output//_205962657_b_TRAVEL_1_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL_1,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_TRAVEL_1_crane_instructions/AAAAA_1.crane_instructions
+number of instructions in AAAAA  (TRAVEL_1,_205962657_b) = 5
+
+makdir = ../output//_205962657_b_TRAVEL_1_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL_1,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_TRAVEL_1_crane_instructions/BBBBB_1.crane_instructions
+number of instructions in BBBBB  (TRAVEL_1,_205962657_b) = 5
+
+makdir = ../output//_205962657_b_TRAVEL_1_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL_1,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_TRAVEL_1_crane_instructions/CCCCC_1.crane_instructions
+number of instructions in CCCCC  (TRAVEL_1,_205962657_b) = 4
+
+
+DECLEARING of THE EMPTY LIST
+
+
+Closing dl
+Closing dl
+Closing dl
+
+
+#==#==#==#==#==#==#==#NEW_TRAVEL = TRAVEL_1 with _205962657_c#==#==#==#==#==#==#==#
+
+#### the AlgoIndex =2
+#### itreate =2
+	continue
+#### itreate =1
+	continue
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_c##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_c_TRAVEL_1_crane_instructions
+itration : 0to ../output//_205962657_c_TRAVEL_1_crane_instructions
+makdir = ../output//_205962657_c_TRAVEL_1_crane_instructions/AAAAA_1.crane_instructions  (TRAVEL_1,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_TRAVEL_1_crane_instructions/AAAAA_1.crane_instructions
+number of instructions in AAAAA  (TRAVEL_1,_205962657_c) = 5
+
+makdir = ../output//_205962657_c_TRAVEL_1_crane_instructions/BBBBB_1.crane_instructions  (TRAVEL_1,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_TRAVEL_1_crane_instructions/BBBBB_1.crane_instructions
+number of instructions in BBBBB  (TRAVEL_1,_205962657_c) = 5
+
+makdir = ../output//_205962657_c_TRAVEL_1_crane_instructions/CCCCC_1.crane_instructions  (TRAVEL_1,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_TRAVEL_1_crane_instructions/CCCCC_1.crane_instructions
+number of instructions in CCCCC  (TRAVEL_1,_205962657_c) = 4
+
+
+DECLEARING of THE EMPTY LIST
+
+
+Closing dl
+Closing dl
+Closing dl
+
+
+#==#==#==#==#==#==#==#NEW_TRAVEL = travel_1 with _205962657_a#==#==#==#==#==#==#==#
+
+#### the AlgoIndex =0
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_a##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_a_travel_1_crane_instructions
+itration : 0to ../output//_205962657_a_travel_1_crane_instructions
+makdir = ../output//_205962657_a_travel_1_crane_instructions/ILHFA_1.crane_instructions  (travel_1,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_travel_1_crane_instructions/ILHFA_1.crane_instructions
+number of instructions in ILHFA  (travel_1,_205962657_a) = 3
+
+makdir = ../output//_205962657_a_travel_1_crane_instructions/TRIST_1.crane_instructions  (travel_1,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_travel_1_crane_instructions/TRIST_1.crane_instructions
+number of instructions in TRIST  (travel_1,_205962657_a) = 1
+
+makdir = ../output//_205962657_a_travel_1_crane_instructions/ITNAP_1.crane_instructions  (travel_1,_205962657_a) = 
+aa, aa, aa, ../output//_205962657_a_travel_1_crane_instructions/ITNAP_1.crane_instructions
+number of instructions in ITNAP  (travel_1,_205962657_a) = 2
+
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_a##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_a_travel_1_crane_instructions
+itration : 0to ../output//_205962657_a_travel_1_crane_instructions
+makdir = ../output//_205962657_a_travel_1_crane_instructions/ILHFA_1.crane_instructions  (travel_1,_205962657_a) = 
+number of instructions in ILHFA  (travel_1,_205962657_a) = 3
+
+makdir = ../output//_205962657_a_travel_1_crane_instructions/TRIST_1.crane_instructions  (travel_1,_205962657_a) = 
+number of instructions in TRIST  (travel_1,_205962657_a) = 1
+
+makdir = ../output//_205962657_a_travel_1_crane_instructions/ITNAP_1.crane_instructions  (travel_1,_205962657_a) = 
+number of instructions in ITNAP  (travel_1,_205962657_a) = 2
+
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_a##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_a_travel_1_crane_instructions
+itration : 0to ../output//_205962657_a_travel_1_crane_instructions
+makdir = ../output//_205962657_a_travel_1_crane_instructions/ILHFA_1.crane_instructions  (travel_1,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_travel_1_crane_instructions/ILHFA_1.crane_instructions
+number of instructions in ILHFA  (travel_1,_205962657_a) = 3
+
+makdir = ../output//_205962657_a_travel_1_crane_instructions/TRIST_1.crane_instructions  (travel_1,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_travel_1_crane_instructions/TRIST_1.crane_instructions
+number of instructions in TRIST  (travel_1,_205962657_a) = 1
+
+makdir = ../output//_205962657_a_travel_1_crane_instructions/ITNAP_1.crane_instructions  (travel_1,_205962657_a) = 
+cc, cc, cc, ../output//_205962657_a_travel_1_crane_instructions/ITNAP_1.crane_instructions
+number of instructions in ITNAP  (travel_1,_205962657_a) = 2
+
+
+DECLEARING of THE EMPTY LIST
+
+
+Closing dl
+Closing dl
+Closing dl
+
+
+#==#==#==#==#==#==#==#NEW_TRAVEL = travel_1 with _205962657_b#==#==#==#==#==#==#==#
+
+#### the AlgoIndex =1
+#### itreate =1
+	continue
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_b##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_b_travel_1_crane_instructions
+itration : 0to ../output//_205962657_b_travel_1_crane_instructions
+makdir = ../output//_205962657_b_travel_1_crane_instructions/ILHFA_1.crane_instructions  (travel_1,_205962657_b) = 
+number of instructions in ILHFA  (travel_1,_205962657_b) = 3
+
+makdir = ../output//_205962657_b_travel_1_crane_instructions/TRIST_1.crane_instructions  (travel_1,_205962657_b) = 
+number of instructions in TRIST  (travel_1,_205962657_b) = 1
+
+makdir = ../output//_205962657_b_travel_1_crane_instructions/ITNAP_1.crane_instructions  (travel_1,_205962657_b) = 
+number of instructions in ITNAP  (travel_1,_205962657_b) = 2
+
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_b##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_b_travel_1_crane_instructions
+itration : 0to ../output//_205962657_b_travel_1_crane_instructions
+makdir = ../output//_205962657_b_travel_1_crane_instructions/ILHFA_1.crane_instructions  (travel_1,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_travel_1_crane_instructions/ILHFA_1.crane_instructions
+number of instructions in ILHFA  (travel_1,_205962657_b) = 3
+
+makdir = ../output//_205962657_b_travel_1_crane_instructions/TRIST_1.crane_instructions  (travel_1,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_travel_1_crane_instructions/TRIST_1.crane_instructions
+number of instructions in TRIST  (travel_1,_205962657_b) = 1
+
+makdir = ../output//_205962657_b_travel_1_crane_instructions/ITNAP_1.crane_instructions  (travel_1,_205962657_b) = 
+cc, cc, cc, ../output//_205962657_b_travel_1_crane_instructions/ITNAP_1.crane_instructions
+number of instructions in ITNAP  (travel_1,_205962657_b) = 2
+
+
+DECLEARING of THE EMPTY LIST
+
+
+Closing dl
+Closing dl
+Closing dl
+
+
+#==#==#==#==#==#==#==#NEW_TRAVEL = travel_1 with _205962657_c#==#==#==#==#==#==#==#
+
+#### the AlgoIndex =2
+#### itreate =2
+	continue
+#### itreate =1
+	continue
+#### itreate =0
+Thread running: 140511118415744
+
+
+##################### Algo = _205962657_c##################
+
+readShipPlan
+readShipRoute
+ERROR[3][1]- can't make dir with name : ../output//_205962657_c_travel_1_crane_instructions
+itration : 0to ../output//_205962657_c_travel_1_crane_instructions
+makdir = ../output//_205962657_c_travel_1_crane_instructions/ILHFA_1.crane_instructions  (travel_1,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_travel_1_crane_instructions/ILHFA_1.crane_instructions
+number of instructions in ILHFA  (travel_1,_205962657_c) = 3
+
+makdir = ../output//_205962657_c_travel_1_crane_instructions/TRIST_1.crane_instructions  (travel_1,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_travel_1_crane_instructions/TRIST_1.crane_instructions
+number of instructions in TRIST  (travel_1,_205962657_c) = 1
+
+makdir = ../output//_205962657_c_travel_1_crane_instructions/ITNAP_1.crane_instructions  (travel_1,_205962657_c) = 
+cc, cc, cc, ../output//_205962657_c_travel_1_crane_instructions/ITNAP_1.crane_instructions
+number of instructions in ITNAP  (travel_1,_205962657_c) = 2
+
+results prints
+*)in thread 140511118415744:
+	1- (TRAVEL-2,_205962657_a)
+	2- (TRAVEL-2,_205962657_b)
+	3- (TRAVEL-2,_205962657_c)
+	4- (TRAVEL_1,_205962657_a)
+	5- (TRAVEL_1,_205962657_b)
+	6- (TRAVEL_1,_205962657_c)
+	7- (travel_1,_205962657_a)
+	8- (travel_1,_205962657_b)
+	9- (travel_1,_205962657_c)
+Done! - Closing dl
+Closing dl
+Closing dl

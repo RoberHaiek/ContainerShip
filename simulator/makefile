@@ -2,7 +2,7 @@ COMP = g++-9.3.0
 
 OBJS = MiniSimulator.o AlgorithmRegistration.o AlgorithmRegistrar.o
 EXEC = simulator
-CPP_COMP_FLAG = -std=c++2a -Wall -Wextra -pedantic-errors -DNDEBUG
+CPP_COMP_FLAG = -std=c++2a -Wall -Werror -Wextra -pedantic-errors -DNDEBUG
 CPP_LINK_FLAG = -ldl -export-dynamic -pthread #(-rdynamic)
 
 $(EXEC): $(OBJS)

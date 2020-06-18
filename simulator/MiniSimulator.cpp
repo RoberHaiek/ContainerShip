@@ -34,24 +34,19 @@ std::mutex routeMtx;
 std::mutex shipMtx;
 
 string travel_path="",algorithm_path="",output="", num_threads="";
-//queue<string> algoQueue;
+
 std::vector<string> algoVector;
 queue<string> travelQueue;
 vector<string> travelVector;
 vector<std::pair<string,string>> travelAlgoPairs;
 std::map<string,std::vector<int>> resMap;
-int travelNum=0;
 std::map<std::thread::id,std::vector<std::pair<string,string>>*> threadsCount;
 std::map<string,int> regestrationMapIndexeis;
 /*---------------FUNC DEC-------------*/
 int getFiveElementsIntoArray(string line,int& seek,string* fivedArray,int INDICATOR);
 
 /*------------------DEBUGGING METHODS-------------------*/
-int GetRandom(int max){
-    srand(time(NULL));
-    return rand() % max;
-}
- 
+
 
 void printFiles(DIR* fd){
 	struct dirent *entry;
@@ -67,16 +62,16 @@ void parseResults (std::pair<string,std::vector<int>> const &pair, bool isFirstL
 	if(!fd_results.is_open()&& isFirstLine){
 		fd_results.open(output+"/"+"simulation.results");
 		fd_results<<"RESULTS,	";
-		while(!travelQueue.empty()){
-			fd_results<<travelQueue.front()<<",	";
-			travelQueue.pop();
+		
+		for(auto it=travelVector.begin(); it!=travelVector.end();it++){
+			fd_results<<(*it)<<",	";
 		}
 		fd_results<<"Sum,	"<<"NumErrors"<<endl;
 	}
 	if(!isFirstLine){
 		fd_results<<pair.first<<",	";
 		auto v=pair.second;
-		for(int i=0;i<travelNum;i++){
+		for(int i=0;i<(int)v.size()-2;i++){
 			fd_results<<v[i+2]<<",		";
 		}
 		fd_results<<v[0]<<",		";
@@ -93,7 +88,9 @@ void printResults(){
 
 	std::vector<std::pair<string,std::vector<int>>> vec;
 	std::copy(resMap.begin(),resMap.end(),std::back_inserter<std::vector<pair<string,std::vector<int>>>>(vec));
-
+	
+	
+	
 	//update error num and sum
 	for (auto &pair: vec) {
 		int errNum=0;
@@ -109,24 +106,43 @@ void printResults(){
 		pair.second[1]=errNum;
 	}
 	//sort
+
+cout << "before sorting .."<<endl;
+for (auto &pair: vec) {
+		auto vector1=pair.second;
+		cout<<"<";
+		for(auto& n : vector1){
+			cout<<n<<",";
+		}
+		cout<<">"<<endl;
+
+	}
+
+	
 	std::sort(vec.begin(), vec.end(),
 			[](pair<string,std::vector<int>>& l, pair<string,std::vector<int>>& r) {
-				if(l.second[1]<r.second[1]){
-					return l.second > r.second;
-				}
-				if(l.second[1]>r.second[1]){
-					return l.second < r.second;
+				cout<<"l.second[1]!=r.second[1] ??"<<endl;
+				if(l.second[1]!=r.second[1]){
+					cout<<" yes"<<l.second[1]<<" < "<<r.second[1] <<endl;
+					return l.second[1]<r.second[1];
 				}
 				//equals
-				if(l.second[0]<r.second[0]){
-					return l.second > r.second;
-	
-				}
-					return l.second < r.second;
-	
+				cout<<" no"<<l.second[0]<<" < "<<r.second[0] <<endl;
 
-
+				return l.second[0]<r.second[0];
 			});
+cout << "after sorting .."<<endl;
+for (auto &pair: vec) {
+		auto vector1=pair.second;
+		cout<<"<";
+		for(auto& n : vector1){
+			cout<<n<<",";
+		}
+		cout<<">"<<endl;
+
+	}
+
+
 
 	for (auto pair: vec) {
 		
@@ -148,6 +164,7 @@ int sizeOfArray(Container *array) {
 
 int getNumOfInstructions(string** instructions){
 	int opreations=0;
+	if(instructions==NULL){return -1;}
 	for(int i=0;instructions[i][0]!="last";i++){
 		string * array=instructions[i];
 		if(array[0]!="R"){
@@ -619,17 +636,15 @@ string travelName=travelAlgoPair.first;
 
 /******************START in this section we initiate the registrar and get the algorithms*********************/
 //new implemntation using algo regestrar
-	int flag=1;
+	
 	auto& registrar = AlgorithmRegistrar::getInstance();
-
     	/******************END initiate the registrar and get the algorithms*********************/
 
-	if(flag){
+	
 	//adding the travel to the queue
 {	
 	std::lock_guard<std::mutex> lck2 (mtx);
 	travelQueue.push(travelName);
-	travelNum++;
 }
 	cout << endl<<endl<<"#==#==#==#==#==#==#==#NEW_TRAVEL = "<<travelName<< " with "<<travelAlgoPair.second<<"#==#==#==#==#==#==#==#"<<endl<<endl;
 	//for each algorithm :
@@ -649,12 +664,14 @@ string travelName=travelAlgoPair.first;
 			cout<<"	continue" <<endl;
 			AlgoIndex--;
 			continue;
-		}	
+		}
+		AlgoIndex--;	
 		string algoName=travelAlgoPair.second;
 		if(algoName == "")
 			continue;
 		
 		{
+
 		std::lock_guard<std::mutex> lck (mtx);
 		algoVector.push_back(travelAlgoPair.second);
 		}
@@ -707,12 +724,14 @@ string travelName=travelAlgoPair.first;
 
 		//make directory
 		string makeDir=output+"/"+algoName+"_"+travelName+"_crane_instructions";
+
 		const char *cstr = makeDir.c_str();
 		int err= mkdir (cstr,0777);
 		if(err){	
 		std::cout << "ERROR[3][1]- can't make dir with name : "<<makeDir<<std::endl; 
 		}
-		int firstTiem=1;
+		//int firstTiem=1;
+cout << "itration : "<< AlgoIndex << "to "<<makeDir<<endl;
 		for(int routeIndex = 0; routeIndex < routeSize ; routeIndex++ ){
 
 		string FileNameCarge=getCargoFileName(routeIndex,true,route);
@@ -740,7 +759,11 @@ string travelName=travelAlgoPair.first;
 		}
 		fillShipMap(input,ship);
 		try{
+		cout <<"makdir = "<<makeDir+"/"+FileNameInstruction<<"  ("<<travelAlgoPair.first<<","<<travelAlgoPair.second<< ") = "<<endl;
+		{
+		std::lock_guard<std::mutex> lck (mtx);
 		err=algo->getInstructionsForCargo(input,makeDir+"/"+FileNameInstruction);
+		}
 		}catch(...){
 			handleError(output,"Simulator","ERROR : "+algoName+" throws an exception by calling getInstructionsForCargo(stop the simulation on this algorithm/travel pair)");
 			continue;		
@@ -772,6 +795,8 @@ string travelName=travelAlgoPair.first;
 				numOfInstructions=getNumOfLines(fd_info);//get container size
 				err=0;
 				Port* ports=getPortsFromRoute(route,routeSize);
+cout <<"number of instructions in "<<ports[routeIndex].toString()<<"  ("<<travelAlgoPair.first<<","<<travelAlgoPair.second<< ") = "<< numOfInstructions<<endl<<endl;
+		
 				 err= validateAlgorithm(instructions, ports[routeIndex], ship, ports, routeIndex);
 				if(err==0 && routeIndex ==routeSize-1 && !(ship->planMap->empty())){
 					//ship must be empty
@@ -794,7 +819,7 @@ string travelName=travelAlgoPair.first;
 			//results parsing 
 			auto isThere=resMap.find(algoName);
 
-			if(isThere==resMap.end()){
+			/*if(isThere==resMap.end()){
 			//add algo to the map
 
 			{
@@ -806,12 +831,12 @@ string travelName=travelAlgoPair.first;
 				resMap[travelAlgoPair.second]=v;
 			}
 		
-		}
+		}*/
 			numOfInstructions=getNumOfInstructions(instructions);
 		
 		{
 			std::lock_guard<std::mutex> lck (mtx);
-			if(firstTiem==1){
+			/*if(firstTiem==1){
 				
 					isThere=resMap.find(travelAlgoPair.second);
 					(isThere->second).resize(travelNum+2);
@@ -819,11 +844,19 @@ string travelName=travelAlgoPair.first;
 					(isThere->second).push_back(0);
 					firstTiem=0;
 				
+			}*/
+			int travelNum=0;
+			for(auto it=travelVector.begin();it!=travelVector.end();it++){
+				if((*it)==travelAlgoPair.first){
+					break;
+				}
+				travelNum++;
 			}
-			if(err!=0 || (isThere->second)[travelNum+1]<0){
-				(isThere->second)[travelNum+1]=-1;
+			
+			if(err!=0 || (isThere->second)[travelNum+2]<0){
+				(isThere->second)[travelNum+2]=-1;
 			}else{
-					(isThere->second)[travelNum+1]+=numOfInstructions;
+					(isThere->second)[travelNum+2]+=numOfInstructions;
 			}
 		}
 			}
@@ -831,12 +864,17 @@ string travelName=travelAlgoPair.first;
 /********************END preaparing the results*************/
 		
 		}	
-	}
+	
 
 	return SUCCESS;
 	
 }
-
+void initResMap(){
+	for(auto it=algoVector.begin();it!=algoVector.end();it++){
+			std::vector<int> v(travelVector.size()+2, 0);
+			resMap[(*it)]=v;
+	}	
+}
 int pairingTravelAlgo(DIR* fd){
 	struct dirent *entry;
 	string travelPath;
@@ -892,7 +930,7 @@ int pairingTravelAlgo(DIR* fd){
 			travelAlgoPairs.push_back(std::make_pair(travelVector[i],algoVector[j]));
 		}
 	}
-
+	initResMap();
 	return 0;
 }
 
@@ -969,37 +1007,6 @@ int getFromCommandLine(char *argv[],int argc,string& travel_path,string& algorit
 	return SUCCESS;
 }
 
-/*   sample   */
-void ExecuteThread(int id){
-    // Get current time
-    auto nowTime = std::chrono::system_clock::now(); 
-    
-    // Convert to a time we can output
-    std::time_t sleepTime = 
-            std::chrono::system_clock::to_time_t(nowTime);
-    
-    // Convert to current time zone
-    tm myLocalTime = *localtime(&sleepTime);
-    
-    // Print full time information
-    std::cout << "Thread " << id << 
-            " Sleep Time : " <<
-            std::ctime(&sleepTime) << "\n";
-    
-    // Get separate pieces
-    std::cout << "Seconds : " <<
-            myLocalTime.tm_sec << "\n\n";
-    
-    // Put the thread to sleep for up to 3 seconds
-    std::this_thread::sleep_for (std::chrono::seconds(GetRandom(3)));
-    nowTime = std::chrono::system_clock::now();
-    sleepTime = 
-            std::chrono::system_clock::to_time_t(nowTime);
-    std::cout << "Thread " << id << 
-            " Awake Time : " <<
-            std::ctime(&sleepTime) << "\n";
-    
-}
 /*--------------EXECUTER-------------*/
 
 
