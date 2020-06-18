@@ -122,7 +122,11 @@ public:
 
 		rejectWhatLeft();
 		}
-		fillInstructions(Action::REJECT, "last", "last", "last", "last", "last", "last", "last");
+/*
+cout<<"aa, aa, aa, "<<output_full_path_and_file_name<<endl;
+fillInstructions(Action::REJECT, "aa", "aa", "aa", "output_full_path_and_file_name");
+*/
+		fillInstructions(Action::REJECT, "last", "last", "last", "last","","","");
 		instructionsOut(currentInstructions,output_full_path_and_file_name);
 		this->instNum = 0;
 		this->routeIndex++;
@@ -130,8 +134,8 @@ public:
 	}
 
 	
-	void fillInstructions(Action LUR, std::string uniqueId, std::string height, std::string row, std::string column, std::string moveToHeight, std::string moveToRow, std::string  moveToColumn) {
-		currentInstructions[instNum] = new std::string[5];
+	void fillInstructions(Action LUR, std::string uniqueId, std::string height, std::string row,std::string column, std::string moveToHeight, std::string moveToRow, std::string  moveToColumn) {
+		currentInstructions[instNum] = new std::string[8];
 		currentInstructions[instNum][0] =  uniqueId;
 		currentInstructions[instNum][1] =std::string(1,(char)LUR);
 		currentInstructions[instNum][2] = height;
@@ -149,45 +153,55 @@ public:
 			rejectedNotInRoute.clear();
 	
 	}
-	//loading for sure 
-	void loadAgain(node *temp){
-		int error=0;
-		Crane crane = Crane(this->ship);
-		for (int row = 0; row < ship->shipWidth; row++) {	// for each row
-			for (int column = 0; column < ship->shipLength; column++) {	// for each column
-				if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
+//loading for sure 
+void loadAgain(node *temp){
+	int error=0;
+	Crane crane = Crane(this->ship);
+	for (int row = 0; row < ship->shipWidth; row++) {	// for each row
+		for (int column = 0; column < ship->shipLength; column++) {	// for each column
+			if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
 					error = error | CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,temp->container->uniqueId);
-					if (error == 0) {
-						crane.load(temp->container, row,column,this->ship->planLinkedList[row][column].size);	// load it
-						fillInstructions(Action::LOAD, temp->container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size-1)), std::to_string(row), std::to_string(column),"","","");	// edit instructions
+						if (error == 0) {
+							crane.load(temp->container, row,column,this->ship->planLinkedList[row][column].size);	// load it
+							fillInstructions(Action::LOAD, temp->container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size-1)), std::to_string(row), std::to_string(column),"","","");	// edit instructions
+							}
 					}
 				}
 			}
 		}
+
+bool shipNotFull(int indx1, int indx2, int &moveToRow,int &moveToColumn,int &moveToHeight){
+	for (int row = 0; row < ship->shipWidth; row++) {	// for each row
+		for (int column = 0; column < ship->shipLength; column++) {	// for each column
+			if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && indx1!=row && indx2!=column) {		// check if we are below height limit and balanced
+				moveToRow = row;
+				moveToColumn = column;
+				moveToHeight = ship->planLinkedList[row][column].size;
+				return true;
+			}
+		}
 	}
+	return false;
+}
 
 	// the logic for unloading the containers to a port
 	int unloadingAlgo(int i) {
-		int error = 0, previousHeight;
-		bool popAllAbove, popBottomUp; // true if we're popping a container from a stack and we need to pop all above it
+		int error = 0;
+		bool popAllAbove; // true if we're popping a container from a stack and we need to pop all above it
 		struct node *currentContainer;
 		std::string* indxes;
 		int totalPoped=0;
-		string unloadBottomContainer;
 		Crane crane = Crane(this->ship);
-		Container* loadThisContainer = new Container[1];
 		for (int row = 0; row < ship->shipWidth; row++) {
 			for (int column = 0; column < ship->shipLength; column++) {
-				unloadBottomContainer = "";
+			totalPoped=0;
 				if (this->ship->planLinkedList[row][column].size == 0) {
 					continue;
 				}
-				totalPoped=0;
-				popBottomUp = true;
 				popAllAbove = false;
 				cellLinkedList list=ship->planLinkedList[row][column];
 				currentContainer = list.linkedList;
-				while(currentContainer !=NULL && popBottomUp) {		// starting from the bottom !!!
+				while(currentContainer !=NULL) {		// starting from the bottom !!!
 					if (currentContainer->container->destPort.toString() == route[i].toString()) {// does ship container belong to ship port?
 						int *dimensions = ship->planMap->find(currentContainer->container->uniqueId)->second;
 						int flag =  CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]);
@@ -204,61 +218,27 @@ public:
 						}
 					} else {	// ship container does NOT belong to ship port
 						if (popAllAbove) {	// but should I put it in temp?
-							if(this->ship->planLinkedList[row][column].size > CraneTester::getCapacity(this->ship)){
+							int *dimensions = ship->planMap->find(currentContainer->container->uniqueId)->second;
+							error = error | CraneTester::isValidUnload(row, column, dimensions[0], dimensions[1]);
+							if (error == 0) {
 								int *dimensions = ship->planMap->find(currentContainer->container->uniqueId)->second;
-								error = error | CraneTester::isValidUnload(row, column, dimensions[0], dimensions[1]);
-								if (error == 0) {
-									node *temp = crane.unload(*(currentContainer->container),row,column,this->ship->planLinkedList[row][column].size);
-									currentContainer = temp->next;
-									tempContainers.push_front(temp);
-									indxes=new std::string[3];
-									indxes[0]=std::to_string(row);indxes[1]=std::to_string(column);indxes[2]=std::to_string(dimensions[2]);
-									indexies.push_front(indxes);
-									totalPoped++;
-									//cout<<"	*)"<<temp->container->uniqueId<< " // poped with indexes "<<  indxes[2]<<","<<  indxes[0]<<","<<  indxes[1]<<endl;
-								}
-							}
-							else{
-								popBottomUp = false;
-								unloadBottomContainer = currentContainer->container->uniqueId;
+
+								node *temp = crane.unload(*(currentContainer->container),row,column,this->ship->planLinkedList[row][column].size);
+								currentContainer = temp->next;
+								tempContainers.push_front(temp);
+								indxes=new std::string[3];
+								indxes[0]=std::to_string(row);indxes[1]=std::to_string(column);indxes[2]=std::to_string(dimensions[2]);
+								indexies.push_front(indxes);
+								totalPoped++;
+								//cout<<"	*)"<<temp->container->uniqueId<< " // poped with indexes "<<  indxes[2]<<","<<  indxes[0]<<","<<  indxes[1]<<endl;
+
 							}
 						}
 					}
 					if(!popAllAbove && currentContainer!=NULL){
 					currentContainer =currentContainer->next;}
 				}
-				// MOVE
-				if(!popBottomUp){
-					// currentContainer = top container
-					while(currentContainer->next->container->uniqueId != "last"){
-						currentContainer = currentContainer->next;
-					}
-					while(currentContainer->container->uniqueId!=unloadBottomContainer){
-						loadThisContainer[0]=*currentContainer->container;
-						// unload
-						int *dimensions = ship->planMap->find(currentContainer->container->uniqueId)->second;
-						previousHeight = dimensions[2];
-						if (CraneTester::isValidUnload(row, column,dimensions[0], dimensions[1]) == 0) {
-							node *temp = crane.unload(*(currentContainer->container),row, column,this->ship->planLinkedList[row][column].size);
-							std::cout << temp->container->uniqueId;
-						}
-						// load
-						error+=loadingAlgo(loadThisContainer,weightBalance);
-						// fill instructions
-						fillInstructions(Action::MOVE,currentContainer->container->uniqueId
-							,std::to_string(previousHeight)
-							,std::to_string(row)
-							,std::to_string(column)
-							,std::to_string(ship->planMap->find(currentContainer->container->uniqueId)->second[2])
-							,std::to_string(ship->planMap->find(currentContainer->container->uniqueId)->second[0])
-							,std::to_string(ship->planMap->find(currentContainer->container->uniqueId)->second[1]));
-						// currentContainer = top container
-						currentContainer = list.linkedList;
-						while(currentContainer->next->container->uniqueId != "last"){
-							currentContainer = currentContainer->next;
-						}
-					}
-				}
+
 				this->ship->planLinkedList[row][column].size-=totalPoped;
 				// loading containers from temp back to ship
 				node *popedElem;
@@ -270,15 +250,22 @@ public:
 					tempContainers.pop_front();
 					std::string dstPort = popedElem->container->destPort.toString();
 		//cout<<"		-*-*-*unloading "<<popedElem->container->uniqueId<<endl;
-					fillInstructions(Action::UNLOAD, popedElem->container->uniqueId, indx[2], indx[0], indx[1],"","","");
 					if (dstPort.compare(route[i].toString()) == 0) {
+						fillInstructions(Action::UNLOAD, popedElem->container->uniqueId, indx[2], indx[0], indx[1],"","","");
 						delete popedElem;
 						delete[] indx;
 					} else {
-		//cout<<"		-*-*-*to load back  "<<popedElem->container->uniqueId<<endl;
-						//add all the cargo that was temporary unloaded to the loadBackContainers queue
-						loadBackContainers.push_front(popedElem);
-						indexies.push_back(indx);
+						int moveToRow, moveToColumn, moveToHeight;
+						Crane crane = Crane(this->ship);
+						if(shipNotFull(std::stoi(indx[0]),std::stoi(indx[1]),moveToRow,moveToColumn,moveToHeight)){
+							crane.load(popedElem->container,moveToRow,moveToColumn,moveToHeight);
+							fillInstructions(Action::MOVE,popedElem->container->uniqueId,indx[2],indx[0],indx[1],to_string(moveToHeight),to_string(moveToRow),to_string(moveToColumn));
+						}
+						else{
+							fillInstructions(Action::UNLOAD, popedElem->container->uniqueId, indx[2], indx[0], indx[1],"","","");
+							loadBackContainers.push_front(popedElem);
+							indexies.push_back(indx);
+						}
 					}
 				}
 	}
@@ -296,7 +283,13 @@ public:
 					/*crane.load(popedElem->container, row, column,this->ship->planLinkedList[row][column].size);*/
 					delete popedElem;
 					delete[] indx;
+
+
 				}
+
+		
+	
+
 		return error;
 	}
 
@@ -326,9 +319,10 @@ public:
 			}
 			if (is_regected== 0) {	// if its not rejected
 				//cout<<"***** NOT ! rejected"<<endl;
+for (int column = 0; column < ship->shipLength; column++) {	// for each column
+
 				for (int row = 0; row < ship->shipWidth; row++) {	// for each row
-					for (int column = 0; column < ship->shipLength; column++) {	// for each column
-						if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
+											if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
 							is_regected=CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId);
 							if (is_regected== 0) {
 								crane.load(currentContainer.container, row,column,this->ship->planLinkedList[row][column].size);	// load it

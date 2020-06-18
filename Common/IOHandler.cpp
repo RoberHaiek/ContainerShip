@@ -78,7 +78,11 @@ int instructionsOut(string** instructions,string outName){
 	while(instructions[instIndex][2].compare("last")!=0){
 		//uid,L/R/U,row,column,height
 		//cout<<"the instruction : "<<instructions[instIndex][0]<<","<<instructions[instIndex][1]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4]<<endl;
-		fd_info<< instructions[instIndex][1]<<","<<instructions[instIndex][0]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4]<<","<<instructions[instIndex][5]<<","<<instructions[instIndex][6]<<","<<instructions[instIndex][7];
+		if(instructions[instIndex][1].compare("M")!=0){
+			fd_info<< instructions[instIndex][1]<<","<<instructions[instIndex][0]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4];
+		}else{
+			fd_info<< instructions[instIndex][1]<<","<<instructions[instIndex][0]<<","<<instructions[instIndex][2]<<","<<instructions[instIndex][3]<<","<<instructions[instIndex][4]<<","<<instructions[instIndex][5]<<","<<instructions[instIndex][6]<<","<<instructions[instIndex][7];
+		}
 		instIndex++;
 
 		if(instructions[instIndex][2].compare("last")!=0){
