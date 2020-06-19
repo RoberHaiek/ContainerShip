@@ -1,11 +1,8 @@
-Link to ex1
-Link to ex2
-
 How to use
-Run the following command from ContainerShip simulator -travel_path ../TRAVELS/ -algorithm_path ../algorithm/ -output ../output/
-after you make.
+make
+Then run the following command from ContainerShip simulator -travel_path ../TRAVELS/ -algorithm_path ../algorithm/ -output ../output/ -num_threads x
 
-Container ship – Design
+Container ship â€“ Design
 Classes, fields and data structures:
 1- Ship
 Constructor: Ship(int width, int length, int height)  
@@ -38,7 +35,7 @@ Constructor: Crane(Ship ship)
     a- Ship ship - the ship on which the crane operates on
 5- CraneTester // tests the laods/unloads validity
 6- _205962657_a // the algorithm a
-7- _205962657_a // the algorithm b
+7- _205962657_b // the algorithm b
 
 7- StowageTester // tests if a container's destPort is in route or not
 8- Simulator // runs the stowage
