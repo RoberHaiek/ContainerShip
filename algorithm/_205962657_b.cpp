@@ -148,6 +148,7 @@ fillInstructions(Action::REJECT, "aa", "aa", "aa", "output_full_path_and_file_na
 	}
 	void rejectWhatLeft(){
 		for(auto it=rejectedNotInRoute.begin();it!=rejectedNotInRoute.end();it++){
+			cout<<"I'm here madaaa faakaaaa "<< it->uniqueId<<endl; 
 			fillInstructions(Action::REJECT, it->uniqueId,"-1", "-1", "-1","","","");			
 		}
 			rejectedNotInRoute.clear();
@@ -164,7 +165,7 @@ void loadAgain(node *temp){
 						if (error == 0) {
 							crane.load(temp->container, row,column,this->ship->planLinkedList[row][column].size);	// load it
 							fillInstructions(Action::LOAD, temp->container->uniqueId, std::to_string((this->ship->planLinkedList[row][column].size-1)), std::to_string(row), std::to_string(column),"","","");	// edit instructions
-							}
+						}
 					}
 				}
 			}
@@ -173,7 +174,10 @@ void loadAgain(node *temp){
 bool shipNotFull(int indx1, int indx2, int &moveToRow,int &moveToColumn,int &moveToHeight){
 	for (int row = 0; row < ship->shipWidth; row++) {	// for each row
 		for (int column = 0; column < ship->shipLength; column++) {	// for each column
-			if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && indx1!=row && indx2!=column) {		// check if we are below height limit and balanced
+			cout << "if " << row << ", " << column << " <=  " << ship->planLinkedList[row][column].maxHeight << " && "<< indx1 << ", " << indx2 << endl;
+			cout << (ship->planLinkedList[row][column].size<=ship->planLinkedList[row][column].maxHeight) << ", " <<(indx1!=row)<< ", " <<(indx2!=column)<< endl;
+			if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight && (indx1!=row || indx2!=column)) {		// check if we are below height limit and balanced
+				cout << row << ", " << column << endl;
 				moveToRow = row;
 				moveToColumn = column;
 				moveToHeight = ship->planLinkedList[row][column].size;
@@ -260,6 +264,8 @@ bool shipNotFull(int indx1, int indx2, int &moveToRow,int &moveToColumn,int &mov
 						if(shipNotFull(std::stoi(indx[0]),std::stoi(indx[1]),moveToRow,moveToColumn,moveToHeight)){
 							crane.load(popedElem->container,moveToRow,moveToColumn,moveToHeight);
 							fillInstructions(Action::MOVE,popedElem->container->uniqueId,indx[2],indx[0],indx[1],to_string(moveToHeight),to_string(moveToRow),to_string(moveToColumn));
+							delete popedElem;
+							delete[] indx;
 						}
 						else{
 							fillInstructions(Action::UNLOAD, popedElem->container->uniqueId, indx[2], indx[0], indx[1],"","","");
@@ -319,10 +325,9 @@ bool shipNotFull(int indx1, int indx2, int &moveToRow,int &moveToColumn,int &mov
 			}
 			if (is_regected== 0) {	// if its not rejected
 				//cout<<"***** NOT ! rejected"<<endl;
-for (int column = 0; column < ship->shipLength; column++) {	// for each column
-
+			for (int column = 0; column < ship->shipLength; column++) {	// for each column
 				for (int row = 0; row < ship->shipWidth; row++) {	// for each row
-											if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
+						if (ship->planLinkedList[row][column].size <= ship->planLinkedList[row][column].maxHeight-1 && weightBalance()) {		// check if we are below height limit and balanced
 							is_regected=CraneTester::isValidLoad(row, column, this->ship->planLinkedList[row][column].size, ship->shipWidth, ship->shipLength, this->ship->planLinkedList[row][column].maxHeight, ship->planMap,currentContainer.container->uniqueId);
 							if (is_regected== 0) {
 								crane.load(currentContainer.container, row,column,this->ship->planLinkedList[row][column].size);	// load it
@@ -362,7 +367,7 @@ void printTestResults(node  currentContainer){
 
 // rejection test
 	int isRejected(node currentContainer) {
-		//printTestResults(currentContainer);
+		printTestResults(currentContainer);
 		int error = 0;
 		int rejectFlag=0;
 		int tmpError=0;
