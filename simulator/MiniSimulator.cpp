@@ -168,7 +168,11 @@ int getNumOfInstructions(string** instructions){
 	for(int i=0;instructions[i][0]!="last";i++){
 		string * array=instructions[i];
 		if(array[0]!="R"){
-			opreations++;
+			if(array[0]=="M"){
+			opreations+=3;
+			}else{
+			opreations+=5;
+			}
 		}
 	}
 	return opreations;
@@ -326,7 +330,27 @@ cout<< " in move section with "<<currentContainer.container->uniqueId<<","<<floo
 				
 			}
 			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
-		
+			cout<< "the deminsions is : "<< dimensions[0]<<","<< dimensions[1]<<","
+<< dimensions[2]<<endl;
+cout<< "the instruction is : "<< currentInstructions[i][2]<<","<< currentInstructions[i][3]<<","
+<< currentInstructions[i][4]<<endl;
+int z=0,x=0,y=0;
+try{
+	 z = std::stoi(currentInstructions[i][2]);
+			 x = std::stoi(currentInstructions[i][3]);
+			y = std::stoi(currentInstructions[i][4]);
+}catch(...){
+	cout<< "ERROR: one of the deiminsions provided is not integer" <<endl;
+	return -1;}
+
+
+
+			if(dimensions[0]!=x ||dimensions[1]!=y||dimensions[2]!=z){
+				std::cout << "Illegal algorithm dimensions : unloading the container with other indexies "<< endl;
+			
+				return -1;
+	
+			}
 			error =CraneTester::isValidUnloadSimulation(row, column,dimensions[0], dimensions[1],dimensions[2],ship,currentContainer.container);
 			// Can we unload legally?
 			if (error == 0) {
@@ -357,7 +381,7 @@ cout<< " after move --> unload section with "<<currentContainer.container->uniqu
 				// Was the load valid?
 				if(error == 0){
 cout <<"in move loading ...." << endl;
-					crane.load(currentContainer.container, row,column,floor+1);
+					crane.load(currentContainer.container, row,column,floor);
 cout<< " after move --> load section with "<<currentContainer.container->uniqueId<<","<<floor<<","<<row<<","<<column<<endl;
 			for(auto it = ship->planMap->begin();
     it != ship->planMap->end(); ++it){		std::cout << "{" << it->first << ": " << it->second[0]<<","<<it->second[1]<<","<<it->second[2]<< "}\n";
@@ -413,6 +437,24 @@ cout<< "  unload section with "<<currentContainer.container->uniqueId<<","<<floo
 				return -1;//the unloaded container not on the ship
 			}
 			int *dimensions = ship->planMap->find(currentContainer.container->uniqueId)->second;
+int z=0,x=0,y=0;
+try{
+	 z = std::stoi(currentInstructions[i][2]);
+			 x = std::stoi(currentInstructions[i][3]);
+			y = std::stoi(currentInstructions[i][4]);
+}catch(...){
+	cout<< "ERROR: one of the deiminsions provided is not integer" <<endl;
+	return -1;}
+
+
+
+			if(dimensions[0]!=x ||dimensions[1]!=y||dimensions[2]!=z){
+				std::cout << "Illegal algorithm dimensions : unloading the container with other indexies "<< endl;
+			
+				return -1;
+	
+			}
+
 		
 			error =CraneTester::isValidUnloadSimulation(row, column,dimensions[0], dimensions[1],dimensions[2],ship,currentContainer.container);
 			// Can we unload legally?
