@@ -160,7 +160,11 @@ Container* parseCargoFile(string fileName){
 				throw((int)ErrorID::ContainersIDCannotBeRead);
 			}
 			getElem(line,seek,',',parse_out);
-			containerWeight=std::stoi(parse_out); // get length
+			try{
+				containerWeight=std::stoi(parse_out); // get length
+			}catch(...){
+				throw ((int)ErrorID::ContainersMissingOrBadWeight);
+			}
 			if(parse_out=="" || containerWeight<0){
 				throw ((int)ErrorID::ContainersMissingOrBadWeight);
 			}
