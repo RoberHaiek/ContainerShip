@@ -1215,7 +1215,7 @@ public:
 };
 
 
-/* argv[1] will be the path of the workspace(IO-Files)*/
+/* argv[1] will be the path of the workspace(IO-Files)
 //[1]
 int main(int argc, char *argv[]) {
 	DIR *fd_path;
@@ -1285,4 +1285,4 @@ int main(int argc, char *argv[]) {
 	cout << "Done! - ";
 	return 0;
 }
-
+*/
