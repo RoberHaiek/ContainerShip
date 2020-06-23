@@ -1,6 +1,12 @@
-roberhaiek 205962657
+// roberhaiek 205962657
 
-using namespace shipping;
+#include<vector>
+#include <unordered_map>
+#include <map>
+#include <utility>
+#include <functional>
+
+// using namespace shipping;
 
 template<typename T>
 class Named {
@@ -22,21 +28,30 @@ class Height: public Named<int> {
     using Named<int>::Named;
 };
 
-// a grouping unordered map, key is string, value is function that returns string: f(container) = container's_group (grouping can be according to destPort, owner, weight, etc...)
+// a grouping unordered map, key is a string representing the grouping, value is function that receives a const container and returns a string representing the group name: 
+// <group, f(group) = container's_group> (grouping can be according to destPort, owner, weight, etc...)
 template<typename Container>
-using Grouping = std::unordered_map<std::string, std::function<string(const Container&)>>;
+using Grouping = std::unordered_map<std::string, std::function<std::string(const Container&)>>;
 
 template<typename Container>
 class Ship {
+public:
+	int x;
+	int y;
+	Container*** containers;	// contains all the containers as 3D array [row][column][floor]
+	std::vector<Container> containerIter;	// contains all the containers unordered
+	std::map<std::pair<X,Y>,std::pair<int,int>> rowColumn_maxheightSize;	// <(X,Y),(max_height,size)>
+	std::map<std::pair<X,Y>,std::vector<Container>>	xyContainers;	// <(X,Y),<containers in (X,Y)>>
 
-	X x;
-	Y y;
-	Container*** containers;
-	std::map<std::pair<X,Y>,std::pair<int,int>> rowColumn_maxheightSize;
+	typedef decltype(containerIter)::const_iterator const_iterator;
+
+	inline const_iterator begin() const { return containerIter.begin(); }
+
+	inline const_iterator end() const { return containerIter.end(); }
 
 	void handleRestrictions(std::vector<std::tuple<X, Y, Height>> restrictions){
 		for(int i=0;i<restrictions.size();i++){
-			rowColumn_maxheightSize->insert_or_assign(std::pair<X,Y>(std::get<0>(restrictions[i]),std::get<1>(restrictions[i])),std::pair<Height,int>(std::get<2>(restrictions[i]),0));
+			rowColumn_maxheightSize.insert_or_assign(std::pair<X,Y>(std::get<0>(restrictions[i]),std::get<1>(restrictions[i])),std::pair<Height,int>(std::get<2>(restrictions[i]),0));
 		}
 	}
 
@@ -54,11 +69,13 @@ class Ship {
 	}
 
 	Ship(X x, Y y, Height max_height) noexcept{
+		this->x=x;
+		this->y=y;
 		containers = new Container**[x];
 		for (int i=0;i<x;i++){
 			containers[i] = new Container*[y];
 			for(int j=0;j<y;j++){
-				rowColumn_maxheightSize->insert(std::pair<X,Y>(i,j),std::pair<Height,int>(max_height,0));
+				rowColumn_maxheightSize.insert_or_assign(std::pair<X,Y>(x,y),std::pair<Height,int>(max_height,0));
 				containers[i][j] = new Container[max_height];
 			}
 		}
@@ -66,16 +83,26 @@ class Ship {
 
 	// these 3 methods may return BadShipOperationException
 	void load(X x, Y y, Container c) noexcept(false){
-		int size = (rowColumn_maxheightSize->find(std::pair<X,Y>(x,y))).second+1;
-		int max_height = (rowColumn_maxheightSize->find(std::pair<X,Y>(x,y))).first;
+		int size = (rowColumn_maxheightSize.find(std::pair<X,Y>(x,y)))->second.second+1;
+		int max_height = (rowColumn_maxheightSize.find(std::pair<X,Y>(x,y)))->second.first;
 		containers[x][y][size-1] = c;
-		rowColumn_maxheightSize->insert_or_assign(std::pair<X,Y>(x,y),std::pair<Height,int>(max_height,size));
+		rowColumn_maxheightSize.insert_or_assign(std::pair<X,Y>(x,y),std::pair<Height,int>(max_height,size));
+		containerIter.push_back(c);
+		(xyContainers.find(std::pair<X,Y>(x,y)))->second.push_back(c);
 	}
 
 	Container unload(X x, Y y) noexcept(false){ 
-		int size = (rowColumn_maxheightSize->find(std::pair<X,Y>(x,y))).second-1;
-		int max_height = (rowColumn_maxheightSize->find(std::pair<X,Y>(x,y))).first;
-		rowColumn_maxheightSize->insert_or_assign(std::pair<X,Y>(x,y),std::pair<Height,int>(max_height,size));
+		int size = (rowColumn_maxheightSize.find(std::pair<X,Y>(x,y)))->second.second-1;
+		int max_height = (rowColumn_maxheightSize.find(std::pair<X,Y>(x,y)))->second.first;
+		rowColumn_maxheightSize.insert_or_assign(std::pair<X,Y>(x,y),std::pair<Height,int>(max_height,size));
+		for(int i=0;i<size;i++){
+			if(containerIter[i]==containers[x][y][size]){
+				containerIter.erase(containerIter.begin()+i);
+			}
+			if((xyContainers.find(std::pair<X,Y>(x,y)))->second[i] == containers[x][y][size]){
+				(xyContainers.find(std::pair<X,Y>(x,y)))->second.erase((xyContainers.find(std::pair<X,Y>(x,y)))->second.begin()+i);
+			}
+		}
 		return containers[x][y][size];
 	}
 
@@ -83,12 +110,12 @@ class Ship {
 		load(to_x,to_y,unload(from_x,from_y));
 	}
 
-	getContainersViewByPosition(X x, Y y) const;
+	std::vector<Container> getContainersViewByPosition(X x, Y y) const{
+		return xyContainers.find(std::pair<X,Y>(x,y));
+	}
 
-	getContainersViewByGroup(const string& groupingName, const string& groupName) const;
+	// getContainersViewByGroup(const std::string& groupingName, const std::string& groupName) const;
 
-	BadShipOperationException(string msg);
+	// BadShipOperationException(string msg);
 
-	Container operator++(){ c++; return containers[c]; }
-
-}
+};
