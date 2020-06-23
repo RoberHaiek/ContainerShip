@@ -9,6 +9,13 @@
 using namespace std;
 
 // using namespace shipping;
+struct BadShipOperationException {
+public:
+	std::string error;
+	BadShipOperationException(std::string msg) :error(msg) {}
+	const std::string errorMsg() { return error; }
+	void printMsg() { std::cout << error << std::endl; }
+};
 
 template<typename T>
 class Named {
@@ -90,6 +97,9 @@ public:
 
 	// these 3 methods may return BadShipOperationException
 	void load(X x, Y y, Container c) noexcept(false){
+		if (x >= this->x || y >= this->y) {
+			throw BadShipOperationException("WRONG LOADING");
+		}
 		std::pair<X, Y> b(x, y);
 		if (rowColumn_maxheightSize.find(b) != rowColumn_maxheightSize.end()) {
 			std::pair<int, int> a = (rowColumn_maxheightSize.find(b))->second;
@@ -103,6 +113,9 @@ public:
 	}
 
 	Container unload(X x, Y y) noexcept(false){ 
+		if (x >= this->x || y >= this->y) {
+			throw BadShipOperationException("WRONG UNLOADING");
+		}
 		std::pair<X, Y> b(x, y);
 		int size = 0;
 		if (rowColumn_maxheightSize.find(b) != rowColumn_maxheightSize.end()) {
@@ -123,15 +136,16 @@ public:
 	}
 
 	void move(X from_x, Y from_y, X to_x, Y to_y) noexcept(false){
+		if (from_x >= this->x || from_y >= this->y || to_x >= this->x || to_y >= this->y) {
+			throw BadShipOperationException("WRONG MOVING");
+		}
 		load(to_x,to_y,unload(from_x,from_y));
 	}
 
 	std::vector<Container> getContainersViewByPosition(X x, Y y) const{
-		return xyContainers.find(std::pair<X,Y>(x,y));
+		return xyContainers.find(std::pair<X,Y>(x,y))->second;
 	}
 
 	// getContainersViewByGroup(const std::string& groupingName, const std::string& groupName) const;
-
-	// BadShipOperationException(string msg);
 
 };
