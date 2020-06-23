@@ -30,15 +30,15 @@ Run the following command from ContainerShip/Simulator: ./simulator --travel_pat
         a.	Int weight
         b.	Port destPort
         c.	String uniqueId
-### **3-	Port**  
+### **3- Port**//  
     Constructor: Port(string portId)
     Fields:
         a.	String port (5 English letter code)
-### **4- Crane**              // operates on a ship (loads/unloads containers)  
+### **4- Crane**// operates on a ship (loads/unloads containers)  
     Constructor: Crane(Ship ship)
         a- Ship ship - the ship on which the crane operates on
-### **5- CraneTester**        // tests the laods/unloads validity  
-### **6- _205962657_a**          // the algorithm   
+### **5- CraneTester**// tests the laods/unloads validity  
+### **6- _205962657_a**// the algorithm   
    Constructor: Stowage(int i, Ship *ship, Port *route, Container *instructions, bool weightBalance function)
         a- int instNum   // the index of the current instruction to be returned in the end
         b- Ship ship
@@ -47,9 +47,9 @@ Run the following command from ContainerShip/Simulator: ./simulator --travel_pat
         f- string** currentInstructions // the returned instructions in the end:
                                            {container's unique id, "load/unload/reject", row, column, height}
         g- three deque<node*>'s  // to help the containers which are unloaded but need to be loaded back in the same port
-### **7- StowageTester**  // tests if a container's destPort is in route or not  
-### **8- Simulator** // runs the stowage
-### **9- IOHandler** // Handles input/output files
+### **7- StowageTester**// tests if a container's destPort is in route or not  
+### **8- Simulator**// runs the stowage
+### **9- IOHandler**// Handles input/output files
 
 ## **Input/Output:**
 input parameters:
