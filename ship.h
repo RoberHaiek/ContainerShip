@@ -1,10 +1,12 @@
 // roberhaiek 205962657
 
-#include<vector>
+#include <vector>
 #include <unordered_map>
 #include <map>
 #include <utility>
 #include <functional>
+#include <iostream>
+using namespace std;
 
 // using namespace shipping;
 
@@ -43,11 +45,11 @@ public:
 	std::map<std::pair<X,Y>,std::pair<int,int>> rowColumn_maxheightSize;	// <(X,Y),(max_height,size)>
 	std::map<std::pair<X,Y>,std::vector<Container>>	xyContainers;	// <(X,Y),<containers in (X,Y)>>
 
-	typedef decltype(containerIter)::const_iterator const_iterator;
+	// typedef decltype(containerIter)::const_iterator const_iterator;
 
-	inline const_iterator begin() const { return containerIter.begin(); }
+	inline std::vector<Container> begin() const { return containerIter.begin(); }
 
-	inline const_iterator end() const { return containerIter.end(); }
+	inline std::vector<Container> end() const { return containerIter.end(); }
 
 	void handleRestrictions(std::vector<std::tuple<X, Y, Height>> restrictions){
 		for(int i=0;i<restrictions.size();i++){
@@ -75,32 +77,47 @@ public:
 		for (int i=0;i<x;i++){
 			containers[i] = new Container*[y];
 			for(int j=0;j<y;j++){
-				rowColumn_maxheightSize.insert_or_assign(std::pair<X,Y>(x,y),std::pair<Height,int>(max_height,0));
+				rowColumn_maxheightSize.insert_or_assign(std::pair<X,Y>(i,j),std::pair<int,int>((int)max_height,0));
 				containers[i][j] = new Container[max_height];
+				std::vector<Container> temp;
+				xyContainers.insert_or_assign(std::pair<X, Y>(i, j), temp);
 			}
 		}
 	}
 
 	// these 3 methods may return BadShipOperationException
 	void load(X x, Y y, Container c) noexcept(false){
-		int size = (rowColumn_maxheightSize.find(std::pair<X,Y>(x,y)))->second.second+1;
-		int max_height = (rowColumn_maxheightSize.find(std::pair<X,Y>(x,y)))->second.first;
-		containers[x][y][size-1] = c;
-		rowColumn_maxheightSize.insert_or_assign(std::pair<X,Y>(x,y),std::pair<Height,int>(max_height,size));
-		containerIter.push_back(c);
-		(xyContainers.find(std::pair<X,Y>(x,y)))->second.push_back(c);
+		std::pair<X, Y> b(x, y);
+		if (rowColumn_maxheightSize.find(b) != rowColumn_maxheightSize.end()) {
+			std::pair<int, int> a = (rowColumn_maxheightSize.find(b))->second;
+			int size = a.second + 1;
+			int max_height = (rowColumn_maxheightSize.find(std::pair<X, Y>(x, y)))->second.first;
+			containers[x][y][size - 1] = c;
+			rowColumn_maxheightSize.insert_or_assign(std::pair<X, Y>(x, y), std::pair<Height, int>(max_height, size));
+			containerIter.push_back(c);
+			(xyContainers.find(std::pair<X, Y>(x, y)))->second.push_back(c);
+		}
 	}
 
 	Container unload(X x, Y y) noexcept(false){ 
-		int size = (rowColumn_maxheightSize.find(std::pair<X,Y>(x,y)))->second.second-1;
-		int max_height = (rowColumn_maxheightSize.find(std::pair<X,Y>(x,y)))->second.first;
-		rowColumn_maxheightSize.insert_or_assign(std::pair<X,Y>(x,y),std::pair<Height,int>(max_height,size));
-		for(int i=0;i<size;i++){
-			if(containerIter[i]==containers[x][y][size]){
-				containerIter.erase(containerIter.begin()+i);
-			}
-			if((xyContainers.find(std::pair<X,Y>(x,y)))->second[i] == containers[x][y][size]){
-				(xyContainers.find(std::pair<X,Y>(x,y)))->second.erase((xyContainers.find(std::pair<X,Y>(x,y)))->second.begin()+i);
+		std::pair<X, Y> b(x, y);
+		int size = 0;
+		if (rowColumn_maxheightSize.find(b) != rowColumn_maxheightSize.end()) {
+			std::pair<int, int> a = (rowColumn_maxheightSize.find(b))->second;
+			size = a.second;
+			int max_height = (rowColumn_maxheightSize.find(std::pair<X, Y>(x, y)))->second.first;
+			rowColumn_maxheightSize.insert_or_assign(std::pair<X, Y>(x, y), std::pair<Height, int>(max_height, size));
+			std::cout << "line 98" << endl;
+			for (int i = 0; i < size; i++) {
+				std::cout << "line 100" << endl;
+				if (containerIter[i] == containers[x][y][size-1]) {
+					std::cout << "line 102" << endl;
+					containerIter.erase(containerIter.begin() + i);
+				}
+				if ((xyContainers.find(std::pair<X, Y>(x, y)))->second[i] == containers[x][y][size-1]) {
+					std::cout << "line 106" << endl;
+					(xyContainers.find(std::pair<X, Y>(x, y)))->second.erase((xyContainers.find(std::pair<X, Y>(x, y)))->second.begin() + i);
+				}
 			}
 		}
 		return containers[x][y][size];
