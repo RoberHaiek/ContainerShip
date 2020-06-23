@@ -38,18 +38,20 @@ using Grouping = std::unordered_map<std::string, std::function<std::string(const
 template<typename Container>
 class Ship {
 public:
+	typedef typename std::vector<Container>::const_iterator const_iterator;
 	int x;
 	int y;
+	int c;
 	Container*** containers;	// contains all the containers as 3D array [row][column][floor]
 	std::vector<Container> containerIter;	// contains all the containers unordered
 	std::map<std::pair<X,Y>,std::pair<int,int>> rowColumn_maxheightSize;	// <(X,Y),(max_height,size)>
 	std::map<std::pair<X,Y>,std::vector<Container>>	xyContainers;	// <(X,Y),<containers in (X,Y)>>
 
-	// typedef decltype(containerIter)::const_iterator const_iterator;
+	//Ship operator++() { ++c; return containerIter[c]; }
 
-	inline std::vector<Container> begin() const { return containerIter.begin(); }
+	inline const_iterator begin() const { return containerIter.begin(); }
 
-	inline std::vector<Container> end() const { return containerIter.end(); }
+	inline const_iterator end() const { return containerIter.end(); }
 
 	void handleRestrictions(std::vector<std::tuple<X, Y, Height>> restrictions){
 		for(int i=0;i<restrictions.size();i++){
@@ -73,6 +75,7 @@ public:
 	Ship(X x, Y y, Height max_height) noexcept{
 		this->x=x;
 		this->y=y;
+		c = 0;
 		containers = new Container**[x];
 		for (int i=0;i<x;i++){
 			containers[i] = new Container*[y];
@@ -107,15 +110,11 @@ public:
 			size = a.second;
 			int max_height = (rowColumn_maxheightSize.find(std::pair<X, Y>(x, y)))->second.first;
 			rowColumn_maxheightSize.insert_or_assign(std::pair<X, Y>(x, y), std::pair<Height, int>(max_height, size));
-			std::cout << "line 98" << endl;
 			for (int i = 0; i < size; i++) {
-				std::cout << "line 100" << endl;
 				if (containerIter[i] == containers[x][y][size-1]) {
-					std::cout << "line 102" << endl;
 					containerIter.erase(containerIter.begin() + i);
 				}
 				if ((xyContainers.find(std::pair<X, Y>(x, y)))->second[i] == containers[x][y][size-1]) {
-					std::cout << "line 106" << endl;
 					(xyContainers.find(std::pair<X, Y>(x, y)))->second.erase((xyContainers.find(std::pair<X, Y>(x, y)))->second.begin() + i);
 				}
 			}
