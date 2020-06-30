@@ -246,9 +246,10 @@ namespace shipping{
 		}
 	}
 	
+	// returns an iterator of containers by group, given the group name and the grouping name as parameters
 	GroupView getContainersViewByGroup(const std::string& groupingName, const std::string& groupName) const {
-		auto itr = groups.find(groupingName);
-		if (itr == groups.end() && groupingFunctions.find(groupingName) != groupingFunctions.end()) {
+		auto itr = groups.find(groupingName);	// try finding the group name
+		if (itr == groups.end() && groupingFunctions.find(groupingName) != groupingFunctions.end()) {	// if it doesn't already exist, create one
 			std::tie(itr, std::ignore) = groups.insert({ groupingName, Group{} });
 		}
 		if (itr != groups.end()) {
