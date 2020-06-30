@@ -173,14 +173,14 @@ namespace shipping{
 			std::pair<X, Y> position(x, y);
 			// if the position x,y is not full
 			if (rowColumn_maxheightSize.find(position) != rowColumn_maxheightSize.end()) {
-				std::pair<int, int> maxHeightSizePair = (rowColumn_maxheightSize.find(position))->second;	// a pair of <max_height, size> of position
-				int size = maxHeightSizePair.second + 1;	// current size (num of containers) in x,y (+1 because we're loading)
-				int max_height = (rowColumn_maxheightSize.find(std::pair<X, Y>(x, y)))->second.first;
-				containersArray[x][y][size - 1] = c;	// add the container to the 3D array
+				std::pair<int, int> maxHeightSizePair = (rowColumn_maxheightSize.find(position))->second;			// a pair of <max_height, size> of position
+				int size = maxHeightSizePair.second + 1;									// current size (num of containers) in x,y (+1 because we're loading)
+				int max_height = (rowColumn_maxheightSize.find(std::pair<X, Y>(x, y)))->second.first;				// get max_height
+				containersArray[x][y][size - 1] = c;										// add the container to the 3D array
 				rowColumn_maxheightSize.insert_or_assign(std::pair<X, Y>(x, y), std::pair<Height, int>(max_height, size));	// update the size
-				containerIter.push_back(c);	// insert the container to the iterator
-				(xyContainers.find(std::pair<X, Y>(x, y)))->second.push_back(c);	// insert container to vector of containers in x,y
-				addContainerToGroups(x, y, (Height)(size - 1));		// add container to group
+				containerIter.push_back(c);											// insert the container to the iterator
+				(xyContainers.find(std::pair<X, Y>(x, y)))->second.push_back(c);						// insert container to vector of containers in x,y
+				addContainerToGroups(x, y, (Height)(size - 1));									// add container to group
 			}
 		}
 		catch (...) {	// catch anything and throw badshipexception
@@ -193,19 +193,19 @@ namespace shipping{
 			if (x >= this->x || y >= this->y) {
 				throw BadShipOperationException("WRONG UNLOADING");
 			}
-			std::pair<X, Y> b(x, y);
-			int size = 0;
-			if (rowColumn_maxheightSize.find(b) != rowColumn_maxheightSize.end()) {
-				std::pair<int, int> a = (rowColumn_maxheightSize.find(b))->second;
-				size = a.second;
-				int max_height = (rowColumn_maxheightSize.find(std::pair<X, Y>(x, y)))->second.first;
-				rowColumn_maxheightSize.insert_or_assign(std::pair<X, Y>(x, y), std::pair<Height, int>(max_height, size));
-				removeContainerFromGroups(x, y, size - 1);
-				for (int i = 0; i < size; i++) {
-					if (containerIter[i] == containersArray[x][y][size - 1]) {
+			std::pair<X, Y> position(x, y);												
+			int size = 0;														
+			if (rowColumn_maxheightSize.find(position) != rowColumn_maxheightSize.end()) {
+				std::pair<int, int> maxHeightSizePair = (rowColumn_maxheightSize.find(position))->second;			// a pair of <max_height, size> of position
+				size = maxHeightSizePair.second;										// get current size (num of containers) in x,y
+				int max_height = (rowColumn_maxheightSize.find(std::pair<X, Y>(x, y)))->second.first;				// get max height of x,y
+				rowColumn_maxheightSize.insert_or_assign(std::pair<X, Y>(x, y), std::pair<Height, int>(max_height, size - 1));	// resize 
+				removeContainerFromGroups(x, y, size - 1);									// remove container from groups
+				for (int i = 0; i < size; i++) {										// keep going over the iterator until you find the container in the 3D array
+					if (containerIter[i] == containersArray[x][y][size - 1]) {						// if found it, remove it from the iterator
 						containerIter.erase(containerIter.begin() + i);
 					}
-					if ((xyContainers.find(std::pair<X, Y>(x, y)))->second[i] == containersArray[x][y][size - 1]) {
+					if ((xyContainers.find(std::pair<X, Y>(x, y)))->second[i] == containersArray[x][y][size - 1]) {		// same for vector-iterator
 						(xyContainers.find(std::pair<X, Y>(x, y)))->second.erase((xyContainers.find(std::pair<X, Y>(x, y)))->second.begin() + i);
 					}
 				}
