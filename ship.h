@@ -90,7 +90,7 @@ namespace shipping{
 	Container*** containersArray;	// contains all the containers as a 3D array [row][column][floor]
 	std::vector<Container> containerIter;	// contains all the containers unordered (iterator)
 	std::map<std::pair<X, Y>, std::pair<int, int>> rowColumn_maxheightSize;	// <(X,Y),(max_height,size)> - for restrictions
-	std::map<std::pair<X, Y>, std::vector<Container>> xyContainers;	// <(X,Y),<containers in (X,Y)>> - 
+	std::map<std::pair<X, Y>, std::vector<Container>> xyContainers;	// <(X,Y),<containers in (X,Y) as a vector for viewContainersByPosition>> - 
 	Grouping<Container> groupingFunctions;	// a Grouping (see above) for functions and their 'names'
 	using Pos2Container = std::unordered_map<shipping::Position, const Container&>;	
 	using Group = std::unordered_map<std::string, Pos2Container>;
@@ -174,13 +174,13 @@ namespace shipping{
 			// if the position x,y is not full
 			if (rowColumn_maxheightSize.find(position) != rowColumn_maxheightSize.end()) {
 				std::pair<int, int> maxHeightSizePair = (rowColumn_maxheightSize.find(position))->second;	// a pair of <max_height, size> of position
-				int size = maxHeightSizePair.second + 1;
+				int size = maxHeightSizePair.second + 1;	// current size (num of containers) in x,y (+1 because we're loading)
 				int max_height = (rowColumn_maxheightSize.find(std::pair<X, Y>(x, y)))->second.first;
-				containersArray[x][y][size - 1] = c;
-				rowColumn_maxheightSize.insert_or_assign(std::pair<X, Y>(x, y), std::pair<Height, int>(max_height, size));
-				containerIter.push_back(c);
-				(xyContainers.find(std::pair<X, Y>(x, y)))->second.push_back(c);
-				addContainerToGroups(x, y, (Height)(size - 1));
+				containersArray[x][y][size - 1] = c;	// add the container to the 3D array
+				rowColumn_maxheightSize.insert_or_assign(std::pair<X, Y>(x, y), std::pair<Height, int>(max_height, size));	// update the size
+				containerIter.push_back(c);	// insert the container to the iterator
+				(xyContainers.find(std::pair<X, Y>(x, y)))->second.push_back(c);	// insert container to vector of containers in x,y
+				addContainerToGroups(x, y, (Height)(size - 1));		// add container to group
 			}
 		}
 		catch (...) {	// catch anything and throw badshipexception
@@ -222,7 +222,7 @@ namespace shipping{
 			if (from_x >= this->x || from_y >= this->y || to_x >= this->x || to_y >= this->y) {
 				throw BadShipOperationException("WRONG MOVING");
 			}
-			load(to_x, to_y, unload(from_x, from_y));
+			load(to_x, to_y, unload(from_x, from_y));	// unload from x,y - load the unloaded container to x,y
 		}
 		catch (...) {
 			throw BadShipOperationException("WRONG LOADING");
@@ -230,20 +230,9 @@ namespace shipping{
 
 	}
 
+	// returns an iterator of containers by position, top-to-bottom, given x,y
 	std::vector<Container> getContainersViewByPosition(X x, Y y) const {
 		return xyContainers.find(std::pair<X, Y>(x, y))->second;
-	}
-	
-	auto findContainer(Container c) {
-		for (int i = 0; i < this->x; i++) {
-			for (int j = 0; j < this->y; j++) {
-				for (int k = 0; k < this->max_height; k++) {
-					if (containersArray[i][j][k] == c) {
-						return std::tuple<X, Y, Height>{i, j, k};
-					}
-				}
-			}
-		}
 	}
 	
 	// returns an iterator of containers by group, given the group name and the grouping name as parameters
